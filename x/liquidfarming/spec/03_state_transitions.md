@@ -4,9 +4,15 @@
 
 This document describes the state transaction operations in the `liquidfarming` module.
 
-## Liquid farm creation
+## Parameter Change for Activated Liquid Farms
 
+### Activation of a Liquid Farm
 
+When a new `liquidFarm` with a given pool id is added to the parameter `LiquidFarms` by governance, the `liquidFarm` with the pool id becomes activated.
+
+### Deactivation of a Liquid Farm
+
+When a `liquidFarm` with a given pool id in the parameter `LiquidFarms` is removed by governance, the `liquidFarm` becomes deactivated.
 
 ## Coin Escrow for Liquidfarming Module Messages
 
@@ -44,4 +50,21 @@ The following messages cause state transition on the `bank`, `liquidty`, and `fa
 - Bidding coins are sent to a bidder account from the `PayingReserveAddress` of an auction.
 
 
+## State transition by hooks from other module
 The following events triggered by hooks cause state transition on the `bank`, `liquidty`, and `farming` modules.
+
+### AfterAllocateRewards hook from `farming` module
+
+When `AfterAllocateRewards` hook is delivered, the following operations are performed.
+- If the auction currently going on exists, the current auction becomes closed. And, 
+  - the winner is chosen,
+  - the rewards is harvested and sent to the winner,
+  - the pool coins from the winner in the paying reserve address is sent to the module account,
+  - the pool coins from the others not winner in the paying reserve address is refunded to each bidder’s account.
+- A new auction is created.
+
+## AfterStaked hook from `farming` module
+
+When `AfterStaked` hook is delivered, the following operation is performed.
+- LF coins are minted according to the mint rate.
+- LF coins are sent to the farmer.

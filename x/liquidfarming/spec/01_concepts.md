@@ -3,8 +3,6 @@
 
 This is the concept for `Liquidfarming` module in Crescent Network.
 
-
-
 ## LiquidFarming Module
 
 The `liquidfarming` module provides a functionality for farmers to have another option to use with their liquidity pool coins in Crescent Network. 

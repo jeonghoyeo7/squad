@@ -12,7 +12,7 @@ The `liquidfarming` module contains the following parameters:
 
 ## LiquidFarmCreationFee
 
-`LiquidFarmCreationFee` ...
+`LiquidFarmCreationFee` is a fee required to create new liquid farm.
 
 ## LiquidFarms
 
