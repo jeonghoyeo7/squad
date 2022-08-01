@@ -31,3 +31,4 @@ AfterStaked(
 
 When `AfterStaked` hook is delivered, the following operation is performed.
 - LF coins are minted according to the mint rate.
+- LF coins are sent to the farmer.
