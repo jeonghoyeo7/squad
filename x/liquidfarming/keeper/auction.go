@@ -137,60 +137,74 @@ func (k Keeper) CreateRewardsAuction(ctx sdk.Context, poolId uint64) {
 	))
 }
 
-// FinishRewardsAuction finishes the ongoing rewards auction and create new one.
-func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAuction) {
-	poolId := auction.PoolId
-	payingReserveAddr := auction.GetPayingReserveAddress()
+// ClaimFarmingRewards harvests farming rewards and send them to the winner.
+func (k Keeper) ClaimFarmingRewards(ctx sdk.Context, poolId uint64, winner sdk.AccAddress, rewards sdk.Coins) error {
 	liquidFarmReserveAddr := types.LiquidFarmReserveAddress(poolId)
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(poolId)
+
+	if err := k.farmingKeeper.Harvest(ctx, liquidFarmReserveAddr, []string{poolCoinDenom}); err != nil {
+		return err
+	}
+
+	if err := k.bankKeeper.SendCoins(ctx, liquidFarmReserveAddr, winner, rewards); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RefundAllBids refunds all bids at once as the rewards auction is finished and delete all bids.
+func (k Keeper) RefundAllBids(ctx sdk.Context, poolId uint64, payingReserveAddr, winner sdk.AccAddress) error {
+	inputs := []banktypes.Input{}
+	outputs := []banktypes.Output{}
+	for _, bid := range k.GetBidsByPoolId(ctx, poolId) {
+		if bid.Bidder != winner.String() { // skip the winning bid
+			inputs = append(inputs, banktypes.NewInput(payingReserveAddr, sdk.NewCoins(bid.Amount)))
+			outputs = append(outputs, banktypes.NewOutput(bid.GetBidder(), sdk.NewCoins(bid.Amount)))
+
+			k.DeleteBid(ctx, bid)
+		}
+	}
+	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+		panic(err)
+	}
+	return nil
+}
+
+// FinishAndCreateRewardsAuction finishes the ongoing rewards auction and creates a new one.
+func (k Keeper) FinishAndCreateRewardsAuction(ctx sdk.Context, auction types.RewardsAuction) {
+	liquidFarmReserveAddr := types.LiquidFarmReserveAddress(auction.PoolId)
+	poolCoinDenom := liquiditytypes.PoolCoinDenom(auction.PoolId)
 	rewards := k.farmingKeeper.Rewards(ctx, liquidFarmReserveAddr, poolCoinDenom)
 
+	// Finish auction states
 	winningBid, found := k.GetWinningBid(ctx, auction.PoolId, auction.Id)
 	auction.SetWinner(winningBid.Bidder)
 	auction.SetRewards(rewards)
 	auction.SetStatus(types.AuctionStatusFinished)
 	k.SetRewardsAuction(ctx, auction)
 
-	if !found {
-		// In case there is no bid placed, update auction states and
-		// create the next rewards auction to proceed
-		k.CreateRewardsAuction(ctx, auction.PoolId)
-	} else {
-		if err := k.farmingKeeper.Harvest(ctx, liquidFarmReserveAddr, []string{poolCoinDenom}); err != nil {
+	if found {
+		payingReserveAddr := auction.GetPayingReserveAddress()
+
+		if err := k.ClaimFarmingRewards(ctx, auction.PoolId, winningBid.GetBidder(), rewards); err != nil {
 			panic(err)
 		}
 
-		if err := k.bankKeeper.SendCoins(ctx, liquidFarmReserveAddr, winningBid.GetBidder(), rewards); err != nil {
+		if err := k.RefundAllBids(ctx, auction.PoolId, payingReserveAddr, winningBid.GetBidder()); err != nil {
 			panic(err)
 		}
 
-		// Refund all at once and delete all bids
-		inputs := []banktypes.Input{}
-		outputs := []banktypes.Output{}
-		for _, bid := range k.GetBidsByPoolId(ctx, poolId) {
-			if bid.Bidder == winningBid.Bidder {
-				continue
-			}
-
-			inputs = append(inputs, banktypes.NewInput(payingReserveAddr, sdk.NewCoins(bid.Amount)))
-			outputs = append(outputs, banktypes.NewOutput(bid.GetBidder(), sdk.NewCoins(bid.Amount)))
-
-			k.DeleteBid(ctx, bid)
-		}
-		if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
-			panic(err)
-		}
-
-		// Reserve winning bid amount
 		if err := k.bankKeeper.SendCoins(ctx, payingReserveAddr, liquidFarmReserveAddr, sdk.NewCoins(winningBid.Amount)); err != nil {
 			panic(err)
 		}
 
-		// Stake the winning bid amount; this is for auto compounding
+		// Stake winning bid amount for auto compounding
 		if err := k.farmingKeeper.Stake(ctx, liquidFarmReserveAddr, sdk.NewCoins(winningBid.Amount)); err != nil {
 			panic(err)
 		}
-
-		k.CreateRewardsAuction(ctx, auction.PoolId)
 	}
+
+	// Covers a case when there isn't a single bid placed for the auction
+	k.CreateRewardsAuction(ctx, auction.PoolId)
 }

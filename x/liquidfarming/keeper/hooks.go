@@ -84,13 +84,11 @@ func (h Hooks) AfterAllocateRewards(ctx sdk.Context) {
 		poolId := liquidFarm.PoolId
 		auctionId := h.k.GetLastRewardsAuctionId(ctx, poolId)
 
-		// Create the first rewards auction if not exists; otherwise
-		// finish the rewards auction and create the next one
 		auction, found := h.k.GetRewardsAuction(ctx, poolId, auctionId)
 		if !found {
 			h.k.CreateRewardsAuction(ctx, poolId)
 		} else {
-			h.k.FinishRewardsAuction(ctx, auction)
+			h.k.FinishAndCreateRewardsAuction(ctx, auction)
 		}
 	}
 }

@@ -62,7 +62,7 @@ func (s *KeeperTestSuite) TestPlaceBid() {
 				sdk.NewInt64Coin(pool.PoolCoinDenom, 1),
 			),
 			nil,
-			"1 is smaller than 10000000: insufficient bid amount",
+			"1 is smaller than 10000000: smaller than minimum amount",
 		},
 	} {
 		s.Run(tc.name, func() {
@@ -85,7 +85,7 @@ func (s *KeeperTestSuite) TestPlaceBid() {
 	}
 }
 
-func (s *KeeperTestSuite) TestPlaceBid_EdgeCases() {
+func (s *KeeperTestSuite) TestPlaceBid_OtherCases() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.NewInt(10_000_000), sdk.NewInt(10_000_000)))
@@ -113,9 +113,9 @@ func (s *KeeperTestSuite) TestPlaceBid_EdgeCases() {
 	_, err = s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
 		PoolId:      pool.Id,
 		Bidder:      s.addr(1).String(),
-		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 10_000_000)},
+		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000)},
 	)
-	s.Require().ErrorIs(err, sdkerrors.ErrInvalidRequest)
+	s.Require().ErrorIs(err, types.ErrSmallerThanMinimumAmount)
 
 	// Place a bid with more bidding amount with different bidder
 	newBiddingAmt := sdk.NewInt(1_000_000_000)
@@ -165,7 +165,7 @@ func (s *KeeperTestSuite) TestRefundBid() {
 				s.addr(1).String(),
 			),
 			nil,
-			"unable to refund winning bid: invalid request",
+			"winning bid can't be refunded: invalid request",
 		},
 		{
 			"auction not found",
@@ -174,7 +174,7 @@ func (s *KeeperTestSuite) TestRefundBid() {
 				s.addr(1).String(),
 			),
 			nil,
-			"auction corresponds to pool 5 not found: not found",
+			"auction by pool 5 not found: not found",
 		},
 	} {
 		s.Run(tc.name, func() {
