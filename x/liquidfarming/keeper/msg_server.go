@@ -46,11 +46,22 @@ func (m msgServer) CancelQueuedFarming(goCtx context.Context, msg *types.MsgCanc
 func (m msgServer) Unfarm(goCtx context.Context, msg *types.MsgUnfarm) (*types.MsgUnfarmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if err := m.Keeper.Unfarm(ctx, msg); err != nil {
+	if _, err := m.Keeper.Unfarm(ctx, msg.PoolId, msg.GetFarmer(), msg.LFCoin); err != nil {
 		return nil, err
 	}
 
 	return &types.MsgUnfarmResponse{}, nil
+}
+
+// UnfarmAndWithdraw defines a method for unfarming LFCoin and withdraw pool coin from the pool.
+func (m msgServer) UnfarmAndWithdraw(goCtx context.Context, msg *types.MsgUnfarmAndWithdraw) (*types.MsgUnfarmAndWithdrawResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if err := m.Keeper.UnfarmAndWithdraw(ctx, msg); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgUnfarmAndWithdrawResponse{}, nil
 }
 
 // PlaceBid defines a method for placing a bid for a rewards auction.
