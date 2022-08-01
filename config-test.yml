@@ -35,6 +35,8 @@ genesis:
         min_deposit:
           - amount: "1"
             denom: "stake"
+      voting_params:
+        voting_period: "30s"
     farming:
       params:
         private_plan_creation_fee:
@@ -54,6 +56,12 @@ genesis:
         whitelisted_validators:
           - validator_address: "cosmosvaloper1zaavvzxez0elundtn32qnk9lkm8kmcsz8ycjrl"
             target_weight: "100000000"
+    liquidfarming:
+      params:
+        liquid_farms:
+          - pool_id: "1"
+            minimum_farm_amount: "1"
+            minimum_bid_amount: "1"
     claim:
       airdrops:
         - id: "1"

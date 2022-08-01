@@ -145,7 +145,7 @@ message LiquidFarmResponse {
 	
   string liquid_farm_reserve_address = 2;
 
-  string LFCoinDenom = 3 [(gogoproto.customname) = "LFCoinDenom"];
+  string lf_coin_denom = 3 [(gogoproto.customname) = "LFCoinDenom"];
   
   string minimum_farm_amount = 4
       [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];

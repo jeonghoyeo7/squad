@@ -40,7 +40,7 @@ func GetTxCmd() *cobra.Command {
 // NewFarmCmd implements the farm command handler.
 func NewFarmCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "farm [pool-id] [amount]",
+		Use:   "farm [pool-id] [pool-coin]",
 		Args:  cobra.ExactArgs(2),
 		Short: "Farm pool coin for liquid farming",
 		Long: strings.TrimSpace(
