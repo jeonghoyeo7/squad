@@ -43,6 +43,9 @@ func NewRewardsAuction(
 
 // Validate validates RewardsAuction.
 func (a *RewardsAuction) Validate() error {
+	if a.PoolId == 0 {
+		return fmt.Errorf("pool id must not be 0")
+	}
 	if a.BiddingCoinDenom == "" {
 		return fmt.Errorf("denom must not be empty")
 	}
@@ -110,6 +113,9 @@ func (b Bid) Validate() error {
 	}
 	if _, err := sdk.AccAddressFromBech32(b.Bidder); err != nil {
 		return fmt.Errorf("invalid bidder address %w", err)
+	}
+	if !b.Amount.IsPositive() {
+		return fmt.Errorf("amount must be positive value")
 	}
 	if err := b.Amount.Validate(); err != nil {
 		return fmt.Errorf("invalid bid amount %w", err)

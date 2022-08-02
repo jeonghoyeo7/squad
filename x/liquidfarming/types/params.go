@@ -9,13 +9,11 @@ import (
 
 // Parameter store keys
 var (
-	KeyLiquidFarmCreationFee = []byte("LiquidFarmCreationFee")
-	KeyDelayedFarmGasFee     = []byte("DelayedFarmGasFee")
-	KeyLiquidFarms           = []byte("LiquidFarms")
+	KeyLiquidFarms       = []byte("LiquidFarms")
+	KeyDelayedFarmGasFee = []byte("DelayedFarmGasFee")
 
-	DefaultLiquidFarmCreationFee = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100_000_000)))
-	DefaultDelayedFarmGasFee     = sdk.Gas(60000)
-	DefaultLiquidFarms           = []LiquidFarm{}
+	DefaultLiquidFarms       = []LiquidFarm{}
+	DefaultDelayedFarmGasFee = sdk.Gas(60000)
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -28,18 +26,16 @@ func ParamKeyTable() paramtypes.KeyTable {
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
 	return Params{
-		LiquidFarmCreationFee: DefaultLiquidFarmCreationFee,
-		DelayedFarmGasFee:     DefaultDelayedFarmGasFee,
-		LiquidFarms:           DefaultLiquidFarms,
+		LiquidFarms:       DefaultLiquidFarms,
+		DelayedFarmGasFee: DefaultDelayedFarmGasFee,
 	}
 }
 
 // ParamSetPairs get the params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyLiquidFarmCreationFee, &p.LiquidFarmCreationFee, validateLiquidFarmCreationFee),
-		paramtypes.NewParamSetPair(KeyDelayedFarmGasFee, &p.DelayedFarmGasFee, validateDelayedFarmGasFee),
 		paramtypes.NewParamSetPair(KeyLiquidFarms, &p.LiquidFarms, validateLiquidFarms),
+		paramtypes.NewParamSetPair(KeyDelayedFarmGasFee, &p.DelayedFarmGasFee, validateDelayedFarmGasFee),
 	}
 }
 
@@ -49,9 +45,8 @@ func (p Params) Validate() error {
 		value     interface{}
 		validator func(interface{}) error
 	}{
-		{p.LiquidFarmCreationFee, validateLiquidFarmCreationFee},
-		{p.DelayedFarmGasFee, validateDelayedFarmGasFee},
 		{p.LiquidFarms, validateLiquidFarms},
+		{p.DelayedFarmGasFee, validateDelayedFarmGasFee},
 	} {
 		if err := v.validator(v.value); err != nil {
 			return err
@@ -67,11 +62,14 @@ func validateLiquidFarms(i interface{}) error {
 	}
 
 	for _, liquidFarm := range liquidFarms {
+		if liquidFarm.PoolId == 0 {
+			return fmt.Errorf("pool id must not be 0")
+		}
 		if liquidFarm.MinimumBidAmount.IsNegative() {
-			return fmt.Errorf("minimum bid amount can't be negative value: %s", liquidFarm.MinimumBidAmount)
+			return fmt.Errorf("minimum bid amount must be 0 or positive value: %s", liquidFarm.MinimumBidAmount)
 		}
 		if liquidFarm.MinimumFarmAmount.IsNegative() {
-			return fmt.Errorf("minimum farm amount can't be negative value: %s", liquidFarm.MinimumFarmAmount)
+			return fmt.Errorf("minimum farm amount must be 0 or positive value: %s", liquidFarm.MinimumFarmAmount)
 		}
 	}
 
@@ -82,19 +80,6 @@ func validateDelayedFarmGasFee(i interface{}) error {
 	_, ok := i.(sdk.Gas)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	return nil
-}
-
-func validateLiquidFarmCreationFee(i interface{}) error {
-	v, ok := i.(sdk.Coins)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if err := v.Validate(); err != nil {
-		return err
 	}
 
 	return nil

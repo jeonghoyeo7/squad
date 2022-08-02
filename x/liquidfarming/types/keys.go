@@ -99,12 +99,6 @@ func GetBidByPoolIdPrefix(poolId uint64) []byte {
 	return append(BidKeyPrefix, sdk.Uint64ToBigEndian(poolId)...)
 }
 
-// GetBidByBidderPrefix returns the prefix to iterate all bids
-// by the given bidder address.
-func GetBidByBidderPrefix(bidder sdk.AccAddress) []byte {
-	return append(BidKeyPrefix, address.MustLengthPrefix(bidder)...)
-}
-
 // GetWinningBidKey returns the store key to retrieve the winning bid
 // by the given pool id and auction id.
 func GetWinningBidKey(poolId uint64, auctionId uint64) []byte {

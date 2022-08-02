@@ -10,9 +10,8 @@ option go_package                      = "github.com/cosmosquad-labs/squad/x/liq
 message Params {
   option (gogoproto.goproto_getters)  = false;
 
-  // liquid_farm_creation_fee specifies the creation fee when 
-  repeated cosmos.base.v1beta1.Coin liquid_farm_creation_fee = 1
-    [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
+  // liquid_farms specifies liquid farm objects
+  repeated LiquidFarm liquid_farms = 1 [(gogoproto.nullable) = false];
 
   // delayed_farm_gas_fee specifies gas fee that is imposed as a number of farming requests increase by a single farmer
   uint64 delayed_farm_gas_fee = 2 [
@@ -20,9 +19,6 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Gas",
     (gogoproto.nullable)   = false
   ];
-
-  // liquid_farms specifies liquid farm objects
-  repeated LiquidFarm liquid_farms = 3 [(gogoproto.nullable) = false];
 }
 
 // LiquidFarm defines liquid farm object that provides auto compounding functionality
