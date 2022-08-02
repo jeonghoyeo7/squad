@@ -24,6 +24,8 @@ message GenesisState {
   repeated WinningBidRecord winning_bid_records = 5 [(gogoproto.nullable) = false]; 
 }
 
+// QueuedFarmingRecord defines a custom queued farming record that is required to be recorded 
+// in genesis state.
 message QueuedFarmingRecord {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;
@@ -39,6 +41,8 @@ message QueuedFarmingRecord {
 }
 
 
+// WinningBidRecord defines a custom winning bid record that is required to be recorded 
+// in genesis state.
 message WinningBidRecord {
   option (gogoproto.equal)           = false;
   option (gogoproto.goproto_getters) = false;

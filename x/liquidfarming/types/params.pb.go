@@ -27,10 +27,12 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params defines the parameters for the module.
 type Params struct {
+	// liquid_farm_creation_fee specifies the creation fee when
 	LiquidFarmCreationFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=liquid_farm_creation_fee,json=liquidFarmCreationFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"liquid_farm_creation_fee"`
-	// delayed_farm_gas_fee is used to impose gas fee for the farm request
+	// delayed_farm_gas_fee specifies gas fee that is imposed as a number of farming requests increase by a single farmer
 	DelayedFarmGasFee github_com_cosmos_cosmos_sdk_types.Gas `protobuf:"varint,2,opt,name=delayed_farm_gas_fee,json=delayedFarmGasFee,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Gas" json:"delayed_farm_gas_fee" yaml:"delayed_farm_gas_fee"`
-	LiquidFarms       []LiquidFarm                           `protobuf:"bytes,3,rep,name=liquid_farms,json=liquidFarms,proto3" json:"liquid_farms"`
+	// liquid_farms specifies liquid farm objects
+	LiquidFarms []LiquidFarm `protobuf:"bytes,3,rep,name=liquid_farms,json=liquidFarms,proto3" json:"liquid_farms"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -66,7 +68,9 @@ func (m *Params) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
-// LiquidFarm defines ...
+// LiquidFarm defines liquid farm object that provides auto compounding functionality
+// for the liquidity pool and undergoes farming rewards auction process.
+// See the technical spec for more detailed information.
 type LiquidFarm struct {
 	PoolId            uint64                                 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 	MinimumFarmAmount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=minimum_farm_amount,json=minimumFarmAmount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"minimum_farm_amount"`

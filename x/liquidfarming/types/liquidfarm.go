@@ -54,7 +54,8 @@ func LiquidFarmReserveAddress(poolId uint64) sdk.AccAddress {
 	)
 }
 
-// MarshalQueuedFarming returns the QueuedFarming bytes. Panics if fails.
+// MarshalQueuedFarming returns the QueuedFarming bytes.
+// Panics if fails.
 func MarshalQueuedFarming(cdc codec.BinaryCodec, msg QueuedFarming) ([]byte, error) {
 	return cdc.Marshal(&msg)
 }
