@@ -27,8 +27,8 @@ func NewRewardsAuction(
 	biddingCoinDenom string,
 	startTime time.Time,
 	endTime time.Time,
-) RewardsAuction {
-	return RewardsAuction{
+) *RewardsAuction {
+	return &RewardsAuction{
 		Id:                   id,
 		PoolId:               poolId,
 		BiddingCoinDenom:     biddingCoinDenom,
@@ -89,8 +89,8 @@ func (a RewardsAuction) GetPayingReserveAddress() sdk.AccAddress {
 }
 
 // NewBid creates a new Bid.
-func NewBid(poolId uint64, bidder string, amount sdk.Coin) Bid {
-	return Bid{
+func NewBid(poolId uint64, bidder string, amount sdk.Coin) *Bid {
+	return &Bid{
 		PoolId: poolId,
 		Bidder: bidder,
 		Amount: amount,
