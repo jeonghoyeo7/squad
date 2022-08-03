@@ -222,12 +222,6 @@ func (s *KeeperTestSuite) getBalance(addr sdk.AccAddress, denom string) sdk.Coin
 	return s.app.BankKeeper.GetBalance(s.ctx, addr, denom)
 }
 
-func (s *KeeperTestSuite) sendCoins(fromAddr, toAddr sdk.AccAddress, amt sdk.Coins) {
-	s.T().Helper()
-	err := s.app.BankKeeper.SendCoins(s.ctx, fromAddr, toAddr, amt)
-	s.Require().NoError(err)
-}
-
 func (s *KeeperTestSuite) nextBlock() {
 	s.T().Helper()
 	s.app.EndBlock(abci.RequestEndBlock{})

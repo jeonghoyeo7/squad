@@ -1,22 +1,15 @@
 package keeper_test
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	utils "github.com/cosmosquad-labs/squad/v2/types"
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
 
 	_ "github.com/stretchr/testify/suite"
 )
-
-func (s *KeeperTestSuite) TestQueuedFarming() {
-	// TODO: not implemented yet
-	// Set | Get | Delete
-}
 
 func (s *KeeperTestSuite) TestIterateQueuedFarmingsByFarmerAndDenomReverse() {
 	poolId := uint64(1)
@@ -47,21 +40,4 @@ func (s *KeeperTestSuite) TestIterateQueuedFarmingsByFarmerAndDenomReverse() {
 
 		return false
 	})
-}
-
-func (s *KeeperTestSuite) TestIterateMatureQueuedFarmings() {
-	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
-	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100000000denom1,100000000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
-
-	s.farm(pool.Id, s.addr(0), utils.ParseCoin("5000000000pool1"), true)
-	// s.nextBlock()
-	// s.nextBlock()
-	// s.nextBlock()
-
-	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, s.addr(0))
-	fmt.Println("length: ", len(queuedFarmings))
-
-	s.advanceEpochDays()
-
 }

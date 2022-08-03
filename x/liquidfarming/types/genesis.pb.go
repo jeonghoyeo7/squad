@@ -69,6 +69,8 @@ func (m *GenesisState) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GenesisState proto.InternalMessageInfo
 
+// QueuedFarmingRecord defines a custom queued farming record that is required to be recorded
+// in genesis state.
 type QueuedFarmingRecord struct {
 	EndTime          time.Time     `protobuf:"bytes,1,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time"`
 	FarmingCoinDenom string        `protobuf:"bytes,2,opt,name=farming_coin_denom,json=farmingCoinDenom,proto3" json:"farming_coin_denom,omitempty"`
@@ -109,6 +111,8 @@ func (m *QueuedFarmingRecord) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueuedFarmingRecord proto.InternalMessageInfo
 
+// WinningBidRecord defines a custom winning bid record that is required to be recorded
+// in genesis state.
 type WinningBidRecord struct {
 	AuctionId  uint64 `protobuf:"varint,1,opt,name=auction_id,json=auctionId,proto3" json:"auction_id,omitempty"`
 	WinningBid Bid    `protobuf:"bytes,2,opt,name=winning_bid,json=winningBid,proto3" json:"winning_bid"`

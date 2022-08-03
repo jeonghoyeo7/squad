@@ -50,17 +50,18 @@ func (gs GenesisState) Validate() error {
 		}
 	}
 
-	winningBidMap := map[uint64]Bid{}
-	for i, record := range gs.WinningBidRecords {
+	winningBidMap := map[uint64]Bid{} // AuctionId => Bid
+	for _, record := range gs.WinningBidRecords {
 		if record.AuctionId == 0 {
 			return fmt.Errorf("auction id must not be 0")
 		}
 		if err := record.WinningBid.Validate(); err != nil {
-			return fmt.Errorf("invalid bid: %w", err)
+			return fmt.Errorf("invalid winning bid: %w", err)
 		}
 		if _, ok := winningBidMap[record.AuctionId]; ok {
-			return fmt.Errorf("bid at %d has a duplicate id: %d", i, record.AuctionId)
+			return fmt.Errorf("multiple winning bids at auction id: %d", record.AuctionId)
 		}
+		winningBidMap[record.AuctionId] = record.WinningBid
 	}
 
 	return nil

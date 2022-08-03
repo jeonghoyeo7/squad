@@ -63,9 +63,12 @@ func (AuctionStatus) EnumDescriptor() ([]byte, []int) {
 }
 
 // QueuedFarming defines queued farming that is waiting in a queue
-// to be excuted at every epoch to mint LFCoin.
+// until the next epoch to be passed in the farming module, which
+// triggers AfterStaked hook that mints LFCoin in proportion to the queued farming amount.
 type QueuedFarming struct {
-	PoolId uint64                                 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// pool_id specifies the pool id
+	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// amount specifies the pool coin amount
 	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
 }
 
@@ -102,20 +105,29 @@ func (m *QueuedFarming) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueuedFarming proto.InternalMessageInfo
 
-// RewardsAuction defines rewards auction that is created by the module account
-// at an end block for every epoch.
+// RewardsAuction defines rewards auction by the module when farming rewards
+// are allocated at every epoch in the farming module.
 type RewardsAuction struct {
-	// id specifies the id for the auction
+	// id specifies the auction id
 	Id uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// pool_id specifies the pool id
-	PoolId               uint64                                   `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	BiddingCoinDenom     string                                   `protobuf:"bytes,3,opt,name=bidding_coin_denom,json=biddingCoinDenom,proto3" json:"bidding_coin_denom,omitempty"`
-	PayingReserveAddress string                                   `protobuf:"bytes,4,opt,name=paying_reserve_address,json=payingReserveAddress,proto3" json:"paying_reserve_address,omitempty"`
-	StartTime            time.Time                                `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3,stdtime" json:"start_time"`
-	EndTime              time.Time                                `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time"`
-	Status               AuctionStatus                            `protobuf:"varint,7,opt,name=status,proto3,enum=squad.liquidfarming.v1beta1.AuctionStatus" json:"status,omitempty"`
-	Winner               string                                   `protobuf:"bytes,8,opt,name=winner,proto3" json:"winner,omitempty"`
-	Rewards              github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,9,rep,name=rewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"rewards"`
+	PoolId uint64 `protobuf:"varint,2,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// bidding_coin_denom specifies the bidding coin denomination
+	BiddingCoinDenom string `protobuf:"bytes,3,opt,name=bidding_coin_denom,json=biddingCoinDenom,proto3" json:"bidding_coin_denom,omitempty"`
+	// paying_reserve_address specfies the account that reserves paying amounts placed by bidders
+	PayingReserveAddress string `protobuf:"bytes,4,opt,name=paying_reserve_address,json=payingReserveAddress,proto3" json:"paying_reserve_address,omitempty"`
+	// start_time specifies the start time of an auction
+	StartTime time.Time `protobuf:"bytes,5,opt,name=start_time,json=startTime,proto3,stdtime" json:"start_time"`
+	// end_time specifies the end time of an auction
+	EndTime time.Time `protobuf:"bytes,6,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time"`
+	// status specifies the status of an auction
+	Status AuctionStatus `protobuf:"varint,7,opt,name=status,proto3,enum=squad.liquidfarming.v1beta1.AuctionStatus" json:"status,omitempty"`
+	// winner specifies the bidder who won the auction
+	// it is determined when an auction is finished
+	Winner string `protobuf:"bytes,8,opt,name=winner,proto3" json:"winner,omitempty"`
+	// rewards specifies the farming rewards for are accumulated for every epoch
+	// it is determined when an auction is finished
+	Rewards github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,9,rep,name=rewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"rewards"`
 }
 
 func (m *RewardsAuction) Reset()         { *m = RewardsAuction{} }
@@ -151,10 +163,13 @@ func (m *RewardsAuction) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RewardsAuction proto.InternalMessageInfo
 
-// Bid defines ...
+// Bid defines standard bid for a rewards auction.
 type Bid struct {
-	PoolId uint64     `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	Bidder string     `protobuf:"bytes,2,opt,name=bidder,proto3" json:"bidder,omitempty"`
+	// pool_id specifies the pool id
+	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
+	// bidder specifies the bech32-encoded address that places a bid for the auction
+	Bidder string `protobuf:"bytes,2,opt,name=bidder,proto3" json:"bidder,omitempty"`
+	// amount specifies the amount to place a bid
 	Amount types.Coin `protobuf:"bytes,3,opt,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coin" json:"amount"`
 }
 

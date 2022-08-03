@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -30,13 +29,8 @@ func (k Keeper) Hooks() Hooks {
 // proceeds to mint LFCoin in proportion to the staked amount for every queued farming and
 // deletes the queued farming object when it is minted and sent to the farmer successfully.
 func (h Hooks) AfterStaked(ctx sdk.Context, stakingAcc sdk.AccAddress, stakingCoinDenom string, newStakingAmt sdk.Int) {
-	fmt.Println("AfterStaked...")
-	fmt.Printf("stakingAcc: %s; stakingCoinDenom: %s; newStakingAmt: %s\n", stakingAcc.String(), stakingCoinDenom, newStakingAmt.String())
-	queuedFarmings := h.k.GetQueuedFarmingsByFarmer(ctx, stakingAcc)
-	fmt.Println("Length: ", len(queuedFarmings))
 	mintingAmt := sdk.ZeroInt()
 	h.k.IterateMatureQueuedFarmings(ctx, ctx.BlockTime(), func(endTime time.Time, farmingCoinDenom string, farmerAcc sdk.AccAddress, queuedFarming types.QueuedFarming) (stop bool) {
-		fmt.Println("IterateMatureQueuedFarmings")
 		poolId := queuedFarming.PoolId
 		reserveAddr := types.LiquidFarmReserveAddress(poolId)
 		poolCoinDenom := liquiditytypes.PoolCoinDenom(poolId)

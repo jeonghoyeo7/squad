@@ -1015,14 +1015,21 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Params returns parameters of the module.
+	// Params returns parameters of the module
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// LiquidFarms returns all liquid farms registered in params
 	LiquidFarms(ctx context.Context, in *QueryLiquidFarmsRequest, opts ...grpc.CallOption) (*QueryLiquidFarmsResponse, error)
+	// LiquidFarm returns the specific liquid farm
 	LiquidFarm(ctx context.Context, in *QueryLiquidFarmRequest, opts ...grpc.CallOption) (*QueryLiquidFarmResponse, error)
+	// QueuedFarmings returns all queued farmings for the liquid farm
 	QueuedFarmings(ctx context.Context, in *QueryQueuedFarmingsRequest, opts ...grpc.CallOption) (*QueryQueuedFarmingsResponse, error)
+	// QueuedFarmingsByFarmer returns all queued farmings farmed by the farmer
 	QueuedFarmingsByFarmer(ctx context.Context, in *QueryQueuedFarmingsByFarmerRequest, opts ...grpc.CallOption) (*QueryQueuedFarmingsByFarmerResponse, error)
+	// RewardsAuctions returns all rewards auctions
 	RewardsAuctions(ctx context.Context, in *QueryRewardsAuctionsRequest, opts ...grpc.CallOption) (*QueryRewardsAuctionsResponse, error)
+	// RewardsAuction returns the specific rewards auction
 	RewardsAuction(ctx context.Context, in *QueryRewardsAuctionRequest, opts ...grpc.CallOption) (*QueryRewardsAuctionResponse, error)
+	// Bids returns all bids for the liquid farm
 	Bids(ctx context.Context, in *QueryBidsRequest, opts ...grpc.CallOption) (*QueryBidsResponse, error)
 }
 
@@ -1108,14 +1115,21 @@ func (c *queryClient) Bids(ctx context.Context, in *QueryBidsRequest, opts ...gr
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Params returns parameters of the module.
+	// Params returns parameters of the module
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// LiquidFarms returns all liquid farms registered in params
 	LiquidFarms(context.Context, *QueryLiquidFarmsRequest) (*QueryLiquidFarmsResponse, error)
+	// LiquidFarm returns the specific liquid farm
 	LiquidFarm(context.Context, *QueryLiquidFarmRequest) (*QueryLiquidFarmResponse, error)
+	// QueuedFarmings returns all queued farmings for the liquid farm
 	QueuedFarmings(context.Context, *QueryQueuedFarmingsRequest) (*QueryQueuedFarmingsResponse, error)
+	// QueuedFarmingsByFarmer returns all queued farmings farmed by the farmer
 	QueuedFarmingsByFarmer(context.Context, *QueryQueuedFarmingsByFarmerRequest) (*QueryQueuedFarmingsByFarmerResponse, error)
+	// RewardsAuctions returns all rewards auctions
 	RewardsAuctions(context.Context, *QueryRewardsAuctionsRequest) (*QueryRewardsAuctionsResponse, error)
+	// RewardsAuction returns the specific rewards auction
 	RewardsAuction(context.Context, *QueryRewardsAuctionRequest) (*QueryRewardsAuctionResponse, error)
+	// Bids returns all bids for the liquid farm
 	Bids(context.Context, *QueryBidsRequest) (*QueryBidsResponse, error)
 }
 
