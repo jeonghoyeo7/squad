@@ -88,7 +88,7 @@ func TestRewardsAuctionValidate(t *testing.T) {
 			auction.SetRewards(utils.ParseCoins("100000denom1"))
 			auction.SetStatus(types.AuctionStatusStarted)
 			auction.SetWinner("")
-			tc.malleate(auction)
+			tc.malleate(&auction)
 			err := auction.Validate()
 			if tc.expectedErr == "" {
 				require.NoError(t, err)
@@ -138,7 +138,7 @@ func TestBidValidate(t *testing.T) {
 				sdk.AccAddress(crypto.AddressHash([]byte("address1"))).String(),
 				utils.ParseCoin("100000000pool1"),
 			)
-			tc.malleate(bid)
+			tc.malleate(&bid)
 			err := bid.Validate()
 			if tc.expectedErr == "" {
 				require.NoError(t, err)
