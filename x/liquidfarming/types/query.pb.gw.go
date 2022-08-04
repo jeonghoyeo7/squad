@@ -898,19 +898,19 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 var (
 	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"squad", "liquidfarming", "v1beta1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_LiquidFarms_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"sqaud", "liquidfarming", "v1beta1", "liquidfarms"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_LiquidFarms_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"squad", "liquidfarming", "v1beta1", "liquidfarms"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_LiquidFarm_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"sqaud", "liquidfarming", "v1beta1", "liquidfarms", "pool_id"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_LiquidFarm_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"squad", "liquidfarming", "v1beta1", "liquidfarms", "pool_id"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_QueuedFarmings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"sqaud", "liquidfarming", "v1beta1", "pools", "pool_id", "queued_farmings"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_QueuedFarmings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"squad", "liquidfarming", "v1beta1", "pools", "pool_id", "queued_farmings"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_QueuedFarmingsByFarmer_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5, 2, 6, 1, 0, 4, 1, 5, 7}, []string{"sqaud", "liquidfarming", "v1beta1", "pools", "pool_id", "queued_farmings", "farmer", "farmer_address"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_QueuedFarmingsByFarmer_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5, 2, 6, 1, 0, 4, 1, 5, 7}, []string{"squad", "liquidfarming", "v1beta1", "pools", "pool_id", "queued_farmings", "farmer", "farmer_address"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_RewardsAuctions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"sqaud", "liquidfarming", "v1beta1", "pools", "pool_id", "rewards_auctions"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_RewardsAuctions_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"squad", "liquidfarming", "v1beta1", "pools", "pool_id", "rewards_auctions"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_RewardsAuction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5, 1, 0, 4, 1, 5, 6}, []string{"sqaud", "liquidfarming", "v1beta1", "pools", "pool_id", "rewards_auctions", "auction_id"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_RewardsAuction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5, 1, 0, 4, 1, 5, 6}, []string{"squad", "liquidfarming", "v1beta1", "pools", "pool_id", "rewards_auctions", "auction_id"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Bids_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"sqaud", "liquidfarming", "v1beta1", "pools", "pool_id", "bids"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Bids_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4, 2, 5}, []string{"squad", "liquidfarming", "v1beta1", "pools", "pool_id", "bids"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (
