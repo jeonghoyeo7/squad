@@ -39,18 +39,20 @@ Example Response
 
 ```json
 {
-  "params": [
-    {
+  "params": {
+    "liquid_farms": [
+      {
         "pool_id": "1",
-        "minimum_farm_amount": "1000000",
-        "minimum_bid_amount": "1000000"
-    },
-    {
+        "minimum_farm_amount": "1",
+        "minimum_bid_amount": "1"
+      },
+      {
         "pool_id": "2",
-        "minimum_farm_amount": "1000000",
-        "minimum_bid_amount": "1000000"
-    }
-  ]
+        "minimum_farm_amount": "1",
+        "minimum_bid_amount": "1"
+      }
+    ],
+  }
 }
 ```
 
@@ -96,7 +98,14 @@ http://localhost:1317/sqaud/liquidfarming/v1beta1/pools/1/queued_farmings
 Example Response
 
 ```json
-
+{
+  "queued_farmings": [
+    {
+      "pool_id": "1",
+      "amount": "500000000000"
+    }
+  ],
+}
 ```
 
 ## QueuedFarmingsByFarmer
@@ -111,7 +120,14 @@ http://localhost:1317/sqaud/liquidfarming/v1beta1/pools/1/queued_farmings/farmer
 Example Response
 
 ```json
-
+{
+  "queued_farmings": [
+    {
+      "pool_id": "1",
+      "amount": "500000000000"
+    }
+  ],
+}
 ```
 
 ## RewardsAuctions
