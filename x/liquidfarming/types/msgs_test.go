@@ -92,9 +92,16 @@ func TestMsgUnfarm(t *testing.T) {
 		{
 			"invalid lf coin",
 			func(msg *types.MsgUnfarm) {
-				msg.LFCoin = sdk.NewInt64Coin("lf1", 0)
+				msg.UnfarmingCoin = sdk.NewInt64Coin("lf1", 0)
 			},
-			"liquid farming coin must be positive: invalid request",
+			"unfarming coin must be positive: invalid request",
+		},
+		{
+			"invalid lf coin denom",
+			func(msg *types.MsgUnfarm) {
+				msg.UnfarmingCoin = sdk.NewInt64Coin("pool1", 100_000)
+			},
+			"expected denom: lf1, but got: pool1: invalid request",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -143,9 +150,16 @@ func TestMsgUnfarmAndWithdraw(t *testing.T) {
 		{
 			"invalid lf coin",
 			func(msg *types.MsgUnfarmAndWithdraw) {
-				msg.LFCoin = sdk.NewInt64Coin("lf1", 0)
+				msg.UnfarmingCoin = sdk.NewInt64Coin("lf1", 0)
 			},
-			"liquid farming coin must be positive: invalid request",
+			"unfarming coin must be positive: invalid request",
+		},
+		{
+			"invalid lf coin denom",
+			func(msg *types.MsgUnfarmAndWithdraw) {
+				msg.UnfarmingCoin = sdk.NewInt64Coin("pool1", 100_000)
+			},
+			"expected denom: lf1, but got: pool1: invalid request",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

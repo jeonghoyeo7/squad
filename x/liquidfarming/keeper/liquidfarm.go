@@ -100,14 +100,14 @@ type UnfarmInfo struct {
 // Unfarm handles types.MsgUnfarm to unfarm LFCoin.
 // The logic doesn't check whether or not liquid farm exists because it can be removed for some reason and
 // farmers still need to be able to unfarm their pool coin.
-func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, lfCoin sdk.Coin) (UnfarmInfo, error) {
+func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, unfarmingCoin sdk.Coin) (UnfarmInfo, error) {
 	reserveAddr := types.LiquidFarmReserveAddress(poolId)
 	lfCoinDenom := types.LiquidFarmCoinDenom(poolId)
 
 	lfCoinBalance := k.bankKeeper.SpendableCoins(ctx, farmer).AmountOf(lfCoinDenom)
-	if lfCoinBalance.LT(lfCoin.Amount) {
+	if lfCoinBalance.LT(unfarmingCoin.Amount) {
 		return UnfarmInfo{},
-			sdkerrors.Wrapf(types.ErrInsufficientUnfarmingAmount, "%s is smaller than %s", lfCoinBalance, lfCoin.Amount)
+			sdkerrors.Wrapf(types.ErrInsufficientUnfarmingAmount, "%s is smaller than %s", lfCoinBalance, unfarmingCoin.Amount)
 	}
 
 	pool, found := k.liquidityKeeper.GetPool(ctx, poolId)
@@ -121,14 +121,14 @@ func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, lf
 	unfarmFee := sdk.ZeroInt() // TODO: TBD
 
 	// UnfarmedAmount = TotalStakedLPAmount / TotalSupplyLFAmount * UnfarmingLFAmount * (1 - UnfarmFee)
-	unfarmedAmt := lpCoinTotalStaked.Quo(lfCoinTotalSupply).Mul(lfCoin.Amount).Mul(sdk.OneInt().Sub(unfarmFee))
+	unfarmedAmt := lpCoinTotalStaked.Quo(lfCoinTotalSupply).Mul(unfarmingCoin.Amount).Mul(sdk.OneInt().Sub(unfarmFee))
 	unfarmedCoin := sdk.NewCoin(pool.PoolCoinDenom, unfarmedAmt)
 
 	// Send the unfarming LFCoin to module account and burn them
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, farmer, types.ModuleName, sdk.NewCoins(lfCoin)); err != nil {
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, farmer, types.ModuleName, sdk.NewCoins(unfarmingCoin)); err != nil {
 		return UnfarmInfo{}, err
 	}
-	if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(lfCoin)); err != nil {
+	if err := k.bankKeeper.BurnCoins(ctx, types.ModuleName, sdk.NewCoins(unfarmingCoin)); err != nil {
 		return UnfarmInfo{}, err
 	}
 
@@ -145,7 +145,7 @@ func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, lf
 			types.EventTypeUnfarm,
 			sdk.NewAttribute(types.AttributeKeyPoolId, strconv.FormatUint(poolId, 10)),
 			sdk.NewAttribute(types.AttributeKeyFarmer, farmer.String()),
-			sdk.NewAttribute(types.AttributeKeyUnfarmingCoin, lfCoin.String()),
+			sdk.NewAttribute(types.AttributeKeyUnfarmingCoin, unfarmingCoin.String()),
 			sdk.NewAttribute(types.AttributeKeyUnfarmedCoin, unfarmedCoin.String()),
 		),
 	})
@@ -160,7 +160,7 @@ func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, lf
 
 // UnfarmAndWithdraw handles types.MsgUnfarmAndWithdraw to unfarm LFCoin and withdraw pool coin from the pool.
 func (k Keeper) UnfarmAndWithdraw(ctx sdk.Context, msg *types.MsgUnfarmAndWithdraw) error {
-	unfarmInfo, err := k.Unfarm(ctx, msg.PoolId, msg.GetFarmer(), msg.LFCoin)
+	unfarmInfo, err := k.Unfarm(ctx, msg.PoolId, msg.GetFarmer(), msg.UnfarmingCoin)
 	if err != nil {
 		return sdkerrors.Wrapf(err, "unable to unfarm")
 	}

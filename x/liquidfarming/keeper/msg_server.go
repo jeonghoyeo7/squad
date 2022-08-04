@@ -46,7 +46,7 @@ func (m msgServer) CancelQueuedFarming(goCtx context.Context, msg *types.MsgCanc
 func (m msgServer) Unfarm(goCtx context.Context, msg *types.MsgUnfarm) (*types.MsgUnfarmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if _, err := m.Keeper.Unfarm(ctx, msg.PoolId, msg.GetFarmer(), msg.LFCoin); err != nil {
+	if _, err := m.Keeper.Unfarm(ctx, msg.PoolId, msg.GetFarmer(), msg.UnfarmingCoin); err != nil {
 		return nil, err
 	}
 

@@ -73,11 +73,11 @@ func (msg MsgFarm) GetFarmer() sdk.AccAddress {
 }
 
 // NewMsgUnfarm creates a new MsgUnfarm
-func NewMsgUnfarm(poolId uint64, farmer string, lfCoin sdk.Coin) *MsgUnfarm {
+func NewMsgUnfarm(poolId uint64, farmer string, unfarmingCoin sdk.Coin) *MsgUnfarm {
 	return &MsgUnfarm{
-		PoolId: poolId,
-		Farmer: farmer,
-		LFCoin: lfCoin,
+		PoolId:        poolId,
+		Farmer:        farmer,
+		UnfarmingCoin: unfarmingCoin,
 	}
 }
 
@@ -92,11 +92,15 @@ func (msg MsgUnfarm) ValidateBasic() error {
 	if msg.PoolId == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid pool id")
 	}
-	if !msg.LFCoin.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "liquid farming coin must be positive")
+	if !msg.UnfarmingCoin.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "unfarming coin must be positive")
 	}
-	if err := msg.LFCoin.Validate(); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid liquid farming coin: %v", err)
+	if err := msg.UnfarmingCoin.Validate(); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid unfarming coin: %v", err)
+	}
+	expCoinDenom := LiquidFarmCoinDenom(msg.PoolId)
+	if msg.UnfarmingCoin.Denom != expCoinDenom {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom: %s, but got: %s", expCoinDenom, msg.UnfarmingCoin.Denom)
 	}
 	return nil
 }
@@ -122,11 +126,11 @@ func (msg MsgUnfarm) GetFarmer() sdk.AccAddress {
 }
 
 // NewMsgUnfarmAndWithdraw creates a new MsgUnfarmAndWithdraw
-func NewMsgUnfarmAndWithdraw(poolId uint64, farmer string, lfCoin sdk.Coin) *MsgUnfarmAndWithdraw {
+func NewMsgUnfarmAndWithdraw(poolId uint64, farmer string, unfarmingCoin sdk.Coin) *MsgUnfarmAndWithdraw {
 	return &MsgUnfarmAndWithdraw{
-		PoolId: poolId,
-		Farmer: farmer,
-		LFCoin: lfCoin,
+		PoolId:        poolId,
+		Farmer:        farmer,
+		UnfarmingCoin: unfarmingCoin,
 	}
 }
 
@@ -141,11 +145,15 @@ func (msg MsgUnfarmAndWithdraw) ValidateBasic() error {
 	if msg.PoolId == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid pool id")
 	}
-	if !msg.LFCoin.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "liquid farming coin must be positive")
+	if !msg.UnfarmingCoin.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "unfarming coin must be positive")
 	}
-	if err := msg.LFCoin.Validate(); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid liquid farming coin: %v", err)
+	if err := msg.UnfarmingCoin.Validate(); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid unfarming coin: %v", err)
+	}
+	expCoinDenom := LiquidFarmCoinDenom(msg.PoolId)
+	if msg.UnfarmingCoin.Denom != expCoinDenom {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom: %s, but got: %s", expCoinDenom, msg.UnfarmingCoin.Denom)
 	}
 	return nil
 }
