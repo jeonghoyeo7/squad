@@ -18,12 +18,15 @@ Note that [jq](https://stedolan.github.io/jq/) is recommended to be installed as
   - [Synopsis](#synopsis)
 - [Transaction](#transaction)
   - [Farm](#farm)
-  - [LiquidUnstake](#liquidunstake)
+  - [Unfarm](#unfarm)
 - [Query](#query)
   - [Params](#params)
-  - [LiquidValidators](#liquidvalidators)
-  - [States](#states)
-  - [VotingPower](#votingpower)
+  - [Liquidfarms](#liquidfarms)
+  - [Liquidfarm](#liquidfarm)
+  - [QueuedFarmings](#queuedfarmings)
+  - [Rewards-Auctions](#rewards-auctions)
+  - [Reward Auction](#reward-auction)
+  - [Bids](#bids)
 
 # Transaction
 
@@ -42,12 +45,13 @@ farm [pool-id] [amount]
 
 | **Argument** |  **Description**                                          |
 | :----------- | :-------------------------------------------------------- |
-| amount       | amount of coin to liquid stake; it must be the bond denom |
+| pool-id      | target pool id of the liquid farm                         |
+| amount       | amount of pool coin of the target pool to liquid farm     |
 
 Example
 
 ```bash
-squad tx liquidfarming farm 1 100000000pool1 \
+squad tx liquidfarming farm 1 500000000000pool1 \
 --chain-id localnet \
 --from bob \
 --keyring-backend test \
@@ -61,34 +65,31 @@ squad tx liquidfarming farm 1 100000000pool1 \
 #
 # Query account balances
 # Notice the newly minted bToken
-squad q bank balances cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu -o json | jq
-
-# Query the voter's liquid staking voting power
-squad q liquidstaking voting-power cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu -o json | jq
+squad q liquidfarming queued-farmings 1 -o json | jq
 ```
 
-## LiquidUnstake
+## Unfarm
 
-Unstake coin.
+Unfarm liquid farming coin to receive the corresponding pool coin.
 
 Usage
 
 ```bash
-liquid-unstake [amount]
+unfarm [pool-id] [amount]
 ```
 
 | **Argument**  |  **Description**                                      |
 | :------------ | :---------------------------------------------------- |
-| amount        | amount of coin to unstake; it must be the bToken denom|
+| pool-id       | target pool id of the liquid unfarm                   |
+| amount        | amount of lf coin to liquid unfarm                    |
 
 Example
 
 ```bash
-squad tx liquidstaking liquid-unstake 1000000000bstake \
+squad tx liquidfarming unfarm 1 300000000000lf1 \
 --chain-id localnet \
---from bob \
+--from alice \
 --keyring-backend test \
---gas 1000000 \
 --broadcast-mode block \
 --yes \
 --output json | jq
@@ -99,16 +100,13 @@ squad tx liquidstaking liquid-unstake 1000000000bstake \
 # Query account balances
 # Notice the newly minted bToken
 squad q bank balances cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu -o json | jq
-
-# Query the voter's liquid staking voting power
-squad q liquidstaking voting-power cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu -o json | jq
 ```
 
 # Query
 
 ## Params
 
-Query the current liquidstaking parameters information.
+Query the current liquidfarming parameters information.
 
 Usage
 
@@ -119,56 +117,117 @@ params
 Example
 
 ```bash
-squad query liquidstaking params -o json | jq
+squad query liquidfarming params -o json | jq
 ```
 
-## LiquidValidators
+## Liquidfarms
 
-Query all liquid validators.
+ Query for all liquidfarms.
 
 Usage
 
 ```bash
-liquid-validators
+liquidfarms
 ```
 
 Example
 
 ```bash
-squad query liquidstaking liquid-validators -o json | jq
+squad query liquidfarming liquidfarms -o json | jq
 ```
-## States
 
-Query net amount state.
+## Liquidfarm
+
+Query the specific liquidfarm with pool id.
 
 Usage
 
 ```bash
-states
+liquidfarm [pool-id]
+```
+
+| **Argument**  |  **Description**                                      |
+| :------------ | :---------------------------------------------------- |
+| pool-id       | target pool id of the liquidfarm                      |
+
+Example
+
+```bash
+squad query liquidfarming liquidfarm 1 -o json | jq
+```
+## QueuedFarmings
+
+Query all queued farmings for the liquidfarm with pool id.
+
+Usage
+
+```bash
+queued-farmings [pool-id]
+```
+
+| **Argument**  |  **Description**                                      |
+| :------------ | :---------------------------------------------------- |
+| pool-id       | target pool id of the liquidfarm                      |
+
+Example
+
+```bash
+squad query liquidfarming queued-farmings 1 -o json | jq
+```
+
+## Rewards-Auctions
+
+Query all rewards auctions for the liquidfarm
+
+Usage
+
+```bash
+rewards-auctions
 ```
 
 Example
 
 ```bash
-squad query liquidstaking states -o json | jq
+squad query liquidfarming rewards-auctions -o json | jq
 ```
 
-## VotingPower
+## Reward Auction 
 
-Query the voter’s staking and liquid staking voting power. 
+Query the specific reward auction
 
 Usage
 
 ```bash
-voting-power [voter]
+reward-auction [pool-id] [auction-id]
 ```
 
-| **Argument** |  **Description**      |
-| :----------- | :-------------------- |
-| voter        | voter account address |
+| **Argument**  |  **Description**                                      |
+| :------------ | :---------------------------------------------------- |
+| pool-id       | target pool id of the liquidfarm                      |
+| auction-id    | target auction id of the liquidfarm with the pool id  |
 
 Example
 
 ```bash
-squad query liquidstaking voting-power cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu -o json | jq
+squad query liquidfarming rewards-auction 1 1 -o json | jq
+```
+
+## Bids 
+
+Query all bids for the rewards auction
+
+Usage
+
+```bash
+bids [pool-id]
+```
+
+| **Argument**  |  **Description**                                      |
+| :------------ | :---------------------------------------------------- |
+| pool-id       | target pool id of the liquidfarm                      |
+
+Example
+
+```bash
+squad query liquidfarming bids 1 -o json | jq
 ```
