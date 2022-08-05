@@ -223,14 +223,14 @@ $ %s query %s queued-farmings --farmer %s1zaavvzxez0elundtn32qnk9lkm8kmcszzsv80v
 
 func NewQueryRewardsAuctionsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "rewards-auctions",
-		Args:  cobra.NoArgs,
+		Use:   "rewards-auctions [pool-id]",
+		Args:  cobra.ExactArgs(1),
 		Short: "Query all rewards auctions for the liquidfarm",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query all rewards auctions for the liquidfarm on a network.
 
 Example:
-$ %s query %s rewards-auctions
+$ %s query %s rewards-auctions 1
 `,
 				version.AppName, types.ModuleName,
 			),

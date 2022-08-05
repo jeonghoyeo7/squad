@@ -12,46 +12,47 @@ import (
 	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
 )
 
-// Farm handles types.MsgFarm to liquid farm.
-func (k Keeper) Farm(ctx sdk.Context, msg *types.MsgFarm) error {
-	params := k.GetParams(ctx)
-
-	poolId := uint64(0)
-	minFarmAmt := sdk.ZeroInt()
-	for _, liquidFarm := range params.LiquidFarms {
-		if liquidFarm.PoolId == msg.PoolId {
-			poolId = liquidFarm.PoolId
-			minFarmAmt = liquidFarm.MinimumFarmAmount
-			break
-		}
-	}
-	if poolId == 0 {
+// ValidateMsgFarm validates types.MsgFarm.
+func (k Keeper) ValidateMsgFarm(ctx sdk.Context, msg *types.MsgFarm) error {
+	liquidFarm, found := k.GetLiquidFarm(ctx, msg.PoolId)
+	if !found {
 		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "liquid farm by pool %d not found", msg.PoolId)
 	}
+	minFarmAmt := liquidFarm.MinimumFarmAmount
 
 	if msg.FarmingCoin.Amount.LT(minFarmAmt) {
 		return sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", msg.FarmingCoin.Amount, minFarmAmt)
 	}
 
-	pool, found := k.liquidityKeeper.GetPool(ctx, poolId)
+	pool, found := k.liquidityKeeper.GetPool(ctx, liquidFarm.PoolId)
 	if !found {
-		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "pool %d not found", poolId)
+		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "pool %d not found", liquidFarm.PoolId)
 	}
 
 	if pool.PoolCoinDenom != msg.FarmingCoin.Denom {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom %s, but got %s", pool.PoolCoinDenom, msg.FarmingCoin.Denom)
 	}
 
-	farmerAddr := msg.GetFarmer()
-	farmingCoin := msg.FarmingCoin
-	reserveAddr := types.LiquidFarmReserveAddress(poolId)
-
-	poolCoinBalance := k.bankKeeper.SpendableCoins(ctx, farmerAddr).AmountOf(pool.PoolCoinDenom)
-	if poolCoinBalance.LT(farmingCoin.Amount) {
+	poolCoinBalance := k.bankKeeper.SpendableCoins(ctx, msg.GetFarmer()).AmountOf(pool.PoolCoinDenom)
+	if poolCoinBalance.LT(msg.FarmingCoin.Amount) {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "%s is smaller than %s", poolCoinBalance, minFarmAmt)
 	}
 
-	// Reserve farming coins
+	return nil
+}
+
+// Farm handles types.MsgFarm to liquid farm.
+func (k Keeper) Farm(ctx sdk.Context, msg *types.MsgFarm) error {
+	if err := k.ValidateMsgFarm(ctx, msg); err != nil {
+		return err
+	}
+
+	params := k.GetParams(ctx)
+	farmerAddr := msg.GetFarmer()
+	farmingCoin := msg.FarmingCoin
+	reserveAddr := types.LiquidFarmReserveAddress(msg.PoolId)
+
+	// Reserve the farming coin
 	if err := k.bankKeeper.SendCoins(ctx, farmerAddr, reserveAddr, sdk.NewCoins(farmingCoin)); err != nil {
 		return sdkerrors.Wrap(err, "reserve farming coin")
 	}
@@ -66,7 +67,7 @@ func (k Keeper) Farm(ctx sdk.Context, msg *types.MsgFarm) error {
 		ctx.GasMeter().ConsumeGas(sdk.Gas(numQueuedFarmings)*params.DelayedFarmGasFee, "DelayedFarmGasFee")
 	}
 
-	// Stake with the reserve account in the farming module
+	// Stake in the farming module with the reserve account
 	if err := k.farmingKeeper.Stake(ctx, reserveAddr, sdk.NewCoins(farmingCoin)); err != nil {
 		return err
 	}
@@ -74,7 +75,7 @@ func (k Keeper) Farm(ctx sdk.Context, msg *types.MsgFarm) error {
 	currentEpochDays := k.farmingKeeper.GetCurrentEpochDays(ctx)
 	endTime := ctx.BlockTime().Add(time.Duration(currentEpochDays) * farmingtypes.Day) // current time + epoch days
 
-	k.SetQueuedFarming(ctx, endTime, pool.PoolCoinDenom, farmerAddr, types.QueuedFarming{
+	k.SetQueuedFarming(ctx, endTime, liquiditytypes.PoolCoinDenom(msg.PoolId), farmerAddr, types.QueuedFarming{
 		PoolId: msg.PoolId,
 		Amount: msg.FarmingCoin.Amount,
 	})

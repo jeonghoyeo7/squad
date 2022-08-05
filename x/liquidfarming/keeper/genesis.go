@@ -24,6 +24,9 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 
 	k.SetParams(ctx, genState.Params)
 
+	for _, liquidFarm := range genState.Params.LiquidFarms {
+		k.SetLiquidFarm(ctx, liquidFarm)
+	}
 	for _, record := range genState.QueuedFarmingRecords {
 		farmerAddr, err := sdk.AccAddressFromBech32(record.Farmer)
 		if err != nil {
