@@ -80,7 +80,7 @@ func (h Hooks) AfterStaked(ctx sdk.Context, stakingAcc sdk.AccAddress, stakingCo
 // It creates the first rewards auction if liquid farm doesn't have any auction before.
 // If there is an ongoing rewards auction, finish the auction and create the next one.
 func (h Hooks) AfterAllocateRewards(ctx sdk.Context) {
-	for _, liquidFarm := range h.k.GetParams(ctx).LiquidFarms {
+	for _, liquidFarm := range h.k.GetAllLiquidFarms(ctx) {
 		poolId := liquidFarm.PoolId
 		auctionId := h.k.GetLastRewardsAuctionId(ctx, poolId)
 

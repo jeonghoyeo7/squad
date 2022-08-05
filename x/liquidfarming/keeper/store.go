@@ -10,7 +10,42 @@ import (
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
 )
 
-// GetQueuedFarming returns a queued farming object for the given end time, farming coin denom and farmer.
+// GetLiquidFarm returns liquid farm object by the given pool id.
+func (k Keeper) GetLiquidFarm(ctx sdk.Context, poolId uint64) (liquidFarm types.LiquidFarm, found bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.GetLiquidFarmKey(poolId))
+	if bz == nil {
+		return
+	}
+	k.cdc.MustUnmarshal(bz, &liquidFarm)
+	found = true
+	return
+}
+
+// GetAllLiquidFarms returns all liquid farm objects stored in the store.
+func (k Keeper) GetAllLiquidFarms(ctx sdk.Context) []types.LiquidFarm {
+	liquidFarms := []types.LiquidFarm{}
+	k.IterateLiquidFarms(ctx, func(liquidFarm types.LiquidFarm) (stop bool) {
+		liquidFarms = append(liquidFarms, liquidFarm)
+		return false
+	})
+	return liquidFarms
+}
+
+// SetLiquidFarm stores liquid farm object with the given pool idl.
+func (k Keeper) SetLiquidFarm(ctx sdk.Context, liquidFarm types.LiquidFarm) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshal(&liquidFarm)
+	store.Set(types.GetLiquidFarmKey(liquidFarm.PoolId), bz)
+}
+
+// DeleteLiquidFarm deletes the liquid farm object from the store.
+func (k Keeper) DeleteLiquidFarm(ctx sdk.Context, liquidFarm types.LiquidFarm) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetLiquidFarmKey(liquidFarm.PoolId))
+}
+
+// GetQueuedFarming returns a queued farming object by the given end time, farming coin denom and farmer.
 func (k Keeper) GetQueuedFarming(ctx sdk.Context, endTime time.Time, farmingCoinDenom string, farmerAcc sdk.AccAddress) (queuedFarming types.QueuedFarming, found bool) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.GetQueuedFarmingKey(endTime, farmingCoinDenom, farmerAcc))
@@ -32,7 +67,7 @@ func (k Keeper) GetQueuedFarmingsByFarmer(ctx sdk.Context, farmerAcc sdk.AccAddr
 	return queuedFarmings
 }
 
-// SetQueuedFarming stores a queued farming with the given end time, farming coin denom, and farmer address.
+// SetQueuedFarming stores a queued farming by the given end time, farming coin denom, and farmer address.
 func (k Keeper) SetQueuedFarming(ctx sdk.Context, endTime time.Time, farmingCoinDenom string, farmerAcc sdk.AccAddress, queuedFarming types.QueuedFarming) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&queuedFarming)
@@ -149,6 +184,22 @@ func (k Keeper) SetWinningBid(ctx sdk.Context, bid types.Bid, auctionId uint64) 
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&bid)
 	store.Set(types.GetWinningBidKey(bid.PoolId, auctionId), bz)
+}
+
+// IterateLiquidFarms iterates through all liquid farm objects
+// stored in the store and invokes callback function for each item.
+// Stops the iteration when the callback function for each time.
+func (k Keeper) IterateLiquidFarms(ctx sdk.Context, cb func(liquidFarm types.LiquidFarm) (stop bool)) {
+	store := ctx.KVStore(k.storeKey)
+	iter := sdk.KVStorePrefixIterator(store, types.LiquidFarmKeyPrefix)
+	defer iter.Close()
+	for ; iter.Valid(); iter.Next() {
+		var liquidFarm types.LiquidFarm
+		k.cdc.MustUnmarshal(iter.Value(), &liquidFarm)
+		if cb(liquidFarm) {
+			break
+		}
+	}
 }
 
 // IterateQueuedFarmings iterates through all queued farming objects

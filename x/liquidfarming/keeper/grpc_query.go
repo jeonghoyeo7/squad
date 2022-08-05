@@ -38,10 +38,9 @@ func (k Querier) LiquidFarms(c context.Context, req *types.QueryLiquidFarmsReque
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	params := k.GetParams(ctx)
 
 	liquidFarmsRes := []types.LiquidFarmResponse{}
-	for _, liquidFarm := range params.LiquidFarms {
+	for _, liquidFarm := range k.GetAllLiquidFarms(ctx) {
 		reserveAcc := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
 		poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
 		queuedAmt := k.farmingKeeper.GetAllQueuedCoinsByFarmer(ctx, reserveAcc).AmountOf(poolCoinDenom)
@@ -72,10 +71,9 @@ func (k Querier) LiquidFarm(c context.Context, req *types.QueryLiquidFarmRequest
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	params := k.GetParams(ctx)
 
 	liquidFarmRes := types.LiquidFarmResponse{}
-	for _, liquidFarm := range params.LiquidFarms {
+	for _, liquidFarm := range k.GetAllLiquidFarms(ctx) {
 		if liquidFarm.PoolId == req.PoolId {
 			reserveAcc := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
 			poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)

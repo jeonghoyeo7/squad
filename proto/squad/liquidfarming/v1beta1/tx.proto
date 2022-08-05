@@ -53,10 +53,9 @@ message MsgUnfarm {
 
   string farmer = 2;
 
-  cosmos.base.v1beta1.Coin lf_coin = 3 [
+  cosmos.base.v1beta1.Coin unfarming_coin = 3 [
     (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.customname) = "LFCoin"
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
   ];
 }
 
@@ -71,10 +70,9 @@ message MsgUnfarmAndWithdraw {
 
   string farmer = 2;
 
-  cosmos.base.v1beta1.Coin lf_coin = 3 [
+  cosmos.base.v1beta1.Coin unfarming_coin = 3 [
     (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin",
-    (gogoproto.customname) = "LFCoin"
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
   ];
 }
 
