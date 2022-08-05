@@ -272,14 +272,14 @@ $ %s query %s rewards-auctions 1
 
 func NewQueryRewardsAuctionCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "reward-auction [pool-id] [auction-id]",
+		Use:   "rewards-auction [pool-id] [auction-id]",
 		Args:  cobra.ExactArgs(2),
 		Short: "Query the specific reward auction",
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Query the specific reward auction on a network.
 
 Example:
-$ %s query %s reward-auction 1 1
+$ %s query %s rewards-auction 1 1
 `,
 				version.AppName, types.ModuleName,
 			),
