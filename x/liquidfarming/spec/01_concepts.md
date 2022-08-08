@@ -47,17 +47,3 @@ Therefore, a bidder to place a bid for the auction should be aware of this uncer
 
 A bidder can place a bid with the pool coin, which is the paying coin of the auction. A bidder only can place a single bid per auction of a liquid farm.
 The bid amount of the pool coin must be higher than the current winning bid amount that is the highest bid amount of the auction. The bidder placing the bid with the highest amount of the pool coin becomes the winner of the auction and will takes all the accumulated rewards amount at the end of the auction.
-
-## Activation of LiquidFarm
-
-A `liquidFarm` is activated by addition of `liquidFarm` in the parameter by governance.
-When a `liquidFarm` is activated, users can request to farm their pool coins and the `liquidfarming` module stakes the pool coins.
-
-## Deactivation of LiquidFarm
-
-A `liquidFarm` is deactivated by deletion of `liquidFarm` in the parameter by governance.
-When a `liquidFarm` is deactivated, the `liquidfarming` module unstakes all pool coins from the farming module with the reserve module account.
-The users cannot request to farm their pool coins, but users can still request to unfarm LF coins.
-If a user has the request as `QueuedFarming`, the user needs to cancel the request to get the pool coins back.
-In this case, the ongoing rewards auction becomes finished, all bids are refunded, and a new auction is not started.
-
