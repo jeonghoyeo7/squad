@@ -1,10 +1,13 @@
 package keeper_test
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	utils "github.com/cosmosquad-labs/squad/v2/types"
+	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming"
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
 
 	_ "github.com/stretchr/testify/suite"
@@ -40,6 +43,56 @@ func (s *KeeperTestSuite) TestFarm() {
 	// Check queued farmings farmed by the farmer
 	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr)
 	s.Require().Len(queuedFarmings, 3)
+}
+
+func (s *KeeperTestSuite) TestFarm_MoreCases() {
+	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
+
+	for _, tc := range []struct {
+		name        string
+		msg         *types.MsgFarm
+		postRun     func(ctx sdk.Context, qfs []types.QueuedFarming)
+		expectedErr string
+	}{
+		{
+			"happy case",
+			types.NewMsgFarm(
+				pool.Id,
+				s.addr(0).String(),
+				sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000),
+			),
+			func(ctx sdk.Context, qfs []types.QueuedFarming) {
+				for _, qf := range qfs {
+					fmt.Println("QueuedFarming: ", qf)
+				}
+			},
+			"",
+		},
+		// {
+		// 	"insufficient balance",
+		// 	types.NewMsgFarm(
+		// 		pool.Id,
+		// 		s.addr(0).String(),
+		// 		sdk.NewInt64Coin(pool.PoolCoinDenom, 5_000_000_000_000_000),
+		// 	),
+		// 	nil,
+		// 	"1000000000000 is smaller than 5000000000000000: insufficient funds",
+		// },
+	} {
+		s.Run(tc.name, func() {
+			s.Require().NoError(tc.msg.ValidateBasic())
+			cacheCtx, _ := s.ctx.CacheContext()
+			err := s.keeper.Farm(cacheCtx, tc.msg)
+			if tc.expectedErr == "" {
+				s.Require().NoError(err)
+				tc.postRun(cacheCtx, s.keeper.GetQueuedFarmingsByFarmer(s.ctx, tc.msg.GetFarmer()))
+			} else {
+				s.Require().EqualError(err, tc.expectedErr)
+			}
+		})
+	}
 }
 
 func (s *KeeperTestSuite) TestFarm_AfterStaked() {
@@ -304,4 +357,72 @@ func (s *KeeperTestSuite) TestUnfarmAndWithdraw() {
 
 	// Verify
 	s.Require().EqualValues(depositCoins, s.getBalances(s.addr(0)))
+}
+
+func (s *KeeperTestSuite) TestTerminateLiquidFarm() {
+	pair1 := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool1 := s.createPool(s.addr(0), pair1.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+	pair2 := s.createPair(s.addr(0), "denom3", "denom4", true)
+	pool2 := s.createPool(s.addr(0), pair2.Id, utils.ParseCoins("100_000_000denom3, 100_000_000denom4"), true)
+
+	// Add liquid farms in params
+	params := s.keeper.GetParams(s.ctx)
+	params.LiquidFarms = append(params.LiquidFarms, types.NewLiquidFarm(pool1.Id, sdk.NewInt(100), sdk.NewInt(100)))
+	params.LiquidFarms = append(params.LiquidFarms, types.NewLiquidFarm(pool2.Id, sdk.NewInt(500), sdk.NewInt(500)))
+	s.keeper.SetParams(s.ctx, params)
+	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, len(params.LiquidFarms))
+
+	// Execute BeginBlocker to store all registered LiquidFarms in params
+	liquidfarming.BeginBlocker(s.ctx, s.keeper)
+
+	// Ensure the length of liquid farms in the store and params are the same
+	s.Require().Len(s.keeper.GetAllLiquidFarms(s.ctx), 2)
+	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 2)
+
+	// Forcefully remove one liquid farm from the store
+	liquidFarm, found := s.keeper.GetLiquidFarm(s.ctx, pool1.Id)
+	s.Require().True(found)
+	s.keeper.DeleteLiquidFarm(s.ctx, liquidFarm)
+	s.Require().Len(s.keeper.GetAllLiquidFarms(s.ctx), 1)
+	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 2)
+
+	// Execute BeginBlocker again to store all registered LiquidFarms in params
+	liquidfarming.BeginBlocker(s.ctx, s.keeper)
+
+	// Ensure the length of liquid farms in the store and params are the same
+	s.Require().Len(s.keeper.GetAllLiquidFarms(s.ctx), 2)
+	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 2)
+
+	// Now, in order to test adding new liquid farm in the params
+	// Farm some coins
+	s.farm(pool1.Id, s.addr(1), sdk.NewCoin(pool1.PoolCoinDenom, sdk.NewInt(200_000)), true)
+	s.farm(pool1.Id, s.addr(2), sdk.NewCoin(pool1.PoolCoinDenom, sdk.NewInt(200_000)), true)
+	s.advanceEpochDays() // trigger AfterStaked hook to mint LFCoin and delete QueuedFarming
+	s.advanceEpochDays() // trigger AllocateRewards hook to create rewards auctions
+
+	s.placeBid(pool1.Id, s.addr(3), utils.ParseCoin("100_000pool1"), true)
+	s.placeBid(pool1.Id, s.addr(4), utils.ParseCoin("200_000pool1"), true)
+	s.placeBid(pool1.Id, s.addr(5), utils.ParseCoin("500_000pool1"), true)
+
+	// Remove the first liquid farm object in params
+	params = s.keeper.GetParams(s.ctx)
+	params.LiquidFarms = []types.LiquidFarm{types.NewLiquidFarm(pool2.Id, sdk.NewInt(100), sdk.NewInt(100))}
+	s.keeper.SetParams(s.ctx, params)
+
+	// Execute BeginBlocker again to store all registered LiquidFarms in params
+	liquidfarming.BeginBlocker(s.ctx, s.keeper)
+
+	// Ensure that bidders got their funds back
+	s.Require().Equal(utils.ParseCoin("100_000pool1"), s.getBalance(s.addr(3), pool1.PoolCoinDenom))
+	s.Require().Equal(utils.ParseCoin("200_000pool1"), s.getBalance(s.addr(4), pool1.PoolCoinDenom))
+	s.Require().Equal(utils.ParseCoin("500_000pool1"), s.getBalance(s.addr(5), pool1.PoolCoinDenom))
+	s.Require().Equal(utils.ParseCoin("400_000pool1"), s.getBalance(types.LiquidFarmReserveAddress(1), pool1.PoolCoinDenom))
+
+	// Ensure the auction status
+	auction, found := s.keeper.GetRewardsAuction(s.ctx, pool1.Id, 1)
+	s.Require().True(found)
+	s.Require().Equal(types.AuctionStatusFinished, auction.Status)
+
+	// Ensure all staked coins is zero
+	s.Require().True(s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, types.LiquidFarmReserveAddress(1)).IsZero())
 }

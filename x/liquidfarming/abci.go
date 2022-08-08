@@ -1,7 +1,6 @@
 package liquidfarming
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -11,29 +10,29 @@ import (
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
 )
 
+// BeginBlocker compares all LiquidFarms stored in the store with all LiquidFarms registered in params.
+// Execute an appropriate operation when either adding new LiquidFarm or removing one through governance proposal.
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 
-	liquidFarmSet := map[uint64]types.LiquidFarm{}
+	liquidFarmSet := map[uint64]types.LiquidFarm{} // PoolId => LiquidFarm
 	for _, liquidFarm := range k.GetAllLiquidFarms(ctx) {
 		liquidFarmSet[liquidFarm.PoolId] = liquidFarm
 	}
 
-	paramsLiquidFarmSet := map[uint64]types.LiquidFarm{}
+	// Compare all liquid farms stored in the store with all liquid farms registered in params
+	// Store if new liquid farm is added and delete from the liquidFarmSet if it exists
 	for _, liquidFarm := range k.GetParams(ctx).LiquidFarms {
-		liquidFarmSet[liquidFarm.PoolId] = liquidFarm
+		_, found := liquidFarmSet[liquidFarm.PoolId]
+		if !found { // new LiquidFarm is added
+			k.SetLiquidFarm(ctx, liquidFarm)
+		} else {
+			delete(liquidFarmSet, liquidFarm.PoolId)
+		}
 	}
 
-	for poolId := range paramsLiquidFarmSet {
-		delete(liquidFarmSet, poolId)
-	}
-
-	if len(liquidFarmSet) != 0 {
-		// Means that LiquidFarm is removed in params
-		fmt.Println("Removed")
-	}
-	if len(paramsLiquidFarmSet) != 0 {
-		// Means that LiquidFarm is newly added in params
-		fmt.Println("Added")
+	// Remove liquid farm when it is removed in params
+	for _, liquidFarm := range liquidFarmSet {
+		k.RemoveLiquidFarm(ctx, liquidFarm)
 	}
 }

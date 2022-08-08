@@ -62,14 +62,8 @@ func validateLiquidFarms(i interface{}) error {
 	}
 
 	for _, liquidFarm := range liquidFarms {
-		if liquidFarm.PoolId == 0 {
-			return fmt.Errorf("pool id must not be 0")
-		}
-		if liquidFarm.MinimumBidAmount.IsNegative() {
-			return fmt.Errorf("minimum bid amount must be 0 or positive value: %s", liquidFarm.MinimumBidAmount)
-		}
-		if liquidFarm.MinimumFarmAmount.IsNegative() {
-			return fmt.Errorf("minimum farm amount must be 0 or positive value: %s", liquidFarm.MinimumFarmAmount)
+		if err := liquidFarm.Validate(); err != nil {
+			return err
 		}
 	}
 

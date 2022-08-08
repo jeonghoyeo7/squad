@@ -186,6 +186,12 @@ func (k Keeper) SetWinningBid(ctx sdk.Context, bid types.Bid, auctionId uint64) 
 	store.Set(types.GetWinningBidKey(bid.PoolId, auctionId), bz)
 }
 
+// DeleteWinningBid deletes the winning bid from the store.
+func (k Keeper) DeleteWinningBid(ctx sdk.Context, poolId, auctionId uint64) {
+	store := ctx.KVStore(k.storeKey)
+	store.Delete(types.GetWinningBidKey(poolId, auctionId))
+}
+
 // IterateLiquidFarms iterates through all liquid farm objects
 // stored in the store and invokes callback function for each item.
 // Stops the iteration when the callback function for each time.

@@ -10,6 +10,7 @@ import (
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		Params:               DefaultParams(),
+		LiquidFarms:          []LiquidFarm{},
 		QueuedFarmingRecords: []QueuedFarmingRecord{},
 		RewardsAuctions:      []RewardsAuction{},
 		Bids:                 []Bid{},
@@ -21,6 +22,12 @@ func DefaultGenesis() *GenesisState {
 func (gs GenesisState) Validate() error {
 	if err := gs.Params.Validate(); err != nil {
 		return fmt.Errorf("invalid params: %w", err)
+	}
+
+	for _, liquidFarm := range gs.LiquidFarms {
+		if err := liquidFarm.Validate(); err != nil {
+			return fmt.Errorf("invalid liquid farm %w", err)
+		}
 	}
 
 	for _, record := range gs.QueuedFarmingRecords {

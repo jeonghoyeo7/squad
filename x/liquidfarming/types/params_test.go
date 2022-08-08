@@ -3,13 +3,17 @@ package types_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
 )
 
 func TestParams_Validate(t *testing.T) {
+	require.IsType(t, paramstypes.KeyTable{}, types.ParamKeyTable())
+
 	for _, tc := range []struct {
 		name     string
 		malleate func(*types.Params)

@@ -25,6 +25,20 @@ func NewLiquidFarm(poolId uint64, minFarmAmt, minBidAmount sdk.Int) LiquidFarm {
 	}
 }
 
+// Validate validates LiquidFarm.
+func (l LiquidFarm) Validate() error {
+	if l.PoolId == 0 {
+		return fmt.Errorf("pool id must not be 0")
+	}
+	if l.MinimumBidAmount.IsNegative() {
+		return fmt.Errorf("minimum bid amount must be 0 or positive value: %s", l.MinimumBidAmount)
+	}
+	if l.MinimumFarmAmount.IsNegative() {
+		return fmt.Errorf("minimum farm amount must be 0 or positive value: %s", l.MinimumFarmAmount)
+	}
+	return nil
+}
+
 // String returns a human-readable string representation of the LiquidFarm.
 func (l LiquidFarm) String() string {
 	out, _ := l.MarshalYAML()
