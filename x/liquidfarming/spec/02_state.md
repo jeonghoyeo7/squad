@@ -4,6 +4,12 @@
 
 The `liquidfarming` module keeps track of the states of pool coins and LFCoins.
 
+## LiquidFarms
+
+```go
+type LiquidFarms []LiquidFarm
+```
+
 ## QueuedFarming
 
 ```go
