@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -48,7 +46,7 @@ func (s *KeeperTestSuite) TestFarm() {
 func (s *KeeperTestSuite) TestFarm_MoreCases() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.NewInt(100_000_000), sdk.NewInt(100_000_000)))
 
 	for _, tc := range []struct {
 		name        string
@@ -64,14 +62,12 @@ func (s *KeeperTestSuite) TestFarm_MoreCases() {
 				sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000),
 			),
 			func(ctx sdk.Context, qfs []types.QueuedFarming) {
-				for _, qf := range qfs {
-					fmt.Println("QueuedFarming: ", qf)
-				}
+				s.Require().Len(qfs, 1)
 			},
 			"",
 		},
 		// {
-		// 	"insufficient balance",
+		// 	"minimum farm amount",
 		// 	types.NewMsgFarm(
 		// 		pool.Id,
 		// 		s.addr(0).String(),
@@ -87,7 +83,7 @@ func (s *KeeperTestSuite) TestFarm_MoreCases() {
 			err := s.keeper.Farm(cacheCtx, tc.msg)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
-				tc.postRun(cacheCtx, s.keeper.GetQueuedFarmingsByFarmer(s.ctx, tc.msg.GetFarmer()))
+				tc.postRun(cacheCtx, s.keeper.GetQueuedFarmingsByFarmer(cacheCtx, tc.msg.GetFarmer()))
 			} else {
 				s.Require().EqualError(err, tc.expectedErr)
 			}
