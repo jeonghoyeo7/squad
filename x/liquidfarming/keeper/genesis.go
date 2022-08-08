@@ -24,14 +24,16 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 
 	k.SetParams(ctx, genState.Params)
 
-	for _, liquidFarm := range genState.Params.LiquidFarms {
+	for _, liquidFarm := range genState.LiquidFarms {
 		k.SetLiquidFarm(ctx, liquidFarm)
 	}
+
 	for _, record := range genState.QueuedFarmingRecords {
 		farmerAddr, err := sdk.AccAddressFromBech32(record.Farmer)
 		if err != nil {
 			panic(err)
 		}
+
 		k.SetQueuedFarming(
 			ctx,
 			record.EndTime,
@@ -40,12 +42,15 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 			record.QueuedFarming,
 		)
 	}
+
 	for _, auction := range genState.RewardsAuctions {
-		k.SetRewardsAuction(ctx, auction) // TODO: add test case to see if GetLastRewardsAuctionId returns the correct id
+		k.SetRewardsAuction(ctx, auction)
 	}
+
 	for _, bid := range genState.Bids {
 		k.SetBid(ctx, bid)
 	}
+
 	for _, record := range genState.WinningBidRecords {
 		k.SetWinningBid(ctx, record.WinningBid, record.AuctionId)
 	}
@@ -63,6 +68,8 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	if params.LiquidFarms == nil || len(params.LiquidFarms) == 0 {
 		params.LiquidFarms = []types.LiquidFarm{}
 	}
+
+	liquidFarms := k.GetAllLiquidFarms(ctx)
 
 	queuedFarmingRecords := []types.QueuedFarmingRecord{}
 	k.IterateQueuedFarmings(ctx, func(endTime time.Time, farmingCoinDenom string, farmerAcc sdk.AccAddress, queuedFarming types.QueuedFarming) (stop bool) {
@@ -96,6 +103,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 
 	return &types.GenesisState{
 		Params:               params,
+		LiquidFarms:          liquidFarms,
 		QueuedFarmingRecords: queuedFarmingRecords,
 		RewardsAuctions:      rewardsAuctions,
 		Bids:                 bids,

@@ -85,10 +85,9 @@ func (h Hooks) AfterAllocateRewards(ctx sdk.Context) {
 		auctionId := h.k.GetLastRewardsAuctionId(ctx, poolId)
 
 		auction, found := h.k.GetRewardsAuction(ctx, poolId, auctionId)
-		if !found {
-			h.k.CreateRewardsAuction(ctx, poolId)
-		} else {
-			h.k.FinishAndCreateRewardsAuction(ctx, auction)
+		if found {
+			h.k.FinishRewardsAuction(ctx, auction)
 		}
+		h.k.CreateRewardsAuction(ctx, poolId)
 	}
 }

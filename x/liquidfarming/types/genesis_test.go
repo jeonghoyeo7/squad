@@ -31,6 +31,30 @@ func TestGenesisState_Validate(t *testing.T) {
 			"",
 		},
 		{
+			"valid liquid farm",
+			func(genState *types.GenesisState) {
+				genState.LiquidFarms = []types.LiquidFarm{
+					{
+						PoolId:            1,
+						MinimumFarmAmount: sdk.ZeroInt(),
+						MinimumBidAmount:  sdk.ZeroInt(),
+					},
+				}
+			},
+			"",
+		},
+		{
+			"invalid liquid farm: pool id",
+			func(genState *types.GenesisState) {
+				genState.LiquidFarms = []types.LiquidFarm{
+					{
+						PoolId: 0,
+					},
+				}
+			},
+			"invalid liquid farm pool id must not be 0",
+		},
+		{
 			"invalid queued farming record: farming coin denom",
 			func(genState *types.GenesisState) {
 				genState.QueuedFarmingRecords = []types.QueuedFarmingRecord{

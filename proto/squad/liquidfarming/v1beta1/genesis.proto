@@ -15,13 +15,15 @@ message GenesisState {
 
   Params params = 1 [(gogoproto.nullable) = false];
 
-  repeated QueuedFarmingRecord queued_farming_records = 2 [(gogoproto.nullable) = false]; 
+  repeated LiquidFarm liquid_farms = 2 [(gogoproto.nullable) = false]; 
 
-  repeated RewardsAuction rewards_auctions = 3 [(gogoproto.nullable) = false]; 
+  repeated QueuedFarmingRecord queued_farming_records = 3 [(gogoproto.nullable) = false]; 
 
-  repeated Bid bids = 4 [(gogoproto.nullable) = false]; 
+  repeated RewardsAuction rewards_auctions = 4 [(gogoproto.nullable) = false]; 
+
+  repeated Bid bids = 5 [(gogoproto.nullable) = false]; 
   
-  repeated WinningBidRecord winning_bid_records = 5 [(gogoproto.nullable) = false]; 
+  repeated WinningBidRecord winning_bid_records = 6 [(gogoproto.nullable) = false]; 
 }
 
 // QueuedFarmingRecord defines a custom queued farming record that is required to be recorded 
