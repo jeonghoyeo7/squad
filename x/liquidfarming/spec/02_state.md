@@ -7,6 +7,7 @@ The `liquidfarming` module keeps track of the states of pool coins and LFCoins.
 ## LiquidFarms
 
 ```go
+// LiquidFarms tracks the list of the activated LiquidFarms
 type LiquidFarms []LiquidFarm
 ```
 
