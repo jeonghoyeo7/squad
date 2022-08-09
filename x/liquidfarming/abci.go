@@ -1,6 +1,7 @@
 package liquidfarming
 
 import (
+	"sort"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -31,8 +32,17 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 		}
 	}
 
+	// Sort map keys for deterministic execution
+	var pairIds []uint64
+	for pairId := range liquidFarmSet {
+		pairIds = append(pairIds, pairId)
+	}
+	sort.Slice(pairIds, func(i, j int) bool {
+		return pairIds[i] < pairIds[j]
+	})
+
 	// Remove liquid farm when it is removed in params
-	for _, liquidFarm := range liquidFarmSet {
-		k.RemoveLiquidFarm(ctx, liquidFarm)
+	for _, pairId := range pairIds {
+		k.RemoveLiquidFarm(ctx, liquidFarmSet[pairId])
 	}
 }
