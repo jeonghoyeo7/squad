@@ -101,7 +101,7 @@ func TestMsgUnfarm(t *testing.T) {
 			func(msg *types.MsgUnfarm) {
 				msg.UnfarmingCoin = sdk.NewInt64Coin("pool1", 100_000)
 			},
-			"expected denom: lf1, but got: pool1: invalid request",
+			"expected denom lf1, but got pool1: invalid request",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -159,7 +159,7 @@ func TestMsgUnfarmAndWithdraw(t *testing.T) {
 			func(msg *types.MsgUnfarmAndWithdraw) {
 				msg.UnfarmingCoin = sdk.NewInt64Coin("pool1", 100_000)
 			},
-			"expected denom: lf1, but got: pool1: invalid request",
+			"expected denom lf1, but got pool1: invalid request",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

@@ -100,7 +100,7 @@ func (msg MsgUnfarm) ValidateBasic() error {
 	}
 	expCoinDenom := LiquidFarmCoinDenom(msg.PoolId)
 	if msg.UnfarmingCoin.Denom != expCoinDenom {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom: %s, but got: %s", expCoinDenom, msg.UnfarmingCoin.Denom)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom %s, but got %s", expCoinDenom, msg.UnfarmingCoin.Denom)
 	}
 	return nil
 }
@@ -153,7 +153,7 @@ func (msg MsgUnfarmAndWithdraw) ValidateBasic() error {
 	}
 	expCoinDenom := LiquidFarmCoinDenom(msg.PoolId)
 	if msg.UnfarmingCoin.Denom != expCoinDenom {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom: %s, but got: %s", expCoinDenom, msg.UnfarmingCoin.Denom)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom %s, but got %s", expCoinDenom, msg.UnfarmingCoin.Denom)
 	}
 	return nil
 }

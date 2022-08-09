@@ -79,3 +79,16 @@ func UnmarshalQueuedFarming(cdc codec.BinaryCodec, value []byte) (msg QueuedFarm
 	err = cdc.Unmarshal(value, &msg)
 	return msg, err
 }
+
+// CalculateMintingFarmAmount calculates minting liquid farm amount.
+// TODO: spec may change
+func CalculateMintingFarmAmount() {
+	// MintingAmount = TotalSupplyLFAmount * FarmedLPAmount / TotalStakedLPAmount
+}
+
+// CalculateUnfarmAmount calculates unfarm amount.
+// UnfarmAmount = TotalStakedLPAmount / TotalSupplyLFAmount * UnfarmingLFAmount * (1 - UnfarmFeeRate)
+func CalculateUnfarmAmount(totalStakedLPAmt, totalSupplyLFAmt, unfarmingLFAmt sdk.Int, feeRate sdk.Dec) sdk.Int {
+	multiplier := sdk.OneDec().Sub(feeRate)
+	return totalStakedLPAmt.ToDec().Quo(totalSupplyLFAmt.ToDec()).Mul(unfarmingLFAmt.ToDec()).Mul(multiplier).TruncateInt()
+}
