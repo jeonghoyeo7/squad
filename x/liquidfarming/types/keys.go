@@ -27,8 +27,8 @@ var (
 
 	LiquidFarmKeyPrefix = []byte{0xe3}
 
-	CompoundingRewardsPrefix = []byte{0xe6}
-	RewardsAuctionKeyPrefix  = []byte{0xe7}
+	CompoundingRewardsKeyPrefix = []byte{0xe6}
+	RewardsAuctionKeyPrefix     = []byte{0xe7}
 
 	BidKeyPrefix        = []byte{0xea}
 	WinningBidKeyPrefix = []byte{0xeb}
@@ -49,7 +49,7 @@ func GetLiquidFarmKey(poolId uint64) []byte {
 // GetCompoundingRewardsKey returns the store key to retrieve the compounding rewards object
 // by the given pool id.
 func GetCompoundingRewardsKey(poolId uint64) []byte {
-	return append(CompoundingRewardsPrefix, sdk.Uint64ToBigEndian(poolId)...)
+	return append(CompoundingRewardsKeyPrefix, sdk.Uint64ToBigEndian(poolId)...)
 }
 
 // GetRewardsAuctionKey returns the store key to retrieve the rewards auction object

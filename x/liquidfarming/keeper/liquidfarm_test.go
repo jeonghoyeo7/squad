@@ -215,15 +215,15 @@ func (s *KeeperTestSuite) TestUnfarm_Partial() {
 	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
 	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
 
+	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
+	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)
+
 	var (
 		farmerAddr1 = s.addr(1)
 		amount1     = sdk.NewInt(5_000_000_000)
 
 		farmerAddr2 = s.addr(2)
 		amount2     = sdk.NewInt(1_000_000_000)
-
-		reserveAddr = types.LiquidFarmReserveAddress(pool.Id)
-		lfCoinDenom = types.LiquidFarmCoinDenom(pool.Id)
 	)
 
 	s.farm(pool.Id, farmerAddr1, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
@@ -292,15 +292,15 @@ func (s *KeeperTestSuite) TestUnfarm_Complex_WithRewards() {
 	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
 	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
 
+	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
+	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)
+
 	var (
 		farmerAddr1 = s.addr(1)
 		amount1     = sdk.NewInt(1_000_000_000)
 
 		farmerAddr2 = s.addr(2)
 		amount2     = sdk.NewInt(1_000_000_000)
-
-		reserveAddr = types.LiquidFarmReserveAddress(pool.Id)
-		lfCoinDenom = types.LiquidFarmCoinDenom(pool.Id)
 	)
 
 	s.farm(pool.Id, farmerAddr1, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
@@ -490,4 +490,125 @@ func (s *KeeperTestSuite) TestTerminateLiquidFarm() {
 
 	// Ensure all staked coins is zero
 	s.Require().True(s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, types.LiquidFarmReserveAddress(1)).IsZero())
+}
+
+func (s *KeeperTestSuite) TestMintAndBurnRate() {
+	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+
+	epochAmt := int64(100_000_000)
+	s.createPrivateFixedAmountPlan(
+		s.addr(0),
+		map[string]string{pool.PoolCoinDenom: "1"},
+		map[string]int64{"denom3": epochAmt},
+		true,
+	)
+
+	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
+
+	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)
+
+	var (
+		farmerAddr1 = s.addr(1)
+		amount1     = sdk.NewInt(5_000_000_000)
+	)
+
+	s.farm(pool.Id, farmerAddr1, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
+	s.nextBlock()
+
+	// Ensure the amount of minted LFCoin
+	s.Require().Equal(amount1, s.getBalance(farmerAddr1, lfCoinDenom).Amount)
+
+	s.advanceEpochDays()
+
+	// Ensure rewards auction is created
+	auctionId := s.keeper.GetLastRewardsAuctionId(s.ctx, pool.Id)
+	auction, found := s.keeper.GetRewardsAuction(s.ctx, pool.Id, auctionId)
+	s.Require().True(found)
+
+	var (
+		bidderAddr1 = s.addr(10)
+		biddingAmt1 = sdk.NewInt(100_000_000)
+
+		bidderAddr2 = s.addr(11)
+		biddingAmt2 = sdk.NewInt(200_000_000)
+	)
+
+	s.placeBid(auction.PoolId, bidderAddr1, sdk.NewCoin(pool.PoolCoinDenom, biddingAmt1), true)
+	s.placeBid(auction.PoolId, bidderAddr2, sdk.NewCoin(pool.PoolCoinDenom, biddingAmt2), true)
+
+	//
+	// Farm -> Unfarm in different epoch
+	//
+
+	var (
+		farmerAddr2 = s.addr(2)
+		amount2     = sdk.NewInt(1_000_000_000)
+	)
+
+	s.farm(pool.Id, farmerAddr2, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
+	s.nextBlock()
+
+	// Ensure the amount of minted LFCoin
+	s.Require().Equal(amount2, s.getBalance(farmerAddr2, lfCoinDenom).Amount) // 1000000000lf1
+
+	s.advanceEpochDays()
+
+	// Ensure compounding rewards are updated with the new bidding amount in the store
+	rewards, found := s.keeper.GetCompoundingRewards(s.ctx, pool.Id)
+	s.Require().True(found)
+	s.Require().Equal(biddingAmt2, rewards.Amount)
+
+	s.unfarm(pool.Id, farmerAddr2, s.getBalance(farmerAddr2, lfCoinDenom), false)
+	s.nextBlock()
+
+	// Ensure the balance
+	s.Require().Equal(amount2, s.getBalance(farmerAddr2, pool.PoolCoinDenom).Amount) // 1000000000pool1
+
+	//
+	// Farm & Unfarm within the same epoch
+	//
+
+	var (
+		farmerAddr3 = s.addr(3)
+		amount3     = sdk.NewInt(1_000_000_000)
+	)
+
+	s.farm(pool.Id, farmerAddr3, sdk.NewCoin(pool.PoolCoinDenom, amount3), true)
+	s.nextBlock()
+
+	// Ensure the amount of minted LFCoin is less than the amount of farmed pool coin
+	s.Require().True(s.getBalance(farmerAddr3, lfCoinDenom).Amount.LT(amount3)) // 961538461lf1
+
+	lfCoin := s.getBalance(farmerAddr3, lfCoinDenom)
+	s.unfarm(pool.Id, farmerAddr3, lfCoin, false)
+	s.nextBlock()
+
+	// Ensure the received pool coin is less than the amount of lfCoinBalance
+	s.Require().True(s.getBalance(farmerAddr3, pool.PoolCoinDenom).Amount.LT(amount3)) // 967741935pool1
+
+	//
+	// Farm -> Rewards -> Unfarm in the different epoch
+	//
+
+	var (
+		farmerAddr4 = s.addr(4)
+		amount4     = sdk.NewInt(1_000_000_000)
+	)
+
+	s.farm(pool.Id, farmerAddr4, sdk.NewCoin(pool.PoolCoinDenom, amount4), true)
+	s.nextBlock()
+
+	// Ensure the amount of minted LFCoin is less than the amount of farmed pool coin
+	s.Require().True(s.getBalance(farmerAddr4, lfCoinDenom).Amount.LT(amount4)) // 955610357lf1
+
+	s.advanceEpochDays()
+
+	lfCoin = s.getBalance(farmerAddr4, lfCoinDenom)
+	s.unfarm(pool.Id, farmerAddr4, lfCoin, false)
+	s.nextBlock()
+
+	// Ensure the received pool coin is less than the amount of lfCoinBalance
+	s.Require().True(s.getBalance(farmerAddr3, pool.PoolCoinDenom).Amount.LT(amount3)) // 999999999pool1
 }
