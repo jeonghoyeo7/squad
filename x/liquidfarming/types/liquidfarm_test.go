@@ -154,14 +154,14 @@ func TestCalculateUnfarmAmount(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			unfarmAmt := types.CalculateUnfarmAmount(
+			unfarmedAmt := types.CalculateUnfarmedAmount(
 				tc.totalSupplyLFAmt,
 				tc.totalStakedLPAmt,
 				tc.totalQueuedLPAmt,
 				tc.unfarmingLFAmt,
 				tc.compoundingRewards,
 			)
-			require.Equal(t, tc.expectedAmt, unfarmAmt)
+			require.Equal(t, tc.expectedAmt, unfarmedAmt)
 		})
 	}
 }

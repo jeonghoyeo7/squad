@@ -71,11 +71,11 @@ func (msg MsgFarm) GetFarmer() sdk.AccAddress {
 }
 
 // NewMsgUnfarm creates a new MsgUnfarm
-func NewMsgUnfarm(poolId uint64, farmer string, unfarmingCoin sdk.Coin) *MsgUnfarm {
+func NewMsgUnfarm(poolId uint64, farmer string, burningCoin sdk.Coin) *MsgUnfarm {
 	return &MsgUnfarm{
-		PoolId:        poolId,
-		Farmer:        farmer,
-		UnfarmingCoin: unfarmingCoin,
+		PoolId:      poolId,
+		Farmer:      farmer,
+		BurningCoin: burningCoin,
 	}
 }
 
@@ -90,15 +90,15 @@ func (msg MsgUnfarm) ValidateBasic() error {
 	if msg.PoolId == 0 {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid pool id")
 	}
-	if !msg.UnfarmingCoin.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "unfarming coin must be positive")
+	if !msg.BurningCoin.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "burning coin must be positive")
 	}
-	if err := msg.UnfarmingCoin.Validate(); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid unfarming coin: %v", err)
+	if err := msg.BurningCoin.Validate(); err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid burning coin: %v", err)
 	}
 	expCoinDenom := LiquidFarmCoinDenom(msg.PoolId)
-	if msg.UnfarmingCoin.Denom != expCoinDenom {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom %s, but got %s", expCoinDenom, msg.UnfarmingCoin.Denom)
+	if msg.BurningCoin.Denom != expCoinDenom {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom %s, but got %s", expCoinDenom, msg.BurningCoin.Denom)
 	}
 	return nil
 }

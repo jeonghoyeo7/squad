@@ -33,16 +33,15 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	}
 
 	// Sort map keys for deterministic execution
-	var pairIds []uint64
-	for pairId := range liquidFarmSet {
-		pairIds = append(pairIds, pairId)
+	var poolIds []uint64
+	for poolId := range liquidFarmSet {
+		poolIds = append(poolIds, poolId)
 	}
-	sort.Slice(pairIds, func(i, j int) bool {
-		return pairIds[i] < pairIds[j]
+	sort.Slice(poolIds, func(i, j int) bool {
+		return poolIds[i] < poolIds[j]
 	})
 
-	// Remove liquid farm when it is removed in params
-	for _, pairId := range pairIds {
-		k.RemoveLiquidFarm(ctx, liquidFarmSet[pairId])
+	for _, poolId := range poolIds {
+		k.HandleRemovedLiquidFarm(ctx, liquidFarmSet[poolId])
 	}
 }

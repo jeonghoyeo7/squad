@@ -87,5 +87,9 @@ enum AuctionStatus {
   // AUCTION_STATUS_FINISHED defines the finished auction status
   AUCTION_STATUS_FINISHED = 2
       [ (gogoproto.enumvalue_customname) = "AuctionStatusFinished" ];
+
+  // AUCTION_STATUS_SKIPPED defines the skipped auction status
+  AUCTION_STATUS_SKIPPED = 3
+      [ (gogoproto.enumvalue_customname) = "AuctionStatusSkipped" ];
 }
 

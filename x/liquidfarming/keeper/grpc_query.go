@@ -41,14 +41,18 @@ func (k Querier) LiquidFarms(c context.Context, req *types.QueryLiquidFarmsReque
 
 	liquidFarmsRes := []types.LiquidFarmResponse{}
 	for _, liquidFarm := range k.GetAllLiquidFarms(ctx) {
-		reserveAcc := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
+		reserveAddr := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
 		poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
-		queuedAmt := k.farmingKeeper.GetAllQueuedCoinsByFarmer(ctx, reserveAcc).AmountOf(poolCoinDenom)
-		stakedAmt := k.farmingKeeper.GetAllStakedCoinsByFarmer(ctx, reserveAcc).AmountOf(poolCoinDenom)
+		queuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
+		stakedAmt := sdk.ZeroInt()
+		staking, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+		if found {
+			stakedAmt = staking.Amount
+		}
 
 		liquidFarmsRes = append(liquidFarmsRes, types.LiquidFarmResponse{
 			PoolId:                   liquidFarm.PoolId,
-			LiquidFarmReserveAddress: reserveAcc.String(),
+			LiquidFarmReserveAddress: reserveAddr.String(),
 			LFCoinDenom:              types.LiquidFarmCoinDenom(liquidFarm.PoolId),
 			MinimumFarmAmount:        liquidFarm.MinimumFarmAmount,
 			MinimumBidAmount:         liquidFarm.MinimumBidAmount,
@@ -75,14 +79,18 @@ func (k Querier) LiquidFarm(c context.Context, req *types.QueryLiquidFarmRequest
 	liquidFarmRes := types.LiquidFarmResponse{}
 	for _, liquidFarm := range k.GetAllLiquidFarms(ctx) {
 		if liquidFarm.PoolId == req.PoolId {
-			reserveAcc := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
+			reserveAddr := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
 			poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
-			queuedAmt := k.farmingKeeper.GetAllQueuedCoinsByFarmer(ctx, reserveAcc).AmountOf(poolCoinDenom)
-			stakedAmt := k.farmingKeeper.GetAllStakedCoinsByFarmer(ctx, reserveAcc).AmountOf(poolCoinDenom)
+			queuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
+			stakedAmt := sdk.ZeroInt()
+			staking, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+			if found {
+				stakedAmt = staking.Amount
+			}
 
 			liquidFarmRes = types.LiquidFarmResponse{
 				PoolId:                   liquidFarm.PoolId,
-				LiquidFarmReserveAddress: reserveAcc.String(),
+				LiquidFarmReserveAddress: reserveAddr.String(),
 				LFCoinDenom:              types.LiquidFarmCoinDenom(liquidFarm.PoolId),
 				MinimumFarmAmount:        liquidFarm.MinimumFarmAmount,
 				MinimumBidAmount:         liquidFarm.MinimumBidAmount,

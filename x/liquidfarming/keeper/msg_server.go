@@ -24,7 +24,7 @@ var _ types.MsgServer = msgServer{}
 func (m msgServer) Farm(goCtx context.Context, msg *types.MsgFarm) (*types.MsgFarmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if err := m.Keeper.Farm(ctx, msg); err != nil {
+	if err := m.Keeper.Farm(ctx, msg.PoolId, msg.GetFarmer(), msg.FarmingCoin); err != nil {
 		return nil, err
 	}
 
@@ -35,7 +35,7 @@ func (m msgServer) Farm(goCtx context.Context, msg *types.MsgFarm) (*types.MsgFa
 func (m msgServer) Unfarm(goCtx context.Context, msg *types.MsgUnfarm) (*types.MsgUnfarmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if _, err := m.Keeper.Unfarm(ctx, msg.PoolId, msg.GetFarmer(), msg.UnfarmingCoin); err != nil {
+	if _, err := m.Keeper.Unfarm(ctx, msg.PoolId, msg.GetFarmer(), msg.BurningCoin); err != nil {
 		return nil, err
 	}
 
@@ -48,7 +48,7 @@ func (m msgServer) Unfarm(goCtx context.Context, msg *types.MsgUnfarm) (*types.M
 func (m msgServer) UnfarmAndWithdraw(goCtx context.Context, msg *types.MsgUnfarmAndWithdraw) (*types.MsgUnfarmAndWithdrawResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if err := m.Keeper.UnfarmAndWithdraw(ctx, msg); err != nil {
+	if err := m.Keeper.UnfarmAndWithdraw(ctx, msg.PoolId, msg.GetFarmer(), msg.UnfarmingCoin); err != nil {
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func (m msgServer) UnfarmAndWithdraw(goCtx context.Context, msg *types.MsgUnfarm
 func (m msgServer) PlaceBid(goCtx context.Context, msg *types.MsgPlaceBid) (*types.MsgPlaceBidResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if _, err := m.Keeper.PlaceBid(ctx, msg); err != nil {
+	if _, err := m.Keeper.PlaceBid(ctx, msg.PoolId, msg.GetBidder(), msg.BiddingCoin); err != nil {
 		return nil, err
 	}
 
@@ -70,7 +70,7 @@ func (m msgServer) PlaceBid(goCtx context.Context, msg *types.MsgPlaceBid) (*typ
 func (m msgServer) RefundBid(goCtx context.Context, msg *types.MsgRefundBid) (*types.MsgRefundBidResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if err := m.Keeper.RefundBid(ctx, msg); err != nil {
+	if err := m.Keeper.RefundBid(ctx, msg.PoolId, msg.GetBidder()); err != nil {
 		return nil, err
 	}
 

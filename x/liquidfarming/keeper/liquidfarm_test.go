@@ -12,7 +12,7 @@ import (
 )
 
 func (s *KeeperTestSuite) TestFarm_Validation() {
-	err := s.keeper.Farm(s.ctx, types.NewMsgFarm(1, s.addr(0).String(), utils.ParseCoin("100000000pool1")))
+	err := s.keeper.Farm(s.ctx, 1, s.addr(0), utils.ParseCoin("100000000pool1"))
 	s.Require().EqualError(err, "pool 1 not found: not found")
 
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
@@ -34,9 +34,9 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 			),
 			func(ctx sdk.Context, farmerAcc sdk.AccAddress) {
 				reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
-				queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(ctx, reserveAddr)
+				queuedAmt := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, pool.PoolCoinDenom)
 				farmerBalance := s.app.BankKeeper.GetBalance(ctx, farmerAcc, types.LiquidFarmCoinDenom(pool.Id))
-				s.Require().Equal(sdk.NewInt(1_000_000_000), queuedCoins.AmountOf(pool.PoolCoinDenom))
+				s.Require().Equal(sdk.NewInt(1_000_000_000), queuedAmt)
 				s.Require().Equal(sdk.NewInt(1_000_000_000), farmerBalance.Amount)
 			},
 			"",
@@ -69,13 +69,13 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 				sdk.NewInt64Coin(pool.PoolCoinDenom, 500_000_000),
 			),
 			nil,
-			"0 is smaller than 500000000: insufficient funds",
+			"0pool1 is smaller than 500000000pool1: insufficient funds",
 		},
 	} {
 		s.Run(tc.name, func() {
 			s.Require().NoError(tc.msg.ValidateBasic())
 			cacheCtx, _ := s.ctx.CacheContext()
-			err := s.keeper.Farm(cacheCtx, tc.msg)
+			err := s.keeper.Farm(cacheCtx, tc.msg.PoolId, tc.msg.GetFarmer(), tc.msg.FarmingCoin)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
 				tc.postRun(cacheCtx, tc.msg.GetFarmer())
@@ -90,7 +90,7 @@ func (s *KeeperTestSuite) TestFarm() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	err := s.keeper.Farm(s.ctx, types.NewMsgFarm(pool.Id, s.addr(0).String(), utils.ParseCoin("1000000pool1")))
+	err := s.keeper.Farm(s.ctx, pool.Id, s.addr(0), utils.ParseCoin("1000000pool1"))
 	s.Require().EqualError(err, "liquid farm by pool 1 not found: not found")
 
 	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
@@ -112,9 +112,9 @@ func (s *KeeperTestSuite) TestFarm() {
 	s.nextBlock()
 
 	// Check if the liquid farm reserve account staked in the farming module
-	reserveAcc := types.LiquidFarmReserveAddress(pool.Id)
-	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAcc)
-	s.Require().Equal(amount1.Add(amount2).Add(amount3), queuedCoins.AmountOf(pool.PoolCoinDenom))
+	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
+	queuedAmt := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	s.Require().Equal(amount1.Add(amount2).Add(amount3), queuedAmt)
 }
 
 func (s *KeeperTestSuite) TestUnfarm_Validation() {
@@ -154,13 +154,13 @@ func (s *KeeperTestSuite) TestUnfarm_Validation() {
 				sdk.NewInt64Coin(types.LiquidFarmCoinDenom(pool.Id), 1_000_000_000),
 			),
 			nil,
-			"0 is smaller than 1000000000: insufficient unfarming amount",
+			"0lf1 is smaller than 1000000000lf1: insufficient funds",
 		},
 	} {
 		s.Run(tc.name, func() {
 			s.Require().NoError(tc.msg.ValidateBasic())
 			cacheCtx, _ := s.ctx.CacheContext()
-			unfarmInfo, err := s.keeper.Unfarm(cacheCtx, tc.msg.PoolId, tc.msg.GetFarmer(), tc.msg.UnfarmingCoin)
+			unfarmInfo, err := s.keeper.Unfarm(cacheCtx, tc.msg.PoolId, tc.msg.GetFarmer(), tc.msg.BurningCoin)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
 				tc.postRun(cacheCtx, unfarmInfo)
@@ -189,8 +189,8 @@ func (s *KeeperTestSuite) TestUnfarm_All() {
 	s.nextBlock()
 
 	// Farm amount must be 100
-	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
-	s.Require().Equal(amount1, queuedCoins.AmountOf(pool.PoolCoinDenom))
+	queuedAmt := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	s.Require().Equal(amount1, queuedAmt)
 
 	// Ensure the amount of minted LFCoin
 	balance := s.getBalance(farmerAddr, lfCoinDenom)
@@ -200,8 +200,8 @@ func (s *KeeperTestSuite) TestUnfarm_All() {
 	s.unfarm(pool.Id, farmerAddr, balance, false)
 
 	// Ensure that queued coins must be zero amount
-	queuedCoins = s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
-	s.Require().Equal(sdk.ZeroInt(), queuedCoins.AmountOf(pool.PoolCoinDenom))
+	queuedAmt = s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	s.Require().Equal(sdk.ZeroInt(), queuedAmt)
 
 	// Ensure the total supply
 	supply := s.app.BankKeeper.GetSupply(s.ctx, lfCoinDenom)
@@ -232,9 +232,9 @@ func (s *KeeperTestSuite) TestUnfarm_Partial() {
 	s.farm(pool.Id, farmerAddr2, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
 	s.nextBlock()
 
-	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
+	queuedAmt := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	stakedCoins := s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr)
-	s.Require().Equal(amount1.Add(amount2), queuedCoins.AmountOf(pool.PoolCoinDenom))
+	s.Require().Equal(amount1.Add(amount2), queuedAmt)
 	s.Require().Equal(sdk.ZeroInt(), stakedCoins.AmountOf(pool.PoolCoinDenom))
 
 	// Ensure the amount of minted LFCoin
@@ -268,9 +268,9 @@ func (s *KeeperTestSuite) TestUnfarm_Partial() {
 	s.unfarm(pool.Id, farmerAddr3, s.getBalance(farmerAddr3, lfCoinDenom), false)
 
 	// Ensure that queued and staked coins
-	queuedCoins = s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
+	queuedAmt = s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	stakedCoins = s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr)
-	s.Require().Equal(sdk.ZeroInt(), queuedCoins.AmountOf(pool.PoolCoinDenom))
+	s.Require().Equal(sdk.ZeroInt(), queuedAmt)
 	s.Require().Equal(amount1, stakedCoins.AmountOf(pool.PoolCoinDenom))
 
 	// Ensure the total supply
@@ -414,7 +414,7 @@ func (s *KeeperTestSuite) TestUnfarmAndWithdraw() {
 	s.Require().Equal(sdk.NewCoin(lfCoinDenom, poolAmt), lfCoinBalance)
 
 	// Call UnfarmAndWithdraw
-	err := s.keeper.UnfarmAndWithdraw(s.ctx, types.NewMsgUnfarmAndWithdraw(pool.Id, s.addr(0).String(), lfCoinBalance))
+	err := s.keeper.UnfarmAndWithdraw(s.ctx, pool.Id, s.addr(0), lfCoinBalance)
 	s.Require().NoError(err)
 
 	// Call nextBlock as Withdraw is executed in batch

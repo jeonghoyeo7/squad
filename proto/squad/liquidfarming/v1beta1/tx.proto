@@ -50,7 +50,7 @@ message MsgUnfarm {
 
   string farmer = 2;
 
-  cosmos.base.v1beta1.Coin unfarming_coin = 3 [
+  cosmos.base.v1beta1.Coin burning_coin = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
   ];
