@@ -212,10 +212,11 @@ func (k Keeper) UnfarmAndWithdraw(ctx sdk.Context, msg *types.MsgUnfarmAndWithdr
 func (k Keeper) RemoveLiquidFarm(ctx sdk.Context, liquidFarm types.LiquidFarm) {
 	reserveAddr := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
 	stakedCoins := k.farmingKeeper.GetAllStakedCoinsByFarmer(ctx, reserveAddr)
-
-	// Unstake all staked coins so that there will be no rewards accumulating
-	if err := k.farmingKeeper.Unstake(ctx, reserveAddr, stakedCoins); err != nil {
-		panic(err)
+	if !stakedCoins.IsZero() {
+		// Unstake all staked coins so that there will be no rewards accumulating
+		if err := k.farmingKeeper.Unstake(ctx, reserveAddr, stakedCoins); err != nil {
+			panic(err)
+		}
 	}
 
 	auctionId := k.GetLastRewardsAuctionId(ctx, liquidFarm.PoolId)
