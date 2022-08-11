@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	utils "github.com/cosmosquad-labs/squad/v2/types"
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
@@ -10,19 +9,30 @@ import (
 	_ "github.com/stretchr/testify/suite"
 )
 
-func (s *KeeperTestSuite) TestPlaceBid() {
+func (s *KeeperTestSuite) TestPlaceBid_Validation() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	_, err := s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
-		PoolId:      pool.Id,
-		Bidder:      s.addr(0).String(),
-		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000)},
-	)
-	s.Require().ErrorIs(err, sdkerrors.ErrNotFound)
+	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.NewInt(1_000_000)))
+	s.farm(pool.Id, s.addr(0), utils.ParseCoin("10_000_000pool1"), true)
+	s.nextBlock()
 
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.NewInt(10_000_000), sdk.NewInt(10_000_000)))
 	s.createRewardsAuction(pool.Id)
+
+	auctionId := s.keeper.GetLastRewardsAuctionId(s.ctx, pool.Id)
+	_, found := s.keeper.GetRewardsAuction(s.ctx, pool.Id, auctionId)
+	s.Require().True(found)
+
+	s.placeBid(pool.Id, s.addr(1), utils.ParseCoin("10_000_000pool1"), true)
+	s.nextBlock()
+
+	s.placeBid(pool.Id, s.addr(2), utils.ParseCoin("15_000_000pool1"), true)
+	s.nextBlock()
+
+	bids := s.keeper.GetBidsByPoolId(s.ctx, pool.Id)
+	s.Require().Len(bids, 2)
+
+	s.fundAddr(s.addr(5), utils.ParseCoins("100pool1"))
 
 	for _, tc := range []struct {
 		name        string
@@ -35,49 +45,46 @@ func (s *KeeperTestSuite) TestPlaceBid() {
 			types.NewMsgPlaceBid(
 				pool.Id,
 				s.addr(0).String(),
-				sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000),
+				sdk.NewInt64Coin(pool.PoolCoinDenom, 30_000_000),
 			),
 			func(ctx sdk.Context, bid types.Bid) {
 				s.Require().Equal(pool.Id, bid.PoolId)
 				s.Require().Equal(s.addr(0), bid.GetBidder())
-				s.Require().Equal(sdk.NewInt(1_000_000_000), bid.Amount.Amount)
+				s.Require().Equal(sdk.NewInt64Coin(pool.PoolCoinDenom, 30_000_000), bid.Amount)
 			},
 			"",
 		},
 		{
-			"insufficient balance",
+			"insufficient funds",
 			types.NewMsgPlaceBid(
 				pool.Id,
-				s.addr(0).String(),
-				sdk.NewInt64Coin(pool.PoolCoinDenom, 5_000_000_000_000_000),
+				s.addr(5).String(),
+				sdk.NewInt64Coin(pool.PoolCoinDenom, 30_000_000),
 			),
 			nil,
-			"1000000000000 is smaller than 5000000000000000: insufficient funds",
+			"100 is smaller than 30000000: insufficient funds",
 		},
 		{
-			"insufficient bidding amount",
+			"minimum bid amount",
 			types.NewMsgPlaceBid(
 				pool.Id,
-				s.addr(0).String(),
-				sdk.NewInt64Coin(pool.PoolCoinDenom, 1),
+				s.addr(5).String(),
+				sdk.NewInt64Coin(pool.PoolCoinDenom, 100),
 			),
 			nil,
-			"1 is smaller than 10000000: smaller than minimum amount",
+			"100 is smaller than 1000000: smaller than minimum amount",
 		},
 	} {
 		s.Run(tc.name, func() {
 			s.Require().NoError(tc.msg.ValidateBasic())
 			cacheCtx, _ := s.ctx.CacheContext()
+
 			bid, err := s.keeper.PlaceBid(cacheCtx, tc.msg)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
 				bid, found := s.keeper.GetBid(cacheCtx, bid.PoolId, bid.GetBidder())
 				s.Require().True(found)
 				tc.postRun(cacheCtx, bid)
-
-				auctionId := s.keeper.GetLastRewardsAuctionId(cacheCtx, bid.PoolId)
-				_, found = s.keeper.GetWinningBid(cacheCtx, bid.PoolId, auctionId)
-				s.Require().True(found)
 			} else {
 				s.Require().EqualError(err, tc.expectedErr)
 			}
@@ -85,51 +92,46 @@ func (s *KeeperTestSuite) TestPlaceBid() {
 	}
 }
 
-func (s *KeeperTestSuite) TestPlaceBid_OtherCases() {
+func (s *KeeperTestSuite) TestPlaceBid() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.NewInt(10_000_000), sdk.NewInt(10_000_000)))
-	s.createRewardsAuction(pool.Id)
 
-	// Place a bid successfully
 	_, err := s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
 		PoolId:      pool.Id,
 		Bidder:      s.addr(0).String(),
-		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 500_000_000)},
+		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000)},
+	)
+	s.Require().EqualError(err, "liquid farm by pool 1 not found: not found")
+
+	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.NewInt(10_000_000), sdk.NewInt(10_000_000)))
+	s.farm(pool.Id, s.addr(0), utils.ParseCoin("10_000_000pool1"), true)
+
+	s.advanceEpochDays() // advance epoch to move from QueuedCoins to StakedCoins
+
+	_, err = s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
+		PoolId:      pool.Id,
+		Bidder:      s.addr(0).String(),
+		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000)},
+	)
+	s.Require().EqualError(err, "auction by pool 1 not found: not found")
+
+	s.advanceEpochDays() // trigger AfterAllocateRewards hook to create rewards auction
+
+	// Place a bid successfully
+	_, err = s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
+		PoolId:      pool.Id,
+		Bidder:      s.addr(0).String(),
+		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000)},
 	)
 	s.Require().NoError(err)
 
 	// Error: bid already exists
-	s.fundAddr(s.addr(0), utils.ParseCoins("500_000_000pool1"))
 	_, err = s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
 		PoolId:      pool.Id,
 		Bidder:      s.addr(0).String(),
-		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 500_000_000)},
+		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 150_000_000)},
 	)
-	s.Require().ErrorIs(err, sdkerrors.ErrInvalidRequest)
-
-	// Error: place a bid with smaller than the winning bid amount with different bidder
-	s.fundAddr(s.addr(1), utils.ParseCoins("1_000_000_000pool1"))
-	_, err = s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
-		PoolId:      pool.Id,
-		Bidder:      s.addr(1).String(),
-		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000)},
-	)
-	s.Require().ErrorIs(err, types.ErrSmallerThanMinimumAmount)
-
-	// Place a bid with more bidding amount with different bidder
-	newBiddingAmt := sdk.NewInt(1_000_000_000)
-	_, err = s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
-		PoolId:      pool.Id,
-		Bidder:      s.addr(1).String(),
-		BiddingCoin: sdk.NewCoin(pool.PoolCoinDenom, newBiddingAmt)},
-	)
-	s.Require().NoError(err)
-
-	auctionId := s.keeper.GetLastRewardsAuctionId(s.ctx, pool.Id)
-	winningBid, found := s.keeper.GetWinningBid(s.ctx, pool.Id, auctionId)
-	s.Require().True(found)
-	s.Require().Equal(newBiddingAmt, winningBid.Amount.Amount)
+	s.Require().EqualError(err, "refund the previous bid to place new bid: invalid request")
 }
 
 func (s *KeeperTestSuite) TestRefundBid() {
@@ -159,15 +161,6 @@ func (s *KeeperTestSuite) TestRefundBid() {
 			"",
 		},
 		{
-			"refund winning bid",
-			types.NewMsgRefundBid(
-				pool.Id,
-				s.addr(1).String(),
-			),
-			nil,
-			"winning bid can't be refunded: invalid request",
-		},
-		{
 			"auction not found",
 			types.NewMsgRefundBid(
 				5,
@@ -176,6 +169,15 @@ func (s *KeeperTestSuite) TestRefundBid() {
 			nil,
 			"auction by pool 5 not found: not found",
 		},
+		{
+			"refund winning bid",
+			types.NewMsgRefundBid(
+				pool.Id,
+				s.addr(1).String(),
+			),
+			nil,
+			"winning bid can't be refunded: invalid request",
+		},
 	} {
 		s.Run(tc.name, func() {
 			s.Require().NoError(tc.msg.ValidateBasic())
@@ -183,7 +185,6 @@ func (s *KeeperTestSuite) TestRefundBid() {
 			err := s.keeper.RefundBid(cacheCtx, tc.msg)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
-
 				_, found := s.keeper.GetBid(cacheCtx, tc.msg.PoolId, s.addr(0))
 				s.Require().False(found)
 			} else {
@@ -201,6 +202,7 @@ func (s *KeeperTestSuite) TestAfterAllocateRewards() {
 
 	s.createPrivateFixedAmountPlan(s.addr(0), map[string]string{pool.PoolCoinDenom: "1"}, map[string]int64{"denom3": 1_000_000}, true)
 	s.farm(pool.Id, s.addr(1), sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(50_000_000)), true)
+
 	s.advanceEpochDays() // advance epoch to move from QueuedCoins to StakedCoins
 	s.advanceEpochDays() // trigger AllocateRewards hook to create the first RewardsAuction
 
@@ -214,20 +216,20 @@ func (s *KeeperTestSuite) TestAfterAllocateRewards() {
 	s.placeBid(auction.PoolId, s.addr(3), sdk.NewInt64Coin(pool.PoolCoinDenom, 30_000_000), true)
 	s.advanceEpochDays() // farming rewards are expected to be accumulated
 
-	// Check if the state of previous auction is updated
+	// Ensure the state of previous auction is updated
 	auction, found = s.keeper.GetRewardsAuction(s.ctx, auction.PoolId, auction.Id)
 	s.Require().True(found)
 	s.Require().Equal(types.AuctionStatusFinished, auction.Status)
 
-	// Check refunded pool coin amount
+	// Ensure refunded pool coin amount
 	s.Require().Equal(sdk.NewInt(10_000_000), s.getBalance(s.addr(1), pool.PoolCoinDenom).Amount)
 	s.Require().Equal(sdk.NewInt(20_000_000), s.getBalance(s.addr(2), pool.PoolCoinDenom).Amount)
 	s.Require().Equal(sdk.ZeroInt(), s.getBalance(s.addr(3), pool.PoolCoinDenom).Amount)
 
-	// Check winner's balance to see if they received farming rewards
+	// Ensure winner's balance to see if they received farming rewards
 	s.Require().Equal(sdk.NewInt(1_000_000), s.getBalance(s.addr(3), "denom3").Amount)
 
-	// Check newly staked amount by the liquid farm reserve account
+	// Ensure newly staked amount by the liquid farm reserve account
 	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, types.LiquidFarmReserveAddress(pool.Id))
 	s.Require().Equal(sdk.NewInt(30_000_000), queuedCoins.AmountOf(pool.PoolCoinDenom))
 }
@@ -240,6 +242,7 @@ func (s *KeeperTestSuite) TestAfterAllocateRewards_NoBid() {
 
 	s.createPrivateFixedAmountPlan(s.addr(0), map[string]string{pool.PoolCoinDenom: "1"}, map[string]int64{"denom3": 1_000_000}, true)
 	s.farm(pool.Id, s.addr(1), sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(50_000_000)), true)
+
 	s.advanceEpochDays() // advance epoch to move from QueuedCoins to StakedCoins
 	s.advanceEpochDays() // trigger AllocateRewards hook to create the first RewardsAuction
 

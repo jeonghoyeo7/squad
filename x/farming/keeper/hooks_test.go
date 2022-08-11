@@ -13,12 +13,7 @@ var _ types.FarmingHooks = (*MockFarmingHooksReceiver)(nil)
 
 // MockFarmingHooksReceiver event hooks for farming object (noalias)
 type MockFarmingHooksReceiver struct {
-	AfterStakedValid          bool
 	AfterAllocateRewardsValid bool
-}
-
-func (h *MockFarmingHooksReceiver) AfterStaked(ctx sdk.Context, farmer sdk.AccAddress, stakingCoinDenom string, stakingAmt sdk.Int) {
-	h.AfterStakedValid = true
 }
 
 func (h *MockFarmingHooksReceiver) AfterAllocateRewards(ctx sdk.Context) {
@@ -34,7 +29,6 @@ func (s *KeeperTestSuite) TestHooks() {
 	)
 
 	// Default must be false
-	s.Require().False(farmingHooksReceiver.AfterStakedValid)
 	s.Require().False(farmingHooksReceiver.AfterAllocateRewardsValid)
 
 	// Create sample farming plan
@@ -48,6 +42,5 @@ func (s *KeeperTestSuite) TestHooks() {
 	s.advanceEpochDays()
 
 	// Must be true
-	s.Require().True(farmingHooksReceiver.AfterStakedValid)
 	s.Require().True(farmingHooksReceiver.AfterAllocateRewardsValid)
 }

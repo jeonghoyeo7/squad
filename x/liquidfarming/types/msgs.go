@@ -9,18 +9,16 @@ var (
 	_ sdk.Msg = (*MsgFarm)(nil)
 	_ sdk.Msg = (*MsgUnfarm)(nil)
 	_ sdk.Msg = (*MsgUnfarmAndWithdraw)(nil)
-	_ sdk.Msg = (*MsgCancelQueuedFarming)(nil)
 	_ sdk.Msg = (*MsgPlaceBid)(nil)
 )
 
 // Message types for the module
 const (
-	TypeMsgFarm                = "farm"
-	TypeMsgUnfarm              = "unfarm"
-	TypeMsgUnfarmAndWithdraw   = "unfarm_and_withdraw"
-	TypeMsgCancelQueuedFarming = "cancel_queued_farming"
-	TypeMsgPlaceBid            = "place_bid"
-	TypeMsgRefundBid           = "refund_bid"
+	TypeMsgFarm              = "farm"
+	TypeMsgUnfarm            = "unfarm"
+	TypeMsgUnfarmAndWithdraw = "unfarm_and_withdraw"
+	TypeMsgPlaceBid          = "place_bid"
+	TypeMsgRefundBid         = "refund_bid"
 )
 
 // NewMsgFarm creates a new MsgFarm
@@ -171,55 +169,6 @@ func (msg MsgUnfarmAndWithdraw) GetSigners() []sdk.AccAddress {
 }
 
 func (msg MsgUnfarmAndWithdraw) GetFarmer() sdk.AccAddress {
-	addr, err := sdk.AccAddressFromBech32(msg.Farmer)
-	if err != nil {
-		panic(err)
-	}
-	return addr
-}
-
-// NewMsgCancelQueuedFarming creates a new MsgCancelQueuedFarming
-func NewMsgCancelQueuedFarming(poolId uint64, farmer string, unfarmingCoin sdk.Coin) *MsgCancelQueuedFarming {
-	return &MsgCancelQueuedFarming{
-		PoolId:        poolId,
-		Farmer:        farmer,
-		UnfarmingCoin: unfarmingCoin,
-	}
-}
-
-func (msg MsgCancelQueuedFarming) Route() string { return RouterKey }
-
-func (msg MsgCancelQueuedFarming) Type() string { return TypeMsgCancelQueuedFarming }
-
-func (msg MsgCancelQueuedFarming) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(msg.Farmer); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid farmer address: %v", err)
-	}
-	if msg.PoolId == 0 {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid pool id")
-	}
-	if !msg.UnfarmingCoin.IsPositive() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "unfarming coin must be positive")
-	}
-	if err := msg.UnfarmingCoin.Validate(); err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid unfarming coin: %v", err)
-	}
-	return nil
-}
-
-func (msg MsgCancelQueuedFarming) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
-}
-
-func (msg MsgCancelQueuedFarming) GetSigners() []sdk.AccAddress {
-	addr, err := sdk.AccAddressFromBech32(msg.Farmer)
-	if err != nil {
-		panic(err)
-	}
-	return []sdk.AccAddress{addr}
-}
-
-func (msg MsgCancelQueuedFarming) GetFarmer() sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.Farmer)
 	if err != nil {
 		panic(err)

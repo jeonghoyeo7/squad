@@ -10,5 +10,4 @@ import (
 var (
 	ErrSmallerThanMinimumAmount    = sdkerrors.Register(ModuleName, 2, "smaller than minimum amount")
 	ErrInsufficientUnfarmingAmount = sdkerrors.Register(ModuleName, 3, "insufficient unfarming amount")
-	ErrInvalidAuctionStatus        = sdkerrors.Register(ModuleName, 4, "invalid auction status")
 )

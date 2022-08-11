@@ -36,8 +36,8 @@ func NewRewardsAuction(
 		StartTime:            startTime,
 		EndTime:              endTime,
 		Status:               AuctionStatusStarted,
-		Winner:               "",
-		Rewards:              sdk.Coins{},
+		Winner:               "",          // the value is determined when the auction is finished
+		Rewards:              sdk.Coins{}, // the value is updated every epoch basis
 	}
 }
 

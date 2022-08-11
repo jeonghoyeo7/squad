@@ -20,7 +20,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-// Farm defines a method for depositing pool coin and the module mints LFCoin at the end of epoch.
+// Farm defines a method for farming pool coin to get minted LFCoin.
 func (m msgServer) Farm(goCtx context.Context, msg *types.MsgFarm) (*types.MsgFarmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -31,7 +31,7 @@ func (m msgServer) Farm(goCtx context.Context, msg *types.MsgFarm) (*types.MsgFa
 	return &types.MsgFarmResponse{}, nil
 }
 
-// Unfarm defines a method for unfarming LFCoin.
+// Unfarm defines a method for unfarming LFCoin to receive the corresponding amount of pool coin.
 func (m msgServer) Unfarm(goCtx context.Context, msg *types.MsgUnfarm) (*types.MsgUnfarmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -42,7 +42,9 @@ func (m msgServer) Unfarm(goCtx context.Context, msg *types.MsgUnfarm) (*types.M
 	return &types.MsgUnfarmResponse{}, nil
 }
 
-// UnfarmAndWithdraw defines a method for unfarming LFCoin and withdraw pool coin from the pool.
+// UnfarmAndWithdraw defines a method for unfarming LFCoin and withdraw the corresponding amount of pool coin
+// from the pool in the liquidity module.
+// This is a convenient transaction message for a bidder to use when they participate in rewards auction.
 func (m msgServer) UnfarmAndWithdraw(goCtx context.Context, msg *types.MsgUnfarmAndWithdraw) (*types.MsgUnfarmAndWithdrawResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -51,17 +53,6 @@ func (m msgServer) UnfarmAndWithdraw(goCtx context.Context, msg *types.MsgUnfarm
 	}
 
 	return &types.MsgUnfarmAndWithdrawResponse{}, nil
-}
-
-// CancelQueuedFarming defines a method for canceling the queued farming.
-func (m msgServer) CancelQueuedFarming(goCtx context.Context, msg *types.MsgCancelQueuedFarming) (*types.MsgCancelQueuedFarmingResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	if err := m.Keeper.CancelQueuedFarming(ctx, msg); err != nil {
-		return nil, err
-	}
-
-	return &types.MsgCancelQueuedFarmingResponse{}, nil
 }
 
 // PlaceBid defines a method for placing a bid for a rewards auction.
@@ -75,7 +66,7 @@ func (m msgServer) PlaceBid(goCtx context.Context, msg *types.MsgPlaceBid) (*typ
 	return &types.MsgPlaceBidResponse{}, nil
 }
 
-// RefundBid defines a method for refunding the bid that is not winning for the auction.
+// RefundBid defines a method for refunding the bid for the auction.
 func (m msgServer) RefundBid(goCtx context.Context, msg *types.MsgRefundBid) (*types.MsgRefundBidResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 

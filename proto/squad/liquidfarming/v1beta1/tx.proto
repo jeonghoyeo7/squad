@@ -17,9 +17,6 @@ service Msg {
 
   // UnfarmAndWithdraw defines a method for unfarming amount of LFCoin and withdraw pool coin from the pool
   rpc UnfarmAndWithdraw(MsgUnfarmAndWithdraw) returns (MsgUnfarmAndWithdrawResponse);
-
-  // CancelQueuedFarming defines a method for canceling the queueud farming
-  rpc CancelQueuedFarming(MsgCancelQueuedFarming) returns (MsgCancelQueuedFarmingResponse);
   
   // PlaceBid defines a method for placing a bid for a rewards auction
   rpc PlaceBid(MsgPlaceBid) returns (MsgPlaceBidResponse);
@@ -78,23 +75,6 @@ message MsgUnfarmAndWithdraw {
 
 // MsgUnfarmAndWithdrawResponse defines the MsgUnfarmAndWithdrawResponse response type.
 message MsgUnfarmAndWithdrawResponse {}
-
-// MsgCancelQueuedFarming defines a SDK message for canceling the queued farming.
-message MsgCancelQueuedFarming {
-  option (gogoproto.goproto_getters) = false;
-
-  uint64 pool_id = 1;
-
-  string farmer = 2;
-
-  cosmos.base.v1beta1.Coin unfarming_coin = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
-  ];
-}
-
-// MsgCancelQueuedFarmingResponse defines the MsgCancelQueuedFarmingResponse response type.
-message MsgCancelQueuedFarmingResponse {}
 
 // MsgPlaceBid defines a SDK message for placing a bid for a rewards auction.
 message MsgPlaceBid {

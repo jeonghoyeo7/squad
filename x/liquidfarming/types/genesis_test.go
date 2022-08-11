@@ -13,7 +13,6 @@ import (
 )
 
 func TestGenesisState_Validate(t *testing.T) {
-	validFarmer := sdk.AccAddress(crypto.AddressHash([]byte("validFarmer")))
 	validPayingReserveAddr := sdk.AccAddress(crypto.AddressHash([]byte("validPayingReserveAddr")))
 	validBidder := sdk.AccAddress(crypto.AddressHash([]byte("validBidder")))
 	validDenom := "denom1"
@@ -53,57 +52,6 @@ func TestGenesisState_Validate(t *testing.T) {
 				}
 			},
 			"invalid liquid farm pool id must not be 0",
-		},
-		{
-			"invalid queued farming record: farming coin denom",
-			func(genState *types.GenesisState) {
-				genState.QueuedFarmingRecords = []types.QueuedFarmingRecord{
-					{
-						EndTime:          utils.ParseTime("2022-08-01T00:00:00Z"),
-						Farmer:           validFarmer.String(),
-						FarmingCoinDenom: "123!@#$%",
-						QueuedFarming: types.QueuedFarming{
-							PoolId: validPoolId,
-							Amount: sdk.NewInt(100),
-						},
-					},
-				}
-			},
-			"invalid farming coin denom",
-		},
-		{
-			"invalid queued farming record: pool id",
-			func(genState *types.GenesisState) {
-				genState.QueuedFarmingRecords = []types.QueuedFarmingRecord{
-					{
-						EndTime:          utils.ParseTime("2022-08-01T00:00:00Z"),
-						Farmer:           validFarmer.String(),
-						FarmingCoinDenom: validDenom,
-						QueuedFarming: types.QueuedFarming{
-							PoolId: 0,
-							Amount: sdk.NewInt(100),
-						},
-					},
-				}
-			},
-			"pool id must not be 0",
-		},
-		{
-			"invalid queued farming record: queued farming amount",
-			func(genState *types.GenesisState) {
-				genState.QueuedFarmingRecords = []types.QueuedFarmingRecord{
-					{
-						EndTime:          utils.ParseTime("2022-08-01T00:00:00Z"),
-						Farmer:           validFarmer.String(),
-						FarmingCoinDenom: validDenom,
-						QueuedFarming: types.QueuedFarming{
-							PoolId: validPoolId,
-							Amount: sdk.NewInt(0),
-						},
-					},
-				}
-			},
-			"amount must be positive value",
 		},
 		{
 			"invalid rewards auction: pool id",
@@ -249,12 +197,11 @@ func TestGenesisState_Validate(t *testing.T) {
 					},
 				}
 			},
-			"multiple winning bids at auction id: 1",
+			"multiple winning bids at auction 1",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			genState := types.DefaultGenesis()
-			genState.QueuedFarmingRecords = []types.QueuedFarmingRecord{}
 			genState.RewardsAuctions = []types.RewardsAuction{}
 			genState.Bids = []types.Bid{}
 			genState.WinningBidRecords = []types.WinningBidRecord{}

@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
@@ -26,21 +24,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 
 	for _, liquidFarm := range genState.LiquidFarms {
 		k.SetLiquidFarm(ctx, liquidFarm)
-	}
-
-	for _, record := range genState.QueuedFarmingRecords {
-		farmerAddr, err := sdk.AccAddressFromBech32(record.Farmer)
-		if err != nil {
-			panic(err)
-		}
-
-		k.SetQueuedFarming(
-			ctx,
-			record.EndTime,
-			record.FarmingCoinDenom,
-			farmerAddr,
-			record.QueuedFarming,
-		)
 	}
 
 	for _, auction := range genState.RewardsAuctions {
@@ -71,17 +54,6 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 
 	liquidFarms := k.GetAllLiquidFarms(ctx)
 
-	queuedFarmingRecords := []types.QueuedFarmingRecord{}
-	k.IterateQueuedFarmings(ctx, func(endTime time.Time, farmingCoinDenom string, farmerAcc sdk.AccAddress, queuedFarming types.QueuedFarming) (stop bool) {
-		queuedFarmingRecords = append(queuedFarmingRecords, types.QueuedFarmingRecord{
-			EndTime:          endTime,
-			FarmingCoinDenom: farmingCoinDenom,
-			Farmer:           farmerAcc.String(),
-			QueuedFarming:    queuedFarming,
-		})
-		return false
-	})
-
 	poolIds := []uint64{}
 	for _, liquidFarm := range params.LiquidFarms {
 		poolIds = append(poolIds, liquidFarm.PoolId)
@@ -102,11 +74,10 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	}
 
 	return &types.GenesisState{
-		Params:               params,
-		LiquidFarms:          liquidFarms,
-		QueuedFarmingRecords: queuedFarmingRecords,
-		RewardsAuctions:      rewardsAuctions,
-		Bids:                 bids,
-		WinningBidRecords:    winningBidRecords,
+		Params:            params,
+		LiquidFarms:       liquidFarms,
+		RewardsAuctions:   rewardsAuctions,
+		Bids:              bids,
+		WinningBidRecords: winningBidRecords,
 	}
 }

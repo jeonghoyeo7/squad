@@ -29,7 +29,6 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(
 		NewFarmCmd(),
 		NewUnfarmCmd(),
-		NewCancelQueuedFarmingCmd(),
 		NewPlaceBidCmd(),
 		NewRefundBidCmd(),
 	)
@@ -118,53 +117,6 @@ $ %s tx %s unfarm 1 100000lf1 --from mykey
 			}
 
 			msg := types.NewMsgUnfarm(
-				poolId,
-				clientCtx.GetFromAddress().String(),
-				unfarmingCoin,
-			)
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// NewCancelQueuedFarmingCmd implements the cancel queued farming command handler.
-func NewCancelQueuedFarmingCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "cancel-queued-farming [pool-id] [unfarming-coin]",
-		Args:  cobra.ExactArgs(2),
-		Short: "Cancel queued farming",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Cancel unfarming pool coin amount from queued farming(s) with the given pool id.
-Note that you can't cancel queued farming that has already been executed because LFCoin must have been minted.
-			
-Example:
-$ %s tx %s cancel-queued-farming 1 100000pool1 --from mykey
-`,
-				version.AppName, types.ModuleName,
-			),
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
-			if err != nil {
-				return fmt.Errorf("failed to parse pool id: %w", err)
-			}
-
-			unfarmingCoin, err := sdk.ParseCoinNormalized(args[1])
-			if err != nil {
-				return fmt.Errorf("invalid coin: %w", err)
-			}
-
-			msg := types.NewMsgCancelQueuedFarming(
 				poolId,
 				clientCtx.GetFromAddress().String(),
 				unfarmingCoin,

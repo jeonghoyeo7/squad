@@ -9,13 +9,11 @@ import (
 
 // Parameter store keys
 var (
-	KeyLiquidFarms       = []byte("LiquidFarms")
-	KeyDelayedFarmGasFee = []byte("DelayedFarmGasFee")
-	KeyUnfarmFeeRate     = []byte("UnfarmFeeRate")
+	KeyLiquidFarms   = []byte("LiquidFarms")
+	KeyUnfarmFeeRate = []byte("UnfarmFeeRate")
 
-	DefaultLiquidFarms       = []LiquidFarm{}
-	DefaultDelayedFarmGasFee = sdk.Gas(60000)
-	DefaultUnfarmFeeRate     = sdk.ZeroDec()
+	DefaultLiquidFarms   = []LiquidFarm{}
+	DefaultUnfarmFeeRate = sdk.ZeroDec()
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -28,9 +26,8 @@ func ParamKeyTable() paramtypes.KeyTable {
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
 	return Params{
-		LiquidFarms:       DefaultLiquidFarms,
-		DelayedFarmGasFee: DefaultDelayedFarmGasFee,
-		UnfarmFeeRate:     DefaultUnfarmFeeRate,
+		LiquidFarms:   DefaultLiquidFarms,
+		UnfarmFeeRate: DefaultUnfarmFeeRate,
 	}
 }
 
@@ -38,7 +35,6 @@ func DefaultParams() Params {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyLiquidFarms, &p.LiquidFarms, validateLiquidFarms),
-		paramtypes.NewParamSetPair(KeyDelayedFarmGasFee, &p.DelayedFarmGasFee, validateDelayedFarmGasFee),
 		paramtypes.NewParamSetPair(KeyUnfarmFeeRate, &p.UnfarmFeeRate, validateUnfarmFeeRate),
 	}
 }
@@ -50,7 +46,6 @@ func (p Params) Validate() error {
 		validator func(interface{}) error
 	}{
 		{p.LiquidFarms, validateLiquidFarms},
-		{p.DelayedFarmGasFee, validateDelayedFarmGasFee},
 		{p.UnfarmFeeRate, validateUnfarmFeeRate},
 	} {
 		if err := v.validator(v.value); err != nil {
@@ -70,15 +65,6 @@ func validateLiquidFarms(i interface{}) error {
 		if err := liquidFarm.Validate(); err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-func validateDelayedFarmGasFee(i interface{}) error {
-	_, ok := i.(sdk.Gas)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	return nil

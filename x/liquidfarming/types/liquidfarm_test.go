@@ -1,13 +1,10 @@
 package types_test
 
 import (
-	fmt "fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
@@ -25,59 +22,148 @@ pool_id: "1"
 `, liquidFarm.String())
 }
 
-func TestQueuedFarming(t *testing.T) {
-	msg := types.QueuedFarming{
-		PoolId: 1,
-		Amount: sdk.NewInt(100_000_000),
+func TestLiquidFarmCoinDenom(t *testing.T) {
+	for _, tc := range []struct {
+		denom      string
+		expectsErr bool
+	}{
+		{"lf1", false},
+		{"lf10", false},
+		{"lf18446744073709551615", false},
+		{"lf18446744073709551616", true},
+		{"lfabc", true},
+		{"lf01", true},
+		{"lf-10", true},
+		{"lf+10", true},
+		{"ucre", true},
+		{"denom1", true},
+	} {
+		t.Run("", func(t *testing.T) {
+			poolId, err := types.ParseLiquidFarmCoinDenom(tc.denom)
+			if tc.expectsErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.denom, types.LiquidFarmCoinDenom(poolId))
+			}
+		})
 	}
+}
 
-	registry := codectypes.NewInterfaceRegistry()
-	types.RegisterInterfaces(registry)
-	cdc := codec.NewProtoCodec(registry)
+func TestLiquidFarmReserveAddress(t *testing.T) {
+	config := sdk.GetConfig()
+	addrPrefix := config.GetBech32AccountAddrPrefix()
 
-	bz, err := types.MarshalQueuedFarming(cdc, msg)
-	require.NoError(t, err)
-
-	queuedFarming, err := types.UnmarshalQueuedFarming(cdc, bz)
-	require.NoError(t, err)
-
-	require.EqualValues(t, msg, queuedFarming)
+	for _, tc := range []struct {
+		poolId   uint64
+		expected string
+	}{
+		{1, addrPrefix + "1zyyf855slxure4c8dr06p00qjnkem95d2lgv8wgvry2rt437x6tsaf9tcf"},
+		{2, addrPrefix + "1d2csu4ynxpuxll8wk72n9z98ytm649u78paj9efskjwrlc2wyhpq8h886j"},
+	} {
+		t.Run("", func(t *testing.T) {
+			require.Equal(t, tc.expected, types.LiquidFarmReserveAddress(tc.poolId).String())
+		})
+	}
 }
 
 func TestCalculateMintingFarmAmount(t *testing.T) {
-	// TODO: not implemented yet
-}
-
-func TestCalculateUnfarmAmount(t *testing.T) {
 	for _, tc := range []struct {
 		name             string
-		totalStakedLPAmt sdk.Int
 		totalSupplyLFAmt sdk.Int
-		unfarmingLFAmt   sdk.Int
-		feeRate          sdk.Dec
-		expUnfarmAmt     sdk.Int
+		totalStakedLPAmt sdk.Int
+		totalQueuedLPAmt sdk.Int
+		newFarmingAmt    sdk.Int
+		expectedAmt      sdk.Int
 	}{
 		{
-			name:             "case 1",
-			totalStakedLPAmt: sdk.NewInt(100_000),
-			totalSupplyLFAmt: sdk.NewInt(100_000),
-			unfarmingLFAmt:   sdk.NewInt(100_000),
-			feeRate:          sdk.ZeroDec(),
-			expUnfarmAmt:     sdk.NewInt(100_000),
+			name:             "initial minting",
+			totalSupplyLFAmt: sdk.ZeroInt(),
+			totalStakedLPAmt: sdk.ZeroInt(),
+			totalQueuedLPAmt: sdk.ZeroInt(),
+			newFarmingAmt:    sdk.NewInt(1_000_00_000),
+			expectedAmt:      sdk.NewInt(1_000_00_000),
 		},
 		{
-			name:             "case 2",
-			totalStakedLPAmt: sdk.NewInt(222),
-			totalSupplyLFAmt: sdk.NewInt(333),
-			unfarmingLFAmt:   sdk.NewInt(1),
-			feeRate:          sdk.ZeroDec(),
-			expUnfarmAmt:     sdk.NewInt(200_000),
+			name:             "case #1",
+			totalSupplyLFAmt: sdk.NewInt(5_000_000_000),
+			totalStakedLPAmt: sdk.ZeroInt(),
+			totalQueuedLPAmt: sdk.NewInt(5_000_000_000),
+			newFarmingAmt:    sdk.NewInt(1_000_000_000),
+			expectedAmt:      sdk.NewInt(1000000000),
 		},
 		// TODO: cover more cases
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			unfarmAmt := types.CalculateUnfarmAmount(tc.totalStakedLPAmt, tc.totalSupplyLFAmt, tc.unfarmingLFAmt, tc.feeRate)
-			fmt.Println("unfarmAmt: ", unfarmAmt)
+			mintingAmt := types.CalculateFarmMintingAmount(
+				tc.totalSupplyLFAmt,
+				tc.totalStakedLPAmt,
+				tc.totalQueuedLPAmt,
+				tc.newFarmingAmt,
+			)
+			// fmt.Println("minting: ", mintingAmt)
+			require.Equal(t, tc.expectedAmt, mintingAmt)
+		})
+	}
+}
+
+func TestCalculateUnfarmAmount(t *testing.T) {
+	for _, tc := range []struct {
+		name               string
+		totalSupplyLFAmt   sdk.Int
+		totalStakedLPAmt   sdk.Int
+		totalQueuedLPAmt   sdk.Int
+		unfarmingLFAmt     sdk.Int
+		compoundingRewards sdk.Int
+		expectedAmt        sdk.Int
+	}{
+		{
+			name:               "supply equals to unfarming amount",
+			totalSupplyLFAmt:   sdk.NewInt(100_000_000),
+			totalStakedLPAmt:   sdk.NewInt(50_000_000),
+			totalQueuedLPAmt:   sdk.NewInt(50_000_000),
+			unfarmingLFAmt:     sdk.NewInt(100_000_000),
+			compoundingRewards: sdk.ZeroInt(),
+			expectedAmt:        sdk.NewInt(100_000_000),
+		},
+		{
+			name:               "small unfarming amount",
+			totalSupplyLFAmt:   sdk.NewInt(100_000_000),
+			totalStakedLPAmt:   sdk.NewInt(50_000_000),
+			totalQueuedLPAmt:   sdk.NewInt(50_000_000),
+			unfarmingLFAmt:     sdk.NewInt(1),
+			compoundingRewards: sdk.ZeroInt(),
+			expectedAmt:        sdk.NewInt(1),
+		},
+		{
+			name:               "case #1: bidding amount is auto staked",
+			totalSupplyLFAmt:   sdk.NewInt(2000000000),
+			totalStakedLPAmt:   sdk.NewInt(2200000000),
+			totalQueuedLPAmt:   sdk.NewInt(30000000),
+			unfarmingLFAmt:     sdk.NewInt(1000000000),
+			compoundingRewards: sdk.NewInt(30000000),
+			expectedAmt:        sdk.NewInt(1100000000),
+		},
+		{
+			name:               "case #2: bidding amount is auto staked",
+			totalSupplyLFAmt:   sdk.NewInt(1000000000),
+			totalStakedLPAmt:   sdk.NewInt(1130000000),
+			totalQueuedLPAmt:   sdk.NewInt(0),
+			unfarmingLFAmt:     sdk.NewInt(1000000000),
+			compoundingRewards: sdk.NewInt(30000000),
+			expectedAmt:        sdk.NewInt(1130000000),
+		},
+		// TODO: cover more cases
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			unfarmAmt := types.CalculateUnfarmAmount(
+				tc.totalSupplyLFAmt,
+				tc.totalStakedLPAmt,
+				tc.totalQueuedLPAmt,
+				tc.unfarmingLFAmt,
+				tc.compoundingRewards,
+			)
+			require.Equal(t, tc.expectedAmt, unfarmAmt)
 		})
 	}
 }

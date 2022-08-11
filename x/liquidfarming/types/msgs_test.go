@@ -51,6 +51,7 @@ func TestMsgFarm(t *testing.T) {
 			tc.malleate(msg)
 			require.Equal(t, types.TypeMsgFarm, msg.Type())
 			require.Equal(t, types.RouterKey, msg.Route())
+			require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 			err := msg.ValidateBasic()
 			if tc.expectedErr == "" {
 				require.NoError(t, err)
@@ -109,6 +110,7 @@ func TestMsgUnfarm(t *testing.T) {
 			tc.malleate(msg)
 			require.Equal(t, types.TypeMsgUnfarm, msg.Type())
 			require.Equal(t, types.RouterKey, msg.Route())
+			require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 			err := msg.ValidateBasic()
 			if tc.expectedErr == "" {
 				require.NoError(t, err)
@@ -167,57 +169,7 @@ func TestMsgUnfarmAndWithdraw(t *testing.T) {
 			tc.malleate(msg)
 			require.Equal(t, types.TypeMsgUnfarmAndWithdraw, msg.Type())
 			require.Equal(t, types.RouterKey, msg.Route())
-			err := msg.ValidateBasic()
-			if tc.expectedErr == "" {
-				require.NoError(t, err)
-				signers := msg.GetSigners()
-				require.Len(t, signers, 1)
-				require.Equal(t, msg.GetFarmer(), signers[0])
-			} else {
-				require.EqualError(t, err, tc.expectedErr)
-			}
-		})
-	}
-}
-
-func TestMsgCancelQueuedFarming(t *testing.T) {
-	for _, tc := range []struct {
-		name        string
-		malleate    func(msg *types.MsgCancelQueuedFarming)
-		expectedErr string
-	}{
-		{
-			"happy case",
-			func(msg *types.MsgCancelQueuedFarming) {},
-			"",
-		},
-		{
-			"invalid pool id",
-			func(msg *types.MsgCancelQueuedFarming) {
-				msg.PoolId = 0
-			},
-			"invalid pool id: invalid request",
-		},
-		{
-			"invalid farmer",
-			func(msg *types.MsgCancelQueuedFarming) {
-				msg.Farmer = "invalidaddr"
-			},
-			"invalid farmer address: decoding bech32 failed: invalid separator index -1: invalid address",
-		},
-		{
-			"invalid unfarming coin",
-			func(msg *types.MsgCancelQueuedFarming) {
-				msg.UnfarmingCoin = sdk.NewInt64Coin("pool1", 0)
-			},
-			"unfarming coin must be positive: invalid request",
-		},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			msg := types.NewMsgCancelQueuedFarming(1, testAddr.String(), utils.ParseCoin("100000pool1"))
-			tc.malleate(msg)
-			require.Equal(t, types.TypeMsgCancelQueuedFarming, msg.Type())
-			require.Equal(t, types.RouterKey, msg.Route())
+			require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 			err := msg.ValidateBasic()
 			if tc.expectedErr == "" {
 				require.NoError(t, err)
@@ -269,6 +221,7 @@ func TestMsgPlaceBid(t *testing.T) {
 			tc.malleate(msg)
 			require.Equal(t, types.TypeMsgPlaceBid, msg.Type())
 			require.Equal(t, types.RouterKey, msg.Route())
+			require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 			err := msg.ValidateBasic()
 			if tc.expectedErr == "" {
 				require.NoError(t, err)
@@ -313,6 +266,7 @@ func TestMsgRefundBid(t *testing.T) {
 			tc.malleate(msg)
 			require.Equal(t, types.TypeMsgRefundBid, msg.Type())
 			require.Equal(t, types.RouterKey, msg.Route())
+			require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 			err := msg.ValidateBasic()
 			if tc.expectedErr == "" {
 				require.NoError(t, err)

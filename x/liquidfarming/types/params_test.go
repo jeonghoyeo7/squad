@@ -25,26 +25,6 @@ func TestParams_Validate(t *testing.T) {
 			"",
 		},
 		{
-			"default params",
-			func(params *types.Params) {
-				params.LiquidFarms = []types.LiquidFarm{
-					types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()),
-				}
-				params.DelayedFarmGasFee = sdk.Gas(0)
-			},
-			"",
-		},
-		{
-			"invalid params: pool id",
-			func(params *types.Params) {
-				params.LiquidFarms = []types.LiquidFarm{
-					types.NewLiquidFarm(0, sdk.ZeroInt(), sdk.ZeroInt()),
-				}
-				params.DelayedFarmGasFee = sdk.Gas(0)
-			},
-			"pool id must not be 0",
-		},
-		{
 			"negative UnfarmFeeRate",
 			func(params *types.Params) {
 				params.UnfarmFeeRate = sdk.NewDec(-1)
