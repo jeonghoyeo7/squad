@@ -31,17 +31,6 @@ func (m msgServer) Farm(goCtx context.Context, msg *types.MsgFarm) (*types.MsgFa
 	return &types.MsgFarmResponse{}, nil
 }
 
-// CancelQueuedFarming defines a method for canceling the queued farming.
-func (m msgServer) CancelQueuedFarming(goCtx context.Context, msg *types.MsgCancelQueuedFarming) (*types.MsgCancelQueuedFarmingResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	if err := m.Keeper.CancelQueuedFarming(ctx, msg); err != nil {
-		return nil, err
-	}
-
-	return &types.MsgCancelQueuedFarmingResponse{}, nil
-}
-
 // Unfarm defines a method for unfarming LFCoin.
 func (m msgServer) Unfarm(goCtx context.Context, msg *types.MsgUnfarm) (*types.MsgUnfarmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -62,6 +51,17 @@ func (m msgServer) UnfarmAndWithdraw(goCtx context.Context, msg *types.MsgUnfarm
 	}
 
 	return &types.MsgUnfarmAndWithdrawResponse{}, nil
+}
+
+// CancelQueuedFarming defines a method for canceling the queued farming.
+func (m msgServer) CancelQueuedFarming(goCtx context.Context, msg *types.MsgCancelQueuedFarming) (*types.MsgCancelQueuedFarmingResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if err := m.Keeper.CancelQueuedFarming(ctx, msg); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgCancelQueuedFarmingResponse{}, nil
 }
 
 // PlaceBid defines a method for placing a bid for a rewards auction.

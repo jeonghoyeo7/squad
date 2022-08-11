@@ -1,38 +1,35 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	utils "github.com/cosmosquad-labs/squad/v2/types"
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming"
+	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/keeper"
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
 
 	_ "github.com/stretchr/testify/suite"
 )
 
 func (s *KeeperTestSuite) TestFarm() {
-	farmerAddr := s.addr(0)
+	err := s.keeper.Farm(s.ctx, types.NewMsgFarm(1, s.addr(0).String(), utils.ParseCoin("1000000pool1")))
+	s.Require().ErrorIs(sdkerrors.ErrNotFound, err)
 
-	s.createPair(farmerAddr, "denom1", "denom2", true)
-	s.createPool(s.addr(0), 1, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
 	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
 
-	pool, found := s.app.LiquidityKeeper.GetPool(s.ctx, 1)
-	s.Require().True(found)
-
 	amount1, amount2, amount3 := sdk.NewInt(100000000), sdk.NewInt(200000000), sdk.NewInt(300000000)
 
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
+	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
 	s.nextBlock()
 
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
+	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
 	s.nextBlock()
 
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount3), true)
+	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, amount3), true)
 	s.nextBlock()
 
 	// Check if the liquid farm reserve account staked in the farming module
@@ -41,14 +38,14 @@ func (s *KeeperTestSuite) TestFarm() {
 	s.Require().Equal(amount1.Add(amount2).Add(amount3), queuedCoins.AmountOf(pool.PoolCoinDenom))
 
 	// Check queued farmings farmed by the farmer
-	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr)
+	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, s.addr(0))
 	s.Require().Len(queuedFarmings, 3)
 }
 
-func (s *KeeperTestSuite) TestFarm_MoreCases() {
+func (s *KeeperTestSuite) TestFarm_Validation() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.NewInt(100_000_000), sdk.NewInt(100_000_000)))
 
 	for _, tc := range []struct {
 		name        string
@@ -64,22 +61,40 @@ func (s *KeeperTestSuite) TestFarm_MoreCases() {
 				sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000),
 			),
 			func(ctx sdk.Context, qfs []types.QueuedFarming) {
-				for _, qf := range qfs {
-					fmt.Println("QueuedFarming: ", qf)
-				}
+				s.Require().Len(qfs, 1)
 			},
 			"",
 		},
-		// {
-		// 	"insufficient balance",
-		// 	types.NewMsgFarm(
-		// 		pool.Id,
-		// 		s.addr(0).String(),
-		// 		sdk.NewInt64Coin(pool.PoolCoinDenom, 5_000_000_000_000_000),
-		// 	),
-		// 	nil,
-		// 	"1000000000000 is smaller than 5000000000000000: insufficient funds",
-		// },
+		{
+			"minimum farm amount",
+			types.NewMsgFarm(
+				pool.Id,
+				s.addr(0).String(),
+				sdk.NewInt64Coin(pool.PoolCoinDenom, 100),
+			),
+			nil,
+			"100 is smaller than 100000000: smaller than minimum amount",
+		},
+		{
+			"invalid farming coin denom",
+			types.NewMsgFarm(
+				pool.Id,
+				s.addr(0).String(),
+				sdk.NewInt64Coin("denom1", 500_000_000),
+			),
+			nil,
+			"expected denom pool1, but got denom1: invalid request",
+		},
+		{
+			"insufficient funds",
+			types.NewMsgFarm(
+				pool.Id,
+				s.addr(5).String(),
+				sdk.NewInt64Coin(pool.PoolCoinDenom, 500_000_000),
+			),
+			nil,
+			"0 is smaller than 500000000: insufficient funds",
+		},
 	} {
 		s.Run(tc.name, func() {
 			s.Require().NoError(tc.msg.ValidateBasic())
@@ -87,7 +102,7 @@ func (s *KeeperTestSuite) TestFarm_MoreCases() {
 			err := s.keeper.Farm(cacheCtx, tc.msg)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
-				tc.postRun(cacheCtx, s.keeper.GetQueuedFarmingsByFarmer(s.ctx, tc.msg.GetFarmer()))
+				tc.postRun(cacheCtx, s.keeper.GetQueuedFarmingsByFarmer(cacheCtx, tc.msg.GetFarmer()))
 			} else {
 				s.Require().EqualError(err, tc.expectedErr)
 			}
@@ -325,6 +340,57 @@ func (s *KeeperTestSuite) TestUnfarm_All() {
 	s.Require().Equal(sdk.ZeroInt(), supply.Amount)
 }
 
+func (s *KeeperTestSuite) TestUnfarm_Validation() {
+	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+
+	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.farm(pool.Id, s.addr(0), sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000), true)
+	s.advanceEpochDays()
+
+	for _, tc := range []struct {
+		name        string
+		msg         *types.MsgUnfarm
+		postRun     func(ctx sdk.Context, unfarmInfo keeper.UnfarmInfo)
+		expectedErr string
+	}{
+		{
+			"happy case",
+			types.NewMsgUnfarm(
+				pool.Id,
+				s.addr(0).String(),
+				sdk.NewInt64Coin(types.LiquidFarmCoinDenom(pool.Id), 1_000_000_000),
+			),
+			func(ctx sdk.Context, unfarmInfo keeper.UnfarmInfo) {
+				s.Require().Equal(s.addr(0), unfarmInfo.Farmer)
+			},
+			"",
+		},
+		{
+			"insufficient balance",
+			types.NewMsgUnfarm(
+				pool.Id,
+				s.addr(5).String(),
+				sdk.NewInt64Coin(types.LiquidFarmCoinDenom(pool.Id), 1_000_000_000),
+			),
+			nil,
+			"0 is smaller than 1000000000: insufficient unfarming amount",
+		},
+	} {
+		s.Run(tc.name, func() {
+			s.Require().NoError(tc.msg.ValidateBasic())
+			cacheCtx, _ := s.ctx.CacheContext()
+			unfarmInfo, err := s.keeper.Unfarm(cacheCtx, tc.msg.PoolId, tc.msg.GetFarmer(), tc.msg.UnfarmingCoin)
+			if tc.expectedErr == "" {
+				s.Require().NoError(err)
+				tc.postRun(cacheCtx, unfarmInfo)
+			} else {
+				s.Require().EqualError(err, tc.expectedErr)
+			}
+		})
+	}
+}
+
 func (s *KeeperTestSuite) TestUnfarmAndWithdraw() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	depositCoins := utils.ParseCoins("100_000_000denom1, 100_000_000denom2")
@@ -425,4 +491,24 @@ func (s *KeeperTestSuite) TestTerminateLiquidFarm() {
 
 	// Ensure all staked coins is zero
 	s.Require().True(s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, types.LiquidFarmReserveAddress(1)).IsZero())
+}
+
+func (s *KeeperTestSuite) TestDelayedFarmGasFee() {
+	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
+
+	s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(100_000)), false)
+	gasConsumedNormal := s.ctx.GasMeter().GasConsumed()
+
+	s.nextBlock()
+
+	s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
+	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(100_000)), false)
+	gasConsumedWithFarm := s.ctx.GasMeter().GasConsumed()
+
+	params := s.keeper.GetParams(s.ctx)
+	s.Require().GreaterOrEqual(gasConsumedWithFarm, params.DelayedFarmGasFee)
+	s.Require().Greater(gasConsumedWithFarm, gasConsumedNormal)
 }

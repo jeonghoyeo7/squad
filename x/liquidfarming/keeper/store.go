@@ -57,6 +57,18 @@ func (k Keeper) GetQueuedFarming(ctx sdk.Context, endTime time.Time, farmingCoin
 	return
 }
 
+// GetQueuedFarmingCoinByPoolId returns all queued coin that are queued for farming by pool id.
+func (k Keeper) GetQueuedFarmingCoinByPoolId(ctx sdk.Context, poolId uint64) sdk.Coin {
+	var queuedCoin sdk.Coin
+	k.IterateQueuedFarmings(ctx, func(endTime time.Time, farmingCoinDenom string, farmerAcc sdk.AccAddress, queuedFarming types.QueuedFarming) (stop bool) {
+		if queuedFarming.PoolId == poolId {
+			queuedCoin = queuedCoin.Add(sdk.NewCoin(farmingCoinDenom, queuedFarming.Amount))
+		}
+		return false
+	})
+	return queuedCoin
+}
+
 // GetQueuedFarmingsByFarmer returns all queued farming objects by a farmer.
 func (k Keeper) GetQueuedFarmingsByFarmer(ctx sdk.Context, farmerAcc sdk.AccAddress) []types.QueuedFarming {
 	queuedFarmings := []types.QueuedFarming{}

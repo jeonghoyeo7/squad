@@ -11,9 +11,11 @@ import (
 var (
 	KeyLiquidFarms       = []byte("LiquidFarms")
 	KeyDelayedFarmGasFee = []byte("DelayedFarmGasFee")
+	KeyUnfarmFeeRate     = []byte("UnfarmFeeRate")
 
 	DefaultLiquidFarms       = []LiquidFarm{}
 	DefaultDelayedFarmGasFee = sdk.Gas(60000)
+	DefaultUnfarmFeeRate     = sdk.ZeroDec()
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -28,6 +30,7 @@ func DefaultParams() Params {
 	return Params{
 		LiquidFarms:       DefaultLiquidFarms,
 		DelayedFarmGasFee: DefaultDelayedFarmGasFee,
+		UnfarmFeeRate:     DefaultUnfarmFeeRate,
 	}
 }
 
@@ -36,6 +39,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyLiquidFarms, &p.LiquidFarms, validateLiquidFarms),
 		paramtypes.NewParamSetPair(KeyDelayedFarmGasFee, &p.DelayedFarmGasFee, validateDelayedFarmGasFee),
+		paramtypes.NewParamSetPair(KeyUnfarmFeeRate, &p.UnfarmFeeRate, validateUnfarmFeeRate),
 	}
 }
 
@@ -47,6 +51,7 @@ func (p Params) Validate() error {
 	}{
 		{p.LiquidFarms, validateLiquidFarms},
 		{p.DelayedFarmGasFee, validateDelayedFarmGasFee},
+		{p.UnfarmFeeRate, validateUnfarmFeeRate},
 	} {
 		if err := v.validator(v.value); err != nil {
 			return err
@@ -74,6 +79,19 @@ func validateDelayedFarmGasFee(i interface{}) error {
 	_, ok := i.(sdk.Gas)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return nil
+}
+
+func validateUnfarmFeeRate(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNegative() {
+		return fmt.Errorf("unfarm fee rate must not be negative: %s", v)
 	}
 
 	return nil

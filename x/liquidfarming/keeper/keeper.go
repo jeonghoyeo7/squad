@@ -66,3 +66,9 @@ func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramSpace.SetParamSet(ctx, &params)
 }
+
+// GetUnfarmFeeRate returns the current unfarm fee rate parameter.
+func (k Keeper) GetUnfarmFeeRate(ctx sdk.Context) (feeRate sdk.Dec) {
+	k.paramSpace.Get(ctx, types.KeyUnfarmFeeRate, &feeRate)
+	return
+}

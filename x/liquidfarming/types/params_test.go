@@ -44,6 +44,13 @@ func TestParams_Validate(t *testing.T) {
 			},
 			"pool id must not be 0",
 		},
+		{
+			"negative UnfarmFeeRate",
+			func(params *types.Params) {
+				params.UnfarmFeeRate = sdk.NewDec(-1)
+			},
+			"unfarm fee rate must not be negative: -1.000000000000000000",
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			params := types.DefaultParams()
