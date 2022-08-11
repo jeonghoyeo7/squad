@@ -20,7 +20,6 @@ func (k Keeper) Hooks() Hooks {
 
 // AfterAllocateRewards hook is triggered in the farming module when an epoch is advanced and
 // AllocateRewards is successfully executed till the end logic.
-//
 // It creates the first rewards auction if liquid farm doesn't have any auction before.
 // If there is an ongoing rewards auction, finish the auction and create the next one.
 func (h Hooks) AfterAllocateRewards(ctx sdk.Context) {
