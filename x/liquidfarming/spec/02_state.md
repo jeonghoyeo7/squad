@@ -4,15 +4,11 @@
 
 The `liquidfarming` module keeps track of the states of pool coins and LFCoins.
 
-## QueuedFarming
+## LiquidFarms
 
 ```go
-type QueuedFarming struct {
-	PoolId      uint64
-	Id          uint64
-	Farmer      string
-	FarmingCoin sdk.Coin
-}
+// LiquidFarms tracks the list of the activated LiquidFarms
+type LiquidFarms []LiquidFarm
 ```
 
 ## RewardsAuction
@@ -28,16 +24,25 @@ const (
 )
 
 type RewardsAuction struct {
-	Id                     uint64
-	PoolId                 uint64
-	SellingRewards         sdk.Coins
-	BiddingCoinDenom       string // pool coin denom
-	SellingReserverAddress string
-	PayingReserveAddress   string
-	StartTime              time.Time
-	EndTime                time.Time
-	Status                 AuctionStatus
-	WinnerBidId            uint64
+	Id                   uint64
+	PoolId               uint64 // Corresponding pool id of the target liquid farm
+	BiddingCoinDenom     string // corresponding pool coin denom
+	PayingReserveAddress string
+	StartTime            time.Time
+	EndTime              time.Time
+	Status               AuctionStatus
+	Winner               string // winner's account address
+	Rewards              sdk.Coins
+}
+```
+
+## CompoundingRewards
+
+```go
+// RewardsQueued records the amount of pool coins in `FarmQueued` status
+// that was converted from the rewards coins by the auction.
+type RewardsQueued struct {
+	Amount sdk.Int 
 }
 ```
 
@@ -46,11 +51,9 @@ type RewardsAuction struct {
 ```go
 // Bid defines a standard bid for an auction.
 type Bid struct {
-	Id        uint64
-	AuctionId uint64
-	Bidder    string
-	Amount    sdk.Coin
-	IsWinner  bool
+	PoolId      uint64
+	Bidder      string
+	BiddingCoin sdk.Coin
 }
 ```
 
@@ -63,4 +66,9 @@ type Bid struct {
 
 ## Store
 
-...
+- LastRewardsAuctionIdKey: `[]byte{0xe1} | PoolId -> Uint64Value(uint64)`
+- LiquidFarmKey: `[]byte{0xe3} | PoolId -> ProtocolBuffer(LiquidFarm)`
+- CompoundingRewardsKey: `[]byte{0xe6} | PoolId -> ProtocolBuffer(CompoundingRewards)`
+- RewardsAuctionKey: `[]byte{0xe7} | PoolId | AuctionId -> ProtocolBuffer(RewardsAuction)`
+- BidKey: `[]byte{0xea} | PoolId | BidderAddressLen (1 byte) | BidderAddress -> ProtocolBuffer(Bid)`
+- WinningBidKey: `[]byte{0xeb} | PoolId | AuctionId -> ProtocolBuffer(WinningBid)`

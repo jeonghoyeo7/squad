@@ -13,20 +13,10 @@ The `liquidfarming` module emits the following events:
 | farm       | pool_id            | {poolId}               |
 | farm       | farmer             | {farmer}               |
 | farm       | farming_coin       | {farmingCoin}          |
+| farm       | farm_coin          | {farmCoin}             |
 | message    | module             | liquidfarming          |
 | message    | action             | farm                   |
 | message    | farmer             | {farmerAddress}        |
-
-### MsgCancelQueuedFarming
-
-| Type                  | Attribute Key        | Attribute Value        |
-| --------------------- | -------------------- | ---------------------- |
-| cancel_queued_farming | pool_id              | {poolId}               |
-| cancel_queued_farming | queued_farming_id    | {queuedFarmingId}      |
-| cancel_queued_farming | farmer               | {farmer}               |
-| message               | module               | liquidfarming          |
-| message               | action               | cancel_queued_farming  |
-| message               | farmer               | {farmerAddress}        |
 
 ### MsgUnfarm
 
@@ -34,10 +24,21 @@ The `liquidfarming` module emits the following events:
 | ---------- | ------------------ | ---------------------- |
 | unfarm     | pool_id            | {poolId}               |
 | unfarm     | farmer             | {farmer}               |
-| unfarm     | farming_coin       | {farmingCoin}          |
-| unfarm     | farmed_coin        | {farmedCoin}           |
+| unfarm     | unfarming_coin     | {unfarmingCoin}        |
+| unfarm     | unfarm_coin        | {unfarmCoin}           |
 | message    | module             | liquidfarming          |
 | message    | action             | unfarm                 |
+| message    | farmer             | {farmerAddress}        |
+
+### MsgUnfarmAndWithdraw
+
+| Type       | Attribute Key      | Attribute Value        |
+| ---------- | ------------------ | ---------------------- |
+| unfarm     | pool_id            | {poolId}               |
+| unfarm     | farmer             | {farmer}               |
+| unfarm     | unfarming_coin     | {unfarmingCoin}        |
+| message    | module             | liquidfarming          |
+| message    | action             | unfarmandwithdraw      |
 | message    | farmer             | {farmerAddress}        |
 
 ### MsgPlaceBid
