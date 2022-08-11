@@ -28,25 +28,6 @@ Validity checks are performed for `MsgFarm` message. The transaction that is tri
 - The farming coin denom is not the same as the pool coin denom of the pool with `PoolId`
 - The farmer has insufficient spendable balances for the farming coin amount
 
-## MsgCancelQueuedFarming
-
-Cancel the farming coins before being staked. 
-A farmer is allowed to cancel their farming coin amount before they are staked to the farming module.
-
-```go
-type MsgCancelQueuedFarming struct {
-	PoolId        uint64   // target pool id
-	Farmer        string   // the bech32-encoded address that cancels queued farming
-	UnfarmingCoin sdk.Coin // cancel amount of pool coin
-}
-```
-
-Validity checks are performed for `MsgCancelQueuedFarming` message. The transaction that is triggered with the `MsgCancelQueuedFarming` message fails if:
-
-- The target liquid farm with the pool id does not exist
-- The unfarming coin denom is not the same as the pool coin denom of the pool with `PoolId`
-- The unfarming coin amount is less than the amount of the queued amount of farming coin of the farmer.
-
 ## MsgUnfarm
 
 Unfarm LFCoin to liquid unfarm. 
@@ -54,9 +35,9 @@ The module burns LFCoin amounts and releases the corresponding amount of pool co
 
 ```go
 type MsgUnfarm struct {
-	PoolId uint64   // target deposit request id
-	Farmer string   // the bech32-encoded address that unfarms liquid farm coin
-	LFCoin sdk.Coin // withdrawing amount of LF coin
+	PoolId        uint64   // target deposit request id
+	Farmer        string   // the bech32-encoded address that unfarms liquid farm coin
+	UnfarmingCoin sdk.Coin // withdrawing amount of LF coin
 }
 ```
 
@@ -74,9 +55,9 @@ The module burns LFCoin amounts at the current burn rate, withdraw the correspon
 
 ```go
 type MsgUnfarmAndWithdraw struct {
-	PoolId uint64   // target pool id
-	Farmer string   // the bech32-encoded address that unfarms liquid farm coin and withdraws
-	LFCoin sdk.Coin // withdrawing amount of LF coin
+	PoolId        uint64   // target pool id
+	Farmer        string   // the bech32-encoded address that unfarms liquid farm coin and withdraws
+	UnfarmingCoin sdk.Coin // withdrawing amount of LF coin
 }
 ```
 

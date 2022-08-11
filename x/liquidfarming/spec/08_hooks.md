@@ -15,20 +15,7 @@ When `AfterAllocateRewards` hook is delivered, the following operations are perf
   - the winner is chosen,
   - the rewards is harvested and sent to the winner,
   - the pool coins from the winner in the paying reserve address is sent to the module account,
+    - these pool coins  are staked via `Farming` module
+    - the amount of these pool coins are saved in `RewardsQueued`
   - the pool coins from the others not winner in the paying reserve address is refunded to each bidder’s account.
 - A new auction is created.
-
-## AfterStaked Hook
-
-```go
-AfterStaked(
-    ctx sdk.Context, 
-    farmer sdk.AccAddress, 
-    stakingCoinDenom string, 
-    stakingAmt sdk.Int,
-)
-```
-
-When `AfterStaked` hook is delivered, the following operation is performed.
-- LF coins are minted according to the mint rate.
-- LF coins are sent to the farmer.

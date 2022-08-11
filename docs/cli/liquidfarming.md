@@ -23,9 +23,8 @@ Note that [jq](https://stedolan.github.io/jq/) is recommended to be installed as
   - [Params](#params)
   - [Liquidfarms](#liquidfarms)
   - [Liquidfarm](#liquidfarm)
-  - [QueuedFarmings](#queuedfarmings)
   - [Rewards-Auctions](#rewards-auctions)
-  - [Reward Auction](#reward-auction)
+  - [Rewards-Auction](#rewards-auction)
   - [Bids](#bids)
 
 # Transaction
@@ -155,25 +154,6 @@ Example
 ```bash
 squad query liquidfarming liquidfarm 1 -o json | jq
 ```
-## QueuedFarmings
-
-Query all queued farmings for the liquidfarm with pool id.
-
-Usage
-
-```bash
-queued-farmings [pool-id]
-```
-
-| **Argument**  |  **Description**                                      |
-| :------------ | :---------------------------------------------------- |
-| pool-id       | target pool id of the liquidfarm                      |
-
-Example
-
-```bash
-squad query liquidfarming queued-farmings 1 -o json | jq
-```
 
 ## Rewards-Auctions
 
@@ -191,14 +171,14 @@ Example
 squad query liquidfarming rewards-auctions -o json | jq
 ```
 
-## Reward Auction 
+## Rewards-Auction 
 
 Query the specific reward auction
 
 Usage
 
 ```bash
-reward-auction [pool-id] [auction-id]
+rewards-auction [pool-id] [auction-id]
 ```
 
 | **Argument**  |  **Description**                                      |

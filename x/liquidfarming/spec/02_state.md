@@ -11,15 +11,6 @@ The `liquidfarming` module keeps track of the states of pool coins and LFCoins.
 type LiquidFarms []LiquidFarm
 ```
 
-## QueuedFarming
-
-```go
-type QueuedFarming struct {
-	PoolId uint64  // Corresponding pool id of the target liquid farm
-	Amount sdk.Int // amount to liquid farm
-}
-```
-
 ## RewardsAuction
 
 ```go
@@ -45,6 +36,16 @@ type RewardsAuction struct {
 }
 ```
 
+## CompoundingRewards
+
+```go
+// RewardsQueued records the amount of pool coins in `FarmQueued` status
+// that was converted from the rewards coins by the auction.
+type RewardsQueued struct {
+	Amount sdk.Int 
+}
+```
+
 ## Bid
 
 ```go
@@ -66,8 +67,8 @@ type Bid struct {
 ## Store
 
 - LastRewardsAuctionIdKey: `[]byte{0xe1} | PoolId -> Uint64Value(uint64)`
-- QueuedFarmingKey: `[]byte{0xe4} | EndTimeLen (1 byte) | EndTime | FarmingCoinDenomLen (1 byte) | FarmingCoinDenom |  FarmerAddressLen (1 byte) | FarmerAddress -> ProtocolBuffer(QueuedFarming)`
-- QueuedFarmingIndexKey: `[]byte{0xe5} | FarmerAddressLen (1 byte) | FarmerAddress | FarmingCoinDenomLen (1 byte) | FarmingCoinDenom | EndTimeLen (1 byte) | EndTime | FarmingCoinDenomLen (1 byte) -> nil`
+- LiquidFarmKey: `[]byte{0xe3} | PoolId -> ProtocolBuffer(LiquidFarm)`
+- CompoundingRewardsKey: `[]byte{0xe6} | PoolId -> ProtocolBuffer(CompoundingRewards)`
 - RewardsAuctionKey: `[]byte{0xe7} | PoolId | AuctionId -> ProtocolBuffer(RewardsAuction)`
 - BidKey: `[]byte{0xea} | PoolId | BidderAddressLen (1 byte) | BidderAddress -> ProtocolBuffer(Bid)`
 - WinningBidKey: `[]byte{0xeb} | PoolId | AuctionId -> ProtocolBuffer(WinningBid)`

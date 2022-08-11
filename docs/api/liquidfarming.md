@@ -20,8 +20,6 @@ This document provides a high-level overview of what gRPC-gateway REST routes ar
   - [Params](#params)
   - [LiquidFarms](#liquidfarms)
   - [LiquidFarm](#liquidfarm)
-  - [QueuedFarmings](#queuedfarmings)
-  - [QueuedFarmingsByFarmer](#queuedfarmingsbyfarmer)
   - [RewardsAuctions](#rewardsauctions)
   - [RewardsAuction](#rewardsauction)
   - [Bids](#bids)
@@ -117,50 +115,6 @@ Example Response
       "amount": "500000000000"
     }
   }
-}
-```
-
-## QueuedFarmings
-
-Example Request
-
-<!-- markdown-link-check-disable -->
-```bash
-http://localhost:1317/squad/liquidfarming/v1beta1/pools/1/queued_farmings
-```
-
-Example Response
-
-```json
-{
-  "queued_farmings": [
-    {
-      "pool_id": "1",
-      "amount": "500000000000"
-    }
-  ],
-}
-```
-
-## QueuedFarmingsByFarmer
-
-Example Request
-
-<!-- markdown-link-check-disable -->
-```bash
-http://localhost:1317/squad/liquidfarming/v1beta1/pools/1/queued_farmings/farmer/{farmer_address}
-```
-
-Example Response
-
-```json
-{
-  "queued_farmings": [
-    {
-      "pool_id": "1",
-      "amount": "500000000000"
-    }
-  ],
 }
 ```
 
