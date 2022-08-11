@@ -56,14 +56,19 @@ func (k Keeper) Farm(ctx sdk.Context, msg *types.MsgFarm) error {
 	lpCoinTotalStakedAmt := k.farmingKeeper.GetAllStakedCoinsByFarmer(ctx, reserveAddr).AmountOf(poolCoinDenom)
 	lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedCoinsByFarmer(ctx, reserveAddr).AmountOf(poolCoinDenom)
 
-	mintingAmt := types.CalculateFarmMintingAmount(lfCoinTotalSupplyAmt, lpCoinTotalStakedAmt, lpCoinTotalQueuedAmt, msg.FarmingCoin.Amount)
-	mintingCoins := sdk.NewCoins(sdk.NewCoin(lfCoinDenom, mintingAmt))
+	mintedFarmAmt := types.CalculateFarmMintingAmount(
+		lfCoinTotalSupplyAmt,
+		lpCoinTotalStakedAmt,
+		lpCoinTotalQueuedAmt,
+		msg.FarmingCoin.Amount,
+	)
+	mintedFarmCoin := sdk.NewCoin(lfCoinDenom, mintedFarmAmt)
 
-	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, mintingCoins); err != nil {
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(mintedFarmCoin)); err != nil {
 		return err
 	}
 
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, msg.GetFarmer(), mintingCoins); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, msg.GetFarmer(), sdk.NewCoins(mintedFarmCoin)); err != nil {
 		return err
 	}
 
@@ -77,6 +82,7 @@ func (k Keeper) Farm(ctx sdk.Context, msg *types.MsgFarm) error {
 			sdk.NewAttribute(types.AttributeKeyPoolId, strconv.FormatUint(msg.PoolId, 10)),
 			sdk.NewAttribute(types.AttributeKeyFarmer, msg.Farmer),
 			sdk.NewAttribute(types.AttributeKeyFarmingCoin, msg.FarmingCoin.String()),
+			sdk.NewAttribute(types.AttributeKeyFarmCoin, mintedFarmCoin.String()),
 			sdk.NewAttribute(types.AttributeKeyLiquidFarmReserveAddress, reserveAddr.String()),
 		),
 	})
@@ -91,8 +97,8 @@ type UnfarmInfo struct {
 }
 
 // ValidateMsgUnfarm validates MsgUnfarm.
-// It doesn't check if the liquid farm exists because farmers need to be able to unfarm their LFCoin
-// even if the liquid farm is removed in params.
+// It doesn't validate if the liquid farm exists because farmers still need to be able to
+// unfarm their LFCoin although the liquid farm object is removed in params.
 func (k Keeper) ValidateMsgUnfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, unfarmingCoin sdk.Coin) error {
 	_, found := k.liquidityKeeper.GetPool(ctx, poolId)
 	if !found {
@@ -200,6 +206,7 @@ func (k Keeper) UnfarmAndWithdraw(ctx sdk.Context, msg *types.MsgUnfarmAndWithdr
 			types.EventTypeUnfarmAndWithdraw,
 			sdk.NewAttribute(types.AttributeKeyPoolId, strconv.FormatUint(msg.PoolId, 10)),
 			sdk.NewAttribute(types.AttributeKeyFarmer, msg.Farmer),
+			sdk.NewAttribute(types.AttributeKeyUnfarmingCoin, msg.UnfarmingCoin.String()),
 			sdk.NewAttribute(types.AttributeKeyUnfarmCoin, unfarmInfo.UnfarmCoin.String()),
 		),
 	})
@@ -212,10 +219,11 @@ func (k Keeper) UnfarmAndWithdraw(ctx sdk.Context, msg *types.MsgUnfarmAndWithdr
 func (k Keeper) RemoveLiquidFarm(ctx sdk.Context, liquidFarm types.LiquidFarm) {
 	reserveAddr := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
 	stakedCoins := k.farmingKeeper.GetAllStakedCoinsByFarmer(ctx, reserveAddr)
-
-	// Unstake all staked coins so that there will be no rewards accumulating
-	if err := k.farmingKeeper.Unstake(ctx, reserveAddr, stakedCoins); err != nil {
-		panic(err)
+	if !stakedCoins.IsZero() {
+		// Unstake all staked coins so that there will be no rewards accumulating
+		if err := k.farmingKeeper.Unstake(ctx, reserveAddr, stakedCoins); err != nil {
+			panic(err)
+		}
 	}
 
 	auctionId := k.GetLastRewardsAuctionId(ctx, liquidFarm.PoolId)

@@ -92,7 +92,6 @@ func TestCalculateMintingFarmAmount(t *testing.T) {
 			newFarmingAmt:    sdk.NewInt(1_000_000_000),
 			expectedAmt:      sdk.NewInt(1000000000),
 		},
-		// TODO: cover more cases
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			mintingAmt := types.CalculateFarmMintingAmount(
@@ -153,7 +152,6 @@ func TestCalculateUnfarmAmount(t *testing.T) {
 			compoundingRewards: sdk.NewInt(30000000),
 			expectedAmt:        sdk.NewInt(1130000000),
 		},
-		// TODO: cover more cases
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			unfarmAmt := types.CalculateUnfarmAmount(
