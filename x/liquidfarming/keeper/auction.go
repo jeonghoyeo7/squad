@@ -15,15 +15,15 @@ import (
 
 // ValidateMsgPlaceBid validates types.MsgPlaceBid.
 func (k Keeper) ValidateMsgPlaceBid(ctx sdk.Context, msg *types.MsgPlaceBid) error {
-	auctionId := k.GetLastRewardsAuctionId(ctx, msg.PoolId)
-	_, found := k.GetRewardsAuction(ctx, msg.PoolId, auctionId)
-	if !found {
-		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "auction %d not found", auctionId)
-	}
-
 	liquidFarm, found := k.GetLiquidFarm(ctx, msg.PoolId)
 	if !found {
 		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "liquid farm by pool %d not found", msg.PoolId)
+	}
+
+	auctionId := k.GetLastRewardsAuctionId(ctx, msg.PoolId)
+	_, found = k.GetRewardsAuction(ctx, msg.PoolId, auctionId)
+	if !found {
+		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "auction by pool %d not found", msg.PoolId)
 	}
 
 	balance := k.bankKeeper.SpendableCoins(ctx, msg.GetBidder()).AmountOf(msg.BiddingCoin.Denom)
@@ -37,7 +37,7 @@ func (k Keeper) ValidateMsgPlaceBid(ctx sdk.Context, msg *types.MsgPlaceBid) err
 
 	_, found = k.GetBid(ctx, auctionId, msg.GetBidder())
 	if found {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "refund bid to place new bid")
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "refund the previous bid to place new bid")
 	}
 
 	return nil
@@ -107,6 +107,7 @@ func (k Keeper) RefundBid(ctx sdk.Context, msg *types.MsgRefundBid) error {
 			types.EventTypeRefundBid,
 			sdk.NewAttribute(types.AttributeKeyPoolId, strconv.FormatUint(msg.PoolId, 10)),
 			sdk.NewAttribute(types.AttributeKeyBidder, msg.Bidder),
+			sdk.NewAttribute(types.AttributeKeyRefundCoin, bid.Amount.String()),
 		),
 	})
 
@@ -145,9 +146,8 @@ func (k Keeper) RefundAllBids(ctx sdk.Context, auction types.RewardsAuction, win
 		if bid.Bidder != winningBid.Bidder {
 			inputs = append(inputs, banktypes.NewInput(auction.GetPayingReserveAddress(), sdk.NewCoins(bid.Amount)))
 			outputs = append(outputs, banktypes.NewOutput(bid.GetBidder(), sdk.NewCoins(bid.Amount)))
-
-			k.DeleteBid(ctx, bid)
 		}
+		k.DeleteBid(ctx, bid) // delete all
 	}
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		panic(err)
@@ -161,12 +161,14 @@ func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAucti
 	payingReserveAddr := auction.GetPayingReserveAddress()
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(auction.PoolId)
 	rewards := k.farmingKeeper.Rewards(ctx, liquidFarmReserveAddr, poolCoinDenom)
+	compoundingRewards := types.CompoundingRewards{Amount: sdk.ZeroInt()}
 
 	// Finishing a rewards auction can have two different scenarios depending on winning bid existence
 	// When there is winning bid, harvest farming rewards first and send them to the winner and
 	// stake the winning bid amount in the farming module for farmers so that it acts as auto compounding functionality.
 	winningBid, found := k.GetWinningBid(ctx, auction.PoolId, auction.Id)
-	if found { // TODO: do we need to panic all?
+	if found {
+		// TODO: do we need to all these panics?
 		if err := k.farmingKeeper.Harvest(ctx, liquidFarmReserveAddr, []string{poolCoinDenom}); err != nil {
 			panic(err)
 		}
@@ -186,10 +188,13 @@ func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAucti
 		if err := k.farmingKeeper.Stake(ctx, liquidFarmReserveAddr, sdk.NewCoins(winningBid.Amount)); err != nil {
 			panic(err)
 		}
+
+		compoundingRewards.Amount = winningBid.Amount.Amount
 	}
 
 	auction.SetWinner(winningBid.Bidder)
 	auction.SetRewards(rewards)
 	auction.SetStatus(types.AuctionStatusFinished)
 	k.SetRewardsAuction(ctx, auction)
+	k.SetCompoundingRewards(ctx, auction.PoolId, compoundingRewards)
 }

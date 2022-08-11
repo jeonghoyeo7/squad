@@ -17,31 +17,12 @@ message GenesisState {
 
   repeated LiquidFarm liquid_farms = 2 [(gogoproto.nullable) = false]; 
 
-  repeated QueuedFarmingRecord queued_farming_records = 3 [(gogoproto.nullable) = false]; 
-
   repeated RewardsAuction rewards_auctions = 4 [(gogoproto.nullable) = false]; 
 
   repeated Bid bids = 5 [(gogoproto.nullable) = false]; 
   
   repeated WinningBidRecord winning_bid_records = 6 [(gogoproto.nullable) = false]; 
 }
-
-// QueuedFarmingRecord defines a custom queued farming record that is required to be recorded 
-// in genesis state.
-message QueuedFarmingRecord {
-  option (gogoproto.equal)           = false;
-  option (gogoproto.goproto_getters) = false;
-
-  google.protobuf.Timestamp end_time = 1
-      [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
-
-  string farming_coin_denom = 2; 
-
-  string farmer = 3;
-
-  QueuedFarming queued_farming = 4 [(gogoproto.nullable) = false]; 
-}
-
 
 // WinningBidRecord defines a custom winning bid record that is required to be recorded 
 // in genesis state.

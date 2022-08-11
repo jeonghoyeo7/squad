@@ -89,23 +89,26 @@ func (s *KeeperTestSuite) createPrivateFixedAmountPlan(
 	s.Require().NoError(err)
 }
 
-func (s *KeeperTestSuite) stake(farmerAcc sdk.AccAddress, amt sdk.Coins) {
-	s.T().Helper()
-	err := s.app.FarmingKeeper.Stake(s.ctx, farmerAcc, amt)
-	s.Require().NoError(err)
-}
+// TODO: do we need this convenient function?
+// func (s *KeeperTestSuite) stake(farmerAcc sdk.AccAddress, amt sdk.Coins) {
+// 	s.T().Helper()
+// 	err := s.app.FarmingKeeper.Stake(s.ctx, farmerAcc, amt)
+// 	s.Require().NoError(err)
+// }
 
-func (s *KeeperTestSuite) unstake(farmerAcc sdk.AccAddress, amt sdk.Coins) {
-	s.T().Helper()
-	err := s.app.FarmingKeeper.Unstake(s.ctx, farmerAcc, amt)
-	s.Require().NoError(err)
-}
+// TODO: do we need this convenient function?
+// func (s *KeeperTestSuite) unstake(farmerAcc sdk.AccAddress, amt sdk.Coins) {
+// 	s.T().Helper()
+// 	err := s.app.FarmingKeeper.Unstake(s.ctx, farmerAcc, amt)
+// 	s.Require().NoError(err)
+// }
 
-func (s *KeeperTestSuite) harvest(farmerAcc sdk.AccAddress, stakingCoinDenoms []string) {
-	s.T().Helper()
-	err := s.app.FarmingKeeper.Harvest(s.ctx, farmerAcc, stakingCoinDenoms)
-	s.Require().NoError(err)
-}
+// TODO: do we need this convenient function?
+// func (s *KeeperTestSuite) harvest(farmerAcc sdk.AccAddress, stakingCoinDenoms []string) {
+// 	s.T().Helper()
+// 	err := s.app.FarmingKeeper.Harvest(s.ctx, farmerAcc, stakingCoinDenoms)
+// 	s.Require().NoError(err)
+// }
 
 func (s *KeeperTestSuite) advanceEpochDays() {
 	currentEpochDays := s.app.FarmingKeeper.GetCurrentEpochDays(s.ctx)
@@ -179,13 +182,6 @@ func (s *KeeperTestSuite) unfarm(poolId uint64, farmer sdk.AccAddress, lfCoin sd
 	s.Require().NoError(err)
 }
 
-func (s *KeeperTestSuite) cancelQueuedFarming(poolId uint64, farmer sdk.AccAddress, unfarmingCoin sdk.Coin) {
-	s.T().Helper()
-
-	err := s.keeper.CancelQueuedFarming(s.ctx, types.NewMsgCancelQueuedFarming(poolId, farmer.String(), unfarmingCoin))
-	s.Require().NoError(err)
-}
-
 func (s *KeeperTestSuite) placeBid(poolId uint64, bidder sdk.AccAddress, biddingCoin sdk.Coin, fund bool) types.Bid {
 	s.T().Helper()
 	if fund {
@@ -198,12 +194,13 @@ func (s *KeeperTestSuite) placeBid(poolId uint64, bidder sdk.AccAddress, bidding
 	return bid
 }
 
-func (s *KeeperTestSuite) refundBid(poolId uint64, bidder sdk.AccAddress) {
-	s.T().Helper()
+// TODO: do we need this convenient function?
+// func (s *KeeperTestSuite) refundBid(poolId uint64, bidder sdk.AccAddress) {
+// 	s.T().Helper()
 
-	err := s.keeper.RefundBid(s.ctx, types.NewMsgRefundBid(poolId, bidder.String()))
-	s.Require().NoError(err)
-}
+// 	err := s.keeper.RefundBid(s.ctx, types.NewMsgRefundBid(poolId, bidder.String()))
+// 	s.Require().NoError(err)
+// }
 
 //
 // Below are helper functions to write test code easily

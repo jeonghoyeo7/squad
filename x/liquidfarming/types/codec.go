@@ -13,7 +13,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgFarm{}, "liquidfarming/MsgFarm", nil)
 	cdc.RegisterConcrete(&MsgUnfarm{}, "liquidfarming/MsgUnfarm", nil)
 	cdc.RegisterConcrete(&MsgUnfarmAndWithdraw{}, "liquidfarming/MsgUnfarmAndWithdraw", nil)
-	cdc.RegisterConcrete(&MsgCancelQueuedFarming{}, "liquidfarming/MsgCancelQueuedFarming", nil)
 	cdc.RegisterConcrete(&MsgPlaceBid{}, "liquidfarming/MsgPlaceBid", nil)
 	cdc.RegisterConcrete(&MsgRefundBid{}, "liquidfarming/MsgRefundBid", nil)
 }
@@ -25,7 +24,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgFarm{},
 		&MsgUnfarm{},
 		&MsgUnfarmAndWithdraw{},
-		&MsgCancelQueuedFarming{},
 		&MsgPlaceBid{},
 		&MsgRefundBid{},
 	)

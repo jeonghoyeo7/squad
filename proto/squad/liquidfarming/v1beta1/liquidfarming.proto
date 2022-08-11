@@ -9,19 +9,6 @@ import "google/protobuf/timestamp.proto";
 option go_package                      = "github.com/cosmosquad-labs/squad/x/liquidfarming/types";
 option (gogoproto.goproto_getters_all) = false;
 
-// QueuedFarming defines queued farming that is waiting in a queue 
-// until the next epoch to be passed in the farming module, which
-// triggers AfterStaked hook that mints LFCoin in proportion to the queued farming amount. 
-message QueuedFarming {
-  option (gogoproto.goproto_getters) = false;
-
-  // pool_id specifies the pool id
-  uint64 pool_id = 1;
-
-  // amount specifies the pool coin amount
-  string amount = 2 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
-}
-
 // RewardsAuction defines rewards auction by the module when farming rewards
 // are allocated at every epoch in the farming module.
 message RewardsAuction {
@@ -49,15 +36,23 @@ message RewardsAuction {
   AuctionStatus status = 7;
 
   // winner specifies the bidder who won the auction
-  // it is determined when an auction is finished
+  // the value is determined when an auction is finished
   string winner = 8;
 
   // rewards specifies the farming rewards for are accumulated for every epoch
-  // it is determined when an auction is finished
+  // the value is determined when an auction is finished
   repeated cosmos.base.v1beta1.Coin rewards = 9 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable)     = false
   ];
+}
+
+// CompoundingRewards records the amount of pool coin that is used for a bidder to place a bid
+// for an auction. It is used internally to calculate unfarm amount.
+message CompoundingRewards {
+  option (gogoproto.goproto_getters) = false;
+
+  string amount = 1 [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
 }
 
 // Bid defines standard bid for a rewards auction.

@@ -31,10 +31,10 @@ type FarmingKeeper interface {
 	Stake(ctx sdk.Context, farmerAcc sdk.AccAddress, amount sdk.Coins) error
 	Unstake(ctx sdk.Context, farmerAcc sdk.AccAddress, amount sdk.Coins) error
 	Harvest(ctx sdk.Context, farmerAcc sdk.AccAddress, stakingCoinDenoms []string) error
+	Rewards(ctx sdk.Context, farmerAcc sdk.AccAddress, stakingCoinDenom string) sdk.Coins
 	GetCurrentEpochDays(ctx sdk.Context) uint32
 	GetAllQueuedCoinsByFarmer(ctx sdk.Context, farmerAcc sdk.AccAddress) sdk.Coins
 	GetAllStakedCoinsByFarmer(ctx sdk.Context, farmerAcc sdk.AccAddress) sdk.Coins
-	Rewards(ctx sdk.Context, farmerAcc sdk.AccAddress, stakingCoinDenom string) sdk.Coins
 }
 
 // LiquidityKeeper defines the expected interface needed for the module.

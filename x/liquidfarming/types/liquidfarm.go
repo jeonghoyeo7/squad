@@ -2,6 +2,7 @@ package types
 
 import (
 	fmt "fmt"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -14,6 +15,10 @@ import (
 
 const (
 	LiquidFarmReserveAccPrefix string = "LiquidFarmReserveAcc"
+)
+
+var (
+	liquidFarmCoinDenomRegexp = regexp.MustCompile(`^lf([1-9]\d*)$`)
 )
 
 // NewLiquidFarm returns a new LiquidFarm.
@@ -59,6 +64,19 @@ func LiquidFarmCoinDenom(poolId uint64) string {
 	return fmt.Sprintf("lf%d", poolId)
 }
 
+// ParseLiquidFarmCoinDenom parses a LF coin denom and returns its pool id.
+func ParseLiquidFarmCoinDenom(denom string) (poolId uint64, err error) {
+	chunks := liquidFarmCoinDenomRegexp.FindStringSubmatch(denom)
+	if len(chunks) == 0 {
+		return 0, fmt.Errorf("%s is not a liquid farm coin denom", denom)
+	}
+	poolId, err = strconv.ParseUint(chunks[1], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("parse pool id: %w", err)
+	}
+	return poolId, nil
+}
+
 // LiquidFarmReserveAddress returns the reserve address for a liquid farm with the given pool id.
 func LiquidFarmReserveAddress(poolId uint64) sdk.AccAddress {
 	return farmingtypes.DeriveAddress(
@@ -68,27 +86,33 @@ func LiquidFarmReserveAddress(poolId uint64) sdk.AccAddress {
 	)
 }
 
-// MarshalQueuedFarming returns the QueuedFarming bytes.
-// Panics if fails.
-func MarshalQueuedFarming(cdc codec.BinaryCodec, msg QueuedFarming) ([]byte, error) {
-	return cdc.Marshal(&msg)
-}
-
-// UnmarshalQueuedFarming returns the QueuedFarming from bytes.
-func UnmarshalQueuedFarming(cdc codec.BinaryCodec, value []byte) (msg QueuedFarming, err error) {
-	err = cdc.Unmarshal(value, &msg)
-	return msg, err
-}
-
-// CalculateMintingFarmAmount calculates minting liquid farm amount.
-// TODO: spec may change
-func CalculateMintingFarmAmount() {
-	// MintingAmount = TotalSupplyLFAmount * FarmedLPAmount / TotalStakedLPAmount
+// CalculateFarmMintingAmount calculates minting liquid farm amount.
+// MintingAmt = LFCoinTotalSupply / (LPCoinTotalStaked + LPCoinTotalQueued) * LPCoinFarmingAmount
+func CalculateFarmMintingAmount(
+	lfCoinTotalSupplyAmt sdk.Int,
+	lpCoinTotalStakedAmt sdk.Int,
+	lpCoinTotalQueuedAmt sdk.Int,
+	newFarmingAmt sdk.Int,
+) sdk.Int {
+	if lfCoinTotalSupplyAmt.IsZero() { // initial minting
+		return newFarmingAmt
+	}
+	totalFarmingAmt := lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt)
+	return lfCoinTotalSupplyAmt.Mul(newFarmingAmt).Quo(totalFarmingAmt)
 }
 
 // CalculateUnfarmAmount calculates unfarm amount.
-// UnfarmAmount = TotalStakedLPAmount / TotalSupplyLFAmount * UnfarmingLFAmount * (1 - UnfarmFeeRate)
-func CalculateUnfarmAmount(totalStakedLPAmt, totalSupplyLFAmt, unfarmingLFAmt sdk.Int, feeRate sdk.Dec) sdk.Int {
-	multiplier := sdk.OneDec().Sub(feeRate)
-	return totalStakedLPAmt.ToDec().Quo(totalSupplyLFAmt.ToDec()).Mul(unfarmingLFAmt.ToDec()).Mul(multiplier).TruncateInt()
+// UnfarmAmount = LPCoinTotalStaked + LPCoinTotalQueued - CompoundingRewards / LFCoinTotalSupply * LFCoinUnfarmingAmount
+func CalculateUnfarmAmount(
+	lfCoinTotalSupplyAmt sdk.Int,
+	lpCoinTotalStakedAmt sdk.Int,
+	lpCoinTotalQueuedAmt sdk.Int,
+	unfarmingAmt sdk.Int,
+	compoundingRewards sdk.Int,
+) sdk.Int {
+	if lfCoinTotalSupplyAmt.Equal(unfarmingAmt) { // TODO: decide if fee is needed here
+		return lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt)
+	}
+	totalFarmingAmt := lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt).Sub(compoundingRewards)
+	return totalFarmingAmt.Mul(unfarmingAmt).Quo(lfCoinTotalSupplyAmt)
 }

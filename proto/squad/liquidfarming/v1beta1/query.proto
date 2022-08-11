@@ -27,16 +27,6 @@ service Query {
     option (google.api.http).get = "/squad/liquidfarming/v1beta1/liquidfarms/{pool_id}";
   }
 
-  // QueuedFarmings returns all queued farmings for the liquid farm
-  rpc QueuedFarmings(QueryQueuedFarmingsRequest) returns (QueryQueuedFarmingsResponse) {
-    option (google.api.http).get = "/squad/liquidfarming/v1beta1/pools/{pool_id}/queued_farmings";
-  }
-
-  // QueuedFarmingsByFarmer returns all queued farmings farmed by the farmer
-  rpc QueuedFarmingsByFarmer(QueryQueuedFarmingsByFarmerRequest) returns (QueryQueuedFarmingsByFarmerResponse) {
-    option (google.api.http).get = "/squad/liquidfarming/v1beta1/pools/{pool_id}/queued_farmings/farmer/{farmer_address}";
-  }
-
   // RewardsAuctions returns all rewards auctions
   rpc RewardsAuctions(QueryRewardsAuctionsRequest) returns (QueryRewardsAuctionsResponse) {
     option (google.api.http).get = "/squad/liquidfarming/v1beta1/pools/{pool_id}/rewards_auctions";
@@ -79,31 +69,6 @@ message QueryParamsRequest {}
 // QueryParamsResponse is response type for the Query/Params RPC method.
 message QueryParamsResponse {
   Params params = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryQueuedFarmingsRequest is request type for the Query/QueuedFarmings RPC method.
-message QueryQueuedFarmingsRequest {
-  uint64 pool_id = 1;
-  cosmos.base.query.v1beta1.PageRequest pagination = 2;
-}
-
-// QueryQueuedFarmingsResponse is response type for the Query/QueuedFarmings RPC method.
-message QueryQueuedFarmingsResponse {
-  repeated QueuedFarming queued_farmings = 1 [(gogoproto.nullable) = false];
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
-// QueryQueuedFarmingsByFarmerRequest is request type for the Query/QueuedFarmingsByFarmer RPC method.
-message QueryQueuedFarmingsByFarmerRequest {
-  uint64 pool_id = 1;
-  string farmer_address = 2;
-  cosmos.base.query.v1beta1.PageRequest pagination = 3;
-}
-
-// QueryQueuedFarmingsByFarmerResponse is response type for the Query/QueuedFarmingsByFarmer RPC method.
-message QueryQueuedFarmingsByFarmerResponse {
-  repeated QueuedFarming queued_farmings = 1 [(gogoproto.nullable) = false];
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryRewardsAuctionsRequest is request type for the Query/RewardsAuctions RPC method.

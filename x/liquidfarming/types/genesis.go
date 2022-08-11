@@ -2,19 +2,16 @@ package types
 
 import (
 	fmt "fmt"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // DefaultGenesis returns the default genesis state.
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		Params:               DefaultParams(),
-		LiquidFarms:          []LiquidFarm{},
-		QueuedFarmingRecords: []QueuedFarmingRecord{},
-		RewardsAuctions:      []RewardsAuction{},
-		Bids:                 []Bid{},
-		WinningBidRecords:    []WinningBidRecord{},
+		Params:            DefaultParams(),
+		LiquidFarms:       []LiquidFarm{},
+		RewardsAuctions:   []RewardsAuction{},
+		Bids:              []Bid{},
+		WinningBidRecords: []WinningBidRecord{},
 	}
 }
 
@@ -27,21 +24,6 @@ func (gs GenesisState) Validate() error {
 	for _, liquidFarm := range gs.LiquidFarms {
 		if err := liquidFarm.Validate(); err != nil {
 			return fmt.Errorf("invalid liquid farm %w", err)
-		}
-	}
-
-	for _, record := range gs.QueuedFarmingRecords {
-		if _, err := sdk.AccAddressFromBech32(record.Farmer); err != nil {
-			return fmt.Errorf("invalid farmer address %s: %w", record.Farmer, err)
-		}
-		if err := sdk.ValidateDenom(record.FarmingCoinDenom); err != nil {
-			return fmt.Errorf("invalid farming coin denom")
-		}
-		if record.QueuedFarming.PoolId == 0 {
-			return fmt.Errorf("pool id must not be 0")
-		}
-		if !record.QueuedFarming.Amount.IsPositive() {
-			return fmt.Errorf("amount must be positive value")
 		}
 	}
 
@@ -66,7 +48,7 @@ func (gs GenesisState) Validate() error {
 			return fmt.Errorf("invalid winning bid: %w", err)
 		}
 		if _, ok := winningBidMap[record.AuctionId]; ok {
-			return fmt.Errorf("multiple winning bids at auction id: %d", record.AuctionId)
+			return fmt.Errorf("multiple winning bids at auction %d", record.AuctionId)
 		}
 		winningBidMap[record.AuctionId] = record.WinningBid
 	}

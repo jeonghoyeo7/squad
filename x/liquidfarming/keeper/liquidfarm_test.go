@@ -1,56 +1,28 @@
 package keeper_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	_ "github.com/stretchr/testify/suite"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	utils "github.com/cosmosquad-labs/squad/v2/types"
+
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming"
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/keeper"
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
-
-	_ "github.com/stretchr/testify/suite"
 )
 
-func (s *KeeperTestSuite) TestFarm() {
-	err := s.keeper.Farm(s.ctx, types.NewMsgFarm(1, s.addr(0).String(), utils.ParseCoin("1000000pool1")))
-	s.Require().ErrorIs(sdkerrors.ErrNotFound, err)
-
-	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
-	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
-	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
-
-	amount1, amount2, amount3 := sdk.NewInt(100000000), sdk.NewInt(200000000), sdk.NewInt(300000000)
-
-	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
-	s.nextBlock()
-
-	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
-	s.nextBlock()
-
-	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, amount3), true)
-	s.nextBlock()
-
-	// Check if the liquid farm reserve account staked in the farming module
-	reserveAcc := types.LiquidFarmReserveAddress(pool.Id)
-	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAcc)
-	s.Require().Equal(amount1.Add(amount2).Add(amount3), queuedCoins.AmountOf(pool.PoolCoinDenom))
-
-	// Check queued farmings farmed by the farmer
-	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, s.addr(0))
-	s.Require().Len(queuedFarmings, 3)
-}
-
 func (s *KeeperTestSuite) TestFarm_Validation() {
+	err := s.keeper.Farm(s.ctx, types.NewMsgFarm(1, s.addr(0).String(), utils.ParseCoin("100000000pool1")))
+	s.Require().EqualError(err, "pool 1 not found: not found")
+
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.NewInt(100_000_000), sdk.NewInt(100_000_000)))
+	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.NewInt(100_000_000), sdk.NewInt(100_000_000)))
 
 	for _, tc := range []struct {
 		name        string
 		msg         *types.MsgFarm
-		postRun     func(ctx sdk.Context, qfs []types.QueuedFarming)
+		postRun     func(ctx sdk.Context, farmerAcc sdk.AccAddress)
 		expectedErr string
 	}{
 		{
@@ -60,8 +32,12 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 				s.addr(0).String(),
 				sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000),
 			),
-			func(ctx sdk.Context, qfs []types.QueuedFarming) {
-				s.Require().Len(qfs, 1)
+			func(ctx sdk.Context, farmerAcc sdk.AccAddress) {
+				reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
+				queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(ctx, reserveAddr)
+				farmerBalance := s.app.BankKeeper.GetBalance(ctx, farmerAcc, types.LiquidFarmCoinDenom(pool.Id))
+				s.Require().Equal(sdk.NewInt(1_000_000_000), queuedCoins.AmountOf(pool.PoolCoinDenom))
+				s.Require().Equal(sdk.NewInt(1_000_000_000), farmerBalance.Amount)
 			},
 			"",
 		},
@@ -102,7 +78,7 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 			err := s.keeper.Farm(cacheCtx, tc.msg)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
-				tc.postRun(cacheCtx, s.keeper.GetQueuedFarmingsByFarmer(cacheCtx, tc.msg.GetFarmer()))
+				tc.postRun(cacheCtx, tc.msg.GetFarmer())
 			} else {
 				s.Require().EqualError(err, tc.expectedErr)
 			}
@@ -110,241 +86,45 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 	}
 }
 
-func (s *KeeperTestSuite) TestFarm_AfterStaked() {
-	s.createPair(s.addr(0), "denom1", "denom2", true)
-	s.createPool(s.addr(0), 1, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
-	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
-
-	pool, found := s.app.LiquidityKeeper.GetPool(s.ctx, 1)
-	s.Require().True(found)
-
-	farmerAddr := s.addr(1)
-	amount1, amount2 := sdk.NewInt(100_000_000), sdk.NewInt(400_000_000)
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
-	s.nextBlock()
-	s.advanceEpochDays()
-
-	// Staked amount must be 100
-	totalStakings, found := s.app.FarmingKeeper.GetTotalStakings(s.ctx, pool.PoolCoinDenom)
-	s.Require().True(found)
-	s.Require().Equal(amount1, totalStakings.Amount)
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
-	s.advanceEpochDays()
-
-	// Staked amount must be 500 (amount1 + amount2)
-	totalStakings, found = s.app.FarmingKeeper.GetTotalStakings(s.ctx, pool.PoolCoinDenom)
-	s.Require().True(found)
-	s.Require().Equal(amount1.Add(amount2), totalStakings.Amount)
-
-	// Check minted LFCoin
-	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)
-	lfCoinBalance := s.getBalance(farmerAddr, lfCoinDenom)
-	s.Require().Equal(sdk.NewCoin(lfCoinDenom, amount1.Add(amount2)), lfCoinBalance)
-
-	// Queued farmings must be deleted
-	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr)
-	s.Require().Len(queuedFarmings, 0)
-}
-
-func (s *KeeperTestSuite) TestFarm_AfterStaked_MultipleFarmers() {
-	s.createPair(s.addr(0), "denom1", "denom2", true)
-	s.createPool(s.addr(0), 1, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
-
-	pool, found := s.app.LiquidityKeeper.GetPool(s.ctx, 1)
-	s.Require().True(found)
-
-	farmerAddr1, farmerAddr2, farmerAddr3 := s.addr(1), s.addr(2), s.addr(3)
-	amount1, amount2, amount3 := sdk.NewInt(100000000), sdk.NewInt(200000000), sdk.NewInt(666)
-
-	// Multiple farmers farm in the same block
-	s.farm(pool.Id, farmerAddr1, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
-	s.farm(pool.Id, farmerAddr2, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
-	s.advanceEpochDays()
-
-	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr1)
-	s.Require().Len(queuedFarmings, 0)
-
-	queuedFarmings = s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr2)
-	s.Require().Len(queuedFarmings, 0)
-
-	s.Require().Equal(amount1, s.getBalance(farmerAddr1, types.LiquidFarmCoinDenom(pool.Id)).Amount)
-	s.Require().Equal(amount2, s.getBalance(farmerAddr2, types.LiquidFarmCoinDenom(pool.Id)).Amount)
-
-	s.farm(pool.Id, farmerAddr3, sdk.NewCoin(pool.PoolCoinDenom, amount3), true)
-	s.advanceEpochDays()
-
-	queuedFarmings = s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr3)
-	s.Require().Len(queuedFarmings, 0)
-
-	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
-	lfCoinTotalSupply := s.app.BankKeeper.GetSupply(s.ctx, types.LiquidFarmCoinDenom(pool.Id)).Amount
-	lpCoinTotalStaked := s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr).AmountOf(pool.PoolCoinDenom)
-	mintingAmt := lfCoinTotalSupply.Mul(amount3).Quo(lpCoinTotalStaked)
-	s.Require().Equal(mintingAmt, s.getBalance(farmerAddr3, types.LiquidFarmCoinDenom(pool.Id)).Amount)
-}
-
-func (s *KeeperTestSuite) TestCancelQueuedFarming_All() {
-	s.createPair(s.addr(0), "denom1", "denom2", true)
-	s.createPool(s.addr(0), 1, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
-	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
-
-	pool, found := s.app.LiquidityKeeper.GetPool(s.ctx, 1)
-	s.Require().True(found)
-
-	farmerAddr := s.addr(1)
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(500_000_000)), true)
-	s.nextBlock()
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(500_000_000)), true)
-	s.nextBlock()
-
-	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr)
-	s.Require().Len(queuedFarmings, 2)
-
-	// Cancel all amounts
-	unfarmingCoin := sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000)
-	s.cancelQueuedFarming(pool.Id, farmerAddr, unfarmingCoin)
-
-	// QueuedFarmings must be deleted
-	queuedFarmings = s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr)
-	s.Require().Len(queuedFarmings, 0)
-
-	// Unfarming amount must be returned to the farmer
-	balance := s.getBalance(farmerAddr, pool.PoolCoinDenom)
-	s.Require().Equal(unfarmingCoin, balance)
-}
-
-func (s *KeeperTestSuite) TestCancelQueuedFarming_Partial() {
-	s.createPair(s.addr(0), "denom1", "denom2", true)
-	s.createPool(s.addr(0), 1, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
-	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
-
-	pool, found := s.app.LiquidityKeeper.GetPool(s.ctx, 1)
-	s.Require().True(found)
-
-	farmerAddr := s.addr(1)
-
-	// Farm 1000 in total (400, 300, 400)
-	amount1, amount2, amount3 := sdk.NewInt(400_000_000), sdk.NewInt(300_000_000), sdk.NewInt(300_000_000)
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
-	s.nextBlock()
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
-	s.nextBlock()
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount3), true)
-	s.nextBlock()
-
-	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr)
-	s.Require().Len(queuedFarmings, 3)
-
-	// Cancel partial amounts
-	unfarmingCoin := sdk.NewInt64Coin(pool.PoolCoinDenom, 650_000_000)
-	s.cancelQueuedFarming(pool.Id, farmerAddr, unfarmingCoin)
-
-	// Two queuedFarmings must be deleted and the last one must be in store
-	queuedFarmings = s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr)
-	s.Require().Len(queuedFarmings, 1)
-
-	// Check the remaining queued coin
-	total := amount1.Add(amount2).Add(amount3)
-	s.Require().Equal(total.Sub(unfarmingCoin.Amount), queuedFarmings[0].Amount)
-
-	// Unfarming amount must be returned to the farmer
-	balance := s.getBalance(farmerAddr, pool.PoolCoinDenom)
-	s.Require().Equal(unfarmingCoin, balance)
-}
-
-func (s *KeeperTestSuite) TestCancelQueuedFarming_Exceed() {
-	s.createPair(s.addr(0), "denom1", "denom2", true)
-	s.createPool(s.addr(0), 1, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
-	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
-
-	pool, found := s.app.LiquidityKeeper.GetPool(s.ctx, 1)
-	s.Require().True(found)
-
-	farmerAddr := s.addr(1)
-
-	// Farm 1000 in total (400, 300, 400)
-	amount1, amount2, amount3 := sdk.NewInt(400_000_000), sdk.NewInt(300_000_000), sdk.NewInt(300_000_000)
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
-	s.nextBlock()
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
-	s.nextBlock()
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount3), true)
-	s.nextBlock()
-
-	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr)
-	s.Require().Len(queuedFarmings, 3)
-
-	// Cancel exceeding amount
-	unfarmingCoin := sdk.NewInt64Coin(pool.PoolCoinDenom, 1_500_000_000)
-	err := s.keeper.CancelQueuedFarming(s.ctx, &types.MsgCancelQueuedFarming{
-		PoolId:        pool.Id,
-		Farmer:        farmerAddr.String(),
-		UnfarmingCoin: unfarmingCoin,
-	})
-	s.Require().ErrorIs(err, sdkerrors.ErrInsufficientFunds)
-}
-
-func (s *KeeperTestSuite) TestUnfarm_All() {
-	s.createPair(s.addr(0), "denom1", "denom2", true)
-	s.createPool(s.addr(0), 1, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
-	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
-
-	pool, found := s.app.LiquidityKeeper.GetPool(s.ctx, 1)
-	s.Require().True(found)
-
-	farmerAddr := s.addr(1)
-	amount1 := sdk.NewInt(100_000_000)
-
-	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
-	s.advanceEpochDays()
-
-	// Staked amount must be 100
-	totalStakings, found := s.app.FarmingKeeper.GetTotalStakings(s.ctx, pool.PoolCoinDenom)
-	s.Require().True(found)
-	s.Require().Equal(amount1, totalStakings.Amount)
-
-	queuedFarmings := s.keeper.GetQueuedFarmingsByFarmer(s.ctx, farmerAddr)
-	s.Require().Len(queuedFarmings, 0)
-
-	// Check minted LFCoin
-	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)
-	lfCoinBalance := s.getBalance(farmerAddr, lfCoinDenom)
-	s.Require().Equal(sdk.NewCoin(lfCoinDenom, amount1), lfCoinBalance)
-
-	// Unfarm all amounts
-	_, err := s.keeper.Unfarm(s.ctx, pool.Id, farmerAddr, lfCoinBalance)
-	s.Require().NoError(err)
-
-	// Verify
-	_, found = s.app.FarmingKeeper.GetTotalStakings(s.ctx, pool.PoolCoinDenom)
-	s.Require().False(found)
-
-	supply := s.app.BankKeeper.GetSupply(s.ctx, lfCoinDenom)
-	s.Require().Equal(sdk.ZeroInt(), supply.Amount)
-}
-
-func (s *KeeperTestSuite) TestUnfarm_Validation() {
+func (s *KeeperTestSuite) TestFarm() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
+	err := s.keeper.Farm(s.ctx, types.NewMsgFarm(pool.Id, s.addr(0).String(), utils.ParseCoin("1000000pool1")))
+	s.Require().EqualError(err, "liquid farm by pool 1 not found: not found")
+
+	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
+
+	var (
+		amount1 = sdk.NewInt(100000000)
+		amount2 = sdk.NewInt(200000000)
+		amount3 = sdk.NewInt(300000000)
+	)
+
+	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
+	s.nextBlock()
+
+	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
+	s.nextBlock()
+
+	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, amount3), true)
+	s.nextBlock()
+
+	// Check if the liquid farm reserve account staked in the farming module
+	reserveAcc := types.LiquidFarmReserveAddress(pool.Id)
+	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAcc)
+	s.Require().Equal(amount1.Add(amount2).Add(amount3), queuedCoins.AmountOf(pool.PoolCoinDenom))
+}
+
+func (s *KeeperTestSuite) TestUnfarm_Validation() {
+	_, err := s.keeper.Unfarm(s.ctx, 1, s.addr(0), utils.ParseCoin("100000000pool1"))
+	s.Require().EqualError(err, "pool 1 not found: not found")
+
+	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+
+	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
 	s.farm(pool.Id, s.addr(0), sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000), true)
 	s.advanceEpochDays()
 
@@ -391,6 +171,224 @@ func (s *KeeperTestSuite) TestUnfarm_Validation() {
 	}
 }
 
+func (s *KeeperTestSuite) TestUnfarm_All() {
+	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+
+	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
+
+	var (
+		farmerAddr  = s.addr(1)
+		amount1     = sdk.NewInt(100_000_000)
+		reserveAddr = types.LiquidFarmReserveAddress(pool.Id)
+		lfCoinDenom = types.LiquidFarmCoinDenom(pool.Id)
+	)
+
+	s.farm(pool.Id, farmerAddr, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
+	s.nextBlock()
+
+	// Farm amount must be 100
+	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
+	s.Require().Equal(amount1, queuedCoins.AmountOf(pool.PoolCoinDenom))
+
+	// Ensure the amount of minted LFCoin
+	balance := s.getBalance(farmerAddr, lfCoinDenom)
+	s.Require().Equal(amount1, balance.Amount)
+
+	// Unfarm all amounts
+	s.unfarm(pool.Id, farmerAddr, balance, false)
+
+	// Ensure that queued coins must be zero amount
+	queuedCoins = s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
+	s.Require().Equal(sdk.ZeroInt(), queuedCoins.AmountOf(pool.PoolCoinDenom))
+
+	// Ensure the total supply
+	supply := s.app.BankKeeper.GetSupply(s.ctx, lfCoinDenom)
+	s.Require().Equal(sdk.ZeroInt(), supply.Amount)
+}
+
+func (s *KeeperTestSuite) TestUnfarm_Partial() {
+	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+
+	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
+
+	var (
+		farmerAddr1 = s.addr(1)
+		amount1     = sdk.NewInt(5_000_000_000)
+
+		farmerAddr2 = s.addr(2)
+		amount2     = sdk.NewInt(1_000_000_000)
+
+		reserveAddr = types.LiquidFarmReserveAddress(pool.Id)
+		lfCoinDenom = types.LiquidFarmCoinDenom(pool.Id)
+	)
+
+	s.farm(pool.Id, farmerAddr1, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
+	s.nextBlock()
+
+	s.farm(pool.Id, farmerAddr2, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
+	s.nextBlock()
+
+	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
+	stakedCoins := s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr)
+	s.Require().Equal(amount1.Add(amount2), queuedCoins.AmountOf(pool.PoolCoinDenom))
+	s.Require().Equal(sdk.ZeroInt(), stakedCoins.AmountOf(pool.PoolCoinDenom))
+
+	// Ensure the amount of minted LFCoin
+	s.Require().Equal(amount1, s.getBalance(farmerAddr1, lfCoinDenom).Amount)
+	s.Require().Equal(amount2, s.getBalance(farmerAddr2, lfCoinDenom).Amount)
+
+	// Unfarm farmer2's all LFCoin amount
+	s.unfarm(pool.Id, farmerAddr2, s.getBalance(farmerAddr2, lfCoinDenom), false)
+
+	// Ensure the total supply
+	s.Require().Equal(amount1, s.app.BankKeeper.GetSupply(s.ctx, lfCoinDenom).Amount)
+
+	var (
+		farmerAddr3 = s.addr(3)
+		amount3     = sdk.NewInt(1_000_000_000)
+	)
+
+	// Farm with the farmerAddr3
+	s.farm(pool.Id, farmerAddr3, sdk.NewCoin(pool.PoolCoinDenom, amount3), true)
+	s.nextBlock()
+
+	// Ensure the amount of minted LFCoin
+	s.Require().Equal(amount1, s.getBalance(farmerAddr1, lfCoinDenom).Amount)
+	s.Require().Equal(sdk.ZeroInt(), s.getBalance(farmerAddr2, lfCoinDenom).Amount)
+	s.Require().Equal(amount3, s.getBalance(farmerAddr3, lfCoinDenom).Amount)
+
+	// Advance epoch to see if it makes any difference
+	s.advanceEpochDays()
+
+	// Unfarm farmer3's all LFCoin amount
+	s.unfarm(pool.Id, farmerAddr3, s.getBalance(farmerAddr3, lfCoinDenom), false)
+
+	// Ensure that queued and staked coins
+	queuedCoins = s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
+	stakedCoins = s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr)
+	s.Require().Equal(sdk.ZeroInt(), queuedCoins.AmountOf(pool.PoolCoinDenom))
+	s.Require().Equal(amount1, stakedCoins.AmountOf(pool.PoolCoinDenom))
+
+	// Ensure the total supply
+	s.Require().Equal(amount1, s.app.BankKeeper.GetSupply(s.ctx, lfCoinDenom).Amount)
+}
+
+func (s *KeeperTestSuite) TestUnfarm_Complex_WithRewards() {
+	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
+	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
+
+	epochAmt := int64(100_000_000)
+	s.createPrivateFixedAmountPlan(
+		s.addr(0),
+		map[string]string{pool.PoolCoinDenom: "1"},
+		map[string]int64{"denom3": epochAmt},
+		true,
+	)
+
+	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
+
+	var (
+		farmerAddr1 = s.addr(1)
+		amount1     = sdk.NewInt(1_000_000_000)
+
+		farmerAddr2 = s.addr(2)
+		amount2     = sdk.NewInt(1_000_000_000)
+
+		reserveAddr = types.LiquidFarmReserveAddress(pool.Id)
+		lfCoinDenom = types.LiquidFarmCoinDenom(pool.Id)
+	)
+
+	s.farm(pool.Id, farmerAddr1, sdk.NewCoin(pool.PoolCoinDenom, amount1), true)
+	s.nextBlock()
+
+	s.farm(pool.Id, farmerAddr2, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
+	s.nextBlock()
+
+	// Ensure the amount of minted LFCoin
+	s.Require().Equal(amount1, s.getBalance(farmerAddr1, lfCoinDenom).Amount)
+	s.Require().Equal(amount2, s.getBalance(farmerAddr2, lfCoinDenom).Amount)
+
+	// Ensure queued and staked coins
+	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
+	stakedCoins := s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr)
+	s.Require().Equal(amount1.Add(amount2), queuedCoins.AmountOf(pool.PoolCoinDenom))
+	s.Require().Equal(sdk.ZeroInt(), stakedCoins.AmountOf(pool.PoolCoinDenom))
+
+	s.advanceEpochDays()
+
+	// Ensure queued and staked coins
+	queuedCoins = s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, reserveAddr)
+	stakedCoins = s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr)
+	s.Require().Equal(sdk.ZeroInt(), queuedCoins.AmountOf(pool.PoolCoinDenom))
+	s.Require().Equal(amount1.Add(amount2), stakedCoins.AmountOf(pool.PoolCoinDenom))
+
+	// Ensure rewards auction is created
+	auctionId := s.keeper.GetLastRewardsAuctionId(s.ctx, pool.Id)
+	auction, found := s.keeper.GetRewardsAuction(s.ctx, pool.Id, auctionId)
+	s.Require().True(found)
+
+	var (
+		bidderAddr1 = s.addr(3)
+		biddingAmt1 = sdk.NewInt(100_000_000)
+
+		bidderAddr2 = s.addr(4)
+		biddingAmt2 = sdk.NewInt(200_000_000)
+	)
+
+	s.placeBid(auction.PoolId, bidderAddr1, sdk.NewCoin(pool.PoolCoinDenom, biddingAmt1), true)
+	s.placeBid(auction.PoolId, bidderAddr2, sdk.NewCoin(pool.PoolCoinDenom, biddingAmt2), true)
+
+	s.advanceEpochDays()
+
+	// Ensure compounding rewards are set in the store
+	rewards, found := s.keeper.GetCompoundingRewards(s.ctx, pool.Id)
+	s.Require().True(found)
+	s.Require().Equal(biddingAmt2, rewards.Amount)
+
+	// Ensure the farming rewards are in the balance
+	s.Require().Equal(sdk.NewInt(epochAmt), s.getBalance(bidderAddr2, "denom3").Amount)
+
+	// Ensure the next rewards auction is created
+	s.Require().Len(s.keeper.GetAllRewardsAuctions(s.ctx), 2)
+
+	var (
+		bidderAddr3 = s.addr(5)
+		biddingAmt3 = sdk.NewInt(10_000_000)
+
+		bidderAddr4 = s.addr(6)
+		biddingAmt4 = sdk.NewInt(30_000_000)
+	)
+
+	s.placeBid(auction.PoolId, bidderAddr3, sdk.NewCoin(pool.PoolCoinDenom, biddingAmt3), true)
+	s.placeBid(auction.PoolId, bidderAddr4, sdk.NewCoin(pool.PoolCoinDenom, biddingAmt4), true)
+
+	s.advanceEpochDays()
+
+	// Ensure compounding rewards are updated with the new bidding amount in the store
+	rewards, found = s.keeper.GetCompoundingRewards(s.ctx, pool.Id)
+	s.Require().True(found)
+	s.Require().Equal(biddingAmt4, rewards.Amount)
+
+	// Unfarm all
+	s.unfarm(pool.Id, farmerAddr1, s.getBalance(farmerAddr1, lfCoinDenom), false)
+	s.unfarm(pool.Id, farmerAddr2, s.getBalance(farmerAddr2, lfCoinDenom), false)
+
+	// Ensure the balances
+	// farmerAddr1: pool coin is auto compounded by 100000000 amount
+	// farmerAddr2: pool coin is auto compounded by 100000000 amount + gets all rewards
+	s.Require().Equal(sdk.NewInt(1_100_000_000), s.getBalance(farmerAddr1, pool.PoolCoinDenom).Amount)
+	s.Require().Equal(sdk.NewInt(1_130_000_000), s.getBalance(farmerAddr2, pool.PoolCoinDenom).Amount)
+
+	// Ensure the total supply
+	s.Require().Equal(sdk.ZeroInt(), s.app.BankKeeper.GetSupply(s.ctx, lfCoinDenom).Amount)
+
+}
+
 func (s *KeeperTestSuite) TestUnfarmAndWithdraw() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	depositCoins := utils.ParseCoins("100_000_000denom1, 100_000_000denom2")
@@ -402,6 +400,7 @@ func (s *KeeperTestSuite) TestUnfarmAndWithdraw() {
 	poolAmt := sdk.NewInt(1_000_000_000_000)
 
 	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, poolAmt), false)
+
 	s.advanceEpochDays()
 
 	// Staked amount must be 100
@@ -491,24 +490,4 @@ func (s *KeeperTestSuite) TestTerminateLiquidFarm() {
 
 	// Ensure all staked coins is zero
 	s.Require().True(s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, types.LiquidFarmReserveAddress(1)).IsZero())
-}
-
-func (s *KeeperTestSuite) TestDelayedFarmGasFee() {
-	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
-	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(1, sdk.ZeroInt(), sdk.ZeroInt()))
-
-	s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
-	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(100_000)), false)
-	gasConsumedNormal := s.ctx.GasMeter().GasConsumed()
-
-	s.nextBlock()
-
-	s.ctx = s.ctx.WithGasMeter(sdk.NewInfiniteGasMeter())
-	s.farm(pool.Id, s.addr(0), sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(100_000)), false)
-	gasConsumedWithFarm := s.ctx.GasMeter().GasConsumed()
-
-	params := s.keeper.GetParams(s.ctx)
-	s.Require().GreaterOrEqual(gasConsumedWithFarm, params.DelayedFarmGasFee)
-	s.Require().Greater(gasConsumedWithFarm, gasConsumedNormal)
 }

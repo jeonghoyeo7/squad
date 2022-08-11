@@ -5,12 +5,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
@@ -30,7 +28,6 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		NewQueryParamsCmd(),
 		NewQueryLiquidFarmsCmd(),
 		NewQueryLiquidFarmCmd(),
-		NewQueryQueuedFarmingsCmd(),
 		NewQueryRewardsAuctionsCmd(),
 		NewQueryRewardsAuctionCmd(),
 		NewQueryBidsCmd(),
@@ -153,69 +150,6 @@ $ %s query %s liquidfarm 1
 		},
 	}
 
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-func NewQueryQueuedFarmingsCmd() *cobra.Command {
-	bech32PrefixAccAddr := sdk.GetConfig().GetBech32AccountAddrPrefix()
-
-	cmd := &cobra.Command{
-		Use:   "queued-farmings [pool-id]",
-		Args:  cobra.ExactArgs(1),
-		Short: "Query all queued farmings for the liquidfarm",
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Query all queued farmings for the liquidfarm on a network.
-
-Example:
-$ %s query %s queued-farmings
-$ %s query %s queued-farmings --farmer %s1zaavvzxez0elundtn32qnk9lkm8kmcszzsv80v
-`,
-				version.AppName, types.ModuleName,
-				version.AppName, types.ModuleName, bech32PrefixAccAddr,
-			),
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			poolId, err := strconv.ParseUint(args[0], 10, 64)
-			if err != nil {
-				return fmt.Errorf("failed to parse pool id: %w", err)
-			}
-
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
-			if err != nil {
-				return err
-			}
-
-			var res proto.Message
-			queryClient := types.NewQueryClient(clientCtx)
-			farmerAddr, _ := cmd.Flags().GetString(FlagFarmer)
-			if farmerAddr == "" {
-				res, err = queryClient.QueuedFarmings(cmd.Context(), &types.QueryQueuedFarmingsRequest{
-					PoolId:     poolId,
-					Pagination: pageReq,
-				})
-			} else {
-				res, err = queryClient.QueuedFarmingsByFarmer(cmd.Context(), &types.QueryQueuedFarmingsByFarmerRequest{
-					PoolId:        poolId,
-					FarmerAddress: farmerAddr,
-					Pagination:    pageReq,
-				})
-			}
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	cmd.Flags().AddFlagSet(flagSetQueuedFarmings())
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
