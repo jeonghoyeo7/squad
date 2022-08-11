@@ -12,21 +12,26 @@ Farmers can use the LFCoin to take a full advantage of Crescent functionality, s
 On behalf of farmers, the module stakes their pool coin to the `farming` module and receives farming rewards for every epoch. 
 The module provides auto-compounding of the rewards by going through an auction process, which results in the exchange of the farming rewards coin(s) into the pool coin.
 
+## Liquid Farm
+
+A `liquidFarm` corresponds to one unique pool id. A `liquidFarm` stakes and unstakes the pool coins as users’ requests. When the rewards are allocated by staking the pool coins, the `liquidFarm` creates and manages an auction in order to exchange the rewards to pool coins to be staked additionally.
+
+A `liquidFarm` can be activated by being added to the parameter `liquidFarms` by governance. When the `liquidFarm` is activated, users can request to farm their pool coins. 
+
+A `liquidFarm` can be deactivated by being removed to the parameter `liquidFarms` by governance. When the `liquidFarm` is deactivated, the module unstakes all pool coins in the module, users cannot request to farm their pool coins, but users can request to unfarm LF coins.
 
 ## Farm
 
-Once a user farms their pool coin, the user will receive LFCoin after a configurable queueing period.
-The farm queueing period is configured as 1 day in Crescent Network. 
+Once a user farms their pool coin, the user receives LFCoin instantly minted.
 The following formula is used for an exchange rate of `LFCoinMint` when a user farms with `LPCoinFarm`.
 
-$$LFCoinMint = \frac{LFCoinTotalSupply}{LPCoinTotalStaked} \times LPCoinFarm,$$
+$$LFCoinMint = \frac{LFCoinTotalSupply}{LPCoinTotalStaked+LPCoinTotalQueued} \times LPCoinFarm,$$
 
 where `LFCoinTotalSupply` is not zero.
+`LPCoinTotalQueued` is the amount of pool coins in `FarmQueued` by the `liquidfarming` module.
 If `LFCoinTotalSupply` is zero, then the following formula is applied:
 
 $$LFCoinMint = LPCoinFarm.$$
-
-Note that the farm request can be cancelled by the user as long as minting LFCoin hasn’t occurred.
 
 ## Unfarm
 
@@ -34,7 +39,16 @@ When a user unfarms their LFCoin, the module burns the LFCoin and releases the c
 Unlike minting LFCoin that happens after a certain period from farming, burning the LFCoin occurs instantly when unfarming.
 The following formula is used for an exchange rate of `LFCoinUnfarm`:
 
-$$LPCoinUnfarm = \frac{LPCoinTotalStaked}{LFCoinTotalSupply} \times LFCoinBurn \times (1-fee).$$
+$$LPCoinUnfarm = \frac{LPCoinTotalStaked+LPCoinTotalQueued-CompoundingRewards}{LFCoinTotalSupply} \times LFCoinBurn,$$
+
+if $$LFCoinBurn < LFCoinTotalSupply$$, where `CompoundingRewards` is the amount of pool coins obtained from the last rewards auction, which is in `FarmQueued`.
+If $$LFCoinBurn = LFCoinTotalSupply$$, the following formula is used:
+
+$$LPCoinUnfarm = \frac{LPCoinTotalStaked+LPCoinTotalQueued}{LFCoinTotalSupply} \times LFCoinBurn.$$
+
+If the `liquidfarm` is deactivated, the following formula is used an exchange rate of `LFCoinUnfarm`:
+
+$$LPCoinUnfarm = \frac{LPCoinTotalQueued}{LFCoinTotalSupply} \times LFCoinBurn.$$
 
 ## Farming Rewards and Auction
 
