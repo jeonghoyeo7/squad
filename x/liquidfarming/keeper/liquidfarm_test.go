@@ -34,7 +34,7 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 			),
 			func(ctx sdk.Context, farmerAcc sdk.AccAddress) {
 				reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
-				queuedAmt := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, pool.PoolCoinDenom)
+				queuedAmt := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, pool.PoolCoinDenom)
 				farmerBalance := s.app.BankKeeper.GetBalance(ctx, farmerAcc, types.LiquidFarmCoinDenom(pool.Id))
 				s.Require().Equal(sdk.NewInt(1_000_000_000), queuedAmt)
 				s.Require().Equal(sdk.NewInt(1_000_000_000), farmerBalance.Amount)

@@ -23,8 +23,8 @@ func (k Keeper) ValidateMsgFarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAd
 		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "liquid farm by pool %d not found", poolId)
 	}
 
-	if farmingCoin.Amount.LT(liquidFarm.MinimumFarmAmount) {
-		return sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", farmingCoin.Amount, liquidFarm.MinimumFarmAmount)
+	if farmingCoin.Amount.LT(liquidFarm.MinFarmAmount) {
+		return sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", farmingCoin.Amount, liquidFarm.MinFarmAmount)
 	}
 
 	if pool.PoolCoinDenom != farmingCoin.Denom {

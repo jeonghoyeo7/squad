@@ -24,9 +24,9 @@ var (
 // NewLiquidFarm returns a new LiquidFarm.
 func NewLiquidFarm(poolId uint64, minFarmAmt, minBidAmount sdk.Int) LiquidFarm {
 	return LiquidFarm{
-		PoolId:            poolId,
-		MinimumFarmAmount: minFarmAmt,
-		MinimumBidAmount:  minBidAmount,
+		PoolId:        poolId,
+		MinFarmAmount: minFarmAmt,
+		MinBidAmount:  minBidAmount,
 	}
 }
 
@@ -35,11 +35,11 @@ func (l LiquidFarm) Validate() error {
 	if l.PoolId == 0 {
 		return fmt.Errorf("pool id must not be 0")
 	}
-	if l.MinimumBidAmount.IsNegative() {
-		return fmt.Errorf("minimum bid amount must be 0 or positive value: %s", l.MinimumBidAmount)
+	if l.MinBidAmount.IsNegative() {
+		return fmt.Errorf("minimum bid amount must be 0 or positive value: %s", l.MinBidAmount)
 	}
-	if l.MinimumFarmAmount.IsNegative() {
-		return fmt.Errorf("minimum farm amount must be 0 or positive value: %s", l.MinimumFarmAmount)
+	if l.MinFarmAmount.IsNegative() {
+		return fmt.Errorf("minimum farm amount must be 0 or positive value: %s", l.MinFarmAmount)
 	}
 	return nil
 }

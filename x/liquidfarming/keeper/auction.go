@@ -26,8 +26,8 @@ func (k Keeper) PlaceBid(ctx sdk.Context, poolId uint64, bidder sdk.AccAddress, 
 		return types.Bid{}, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "auction by pool %d not found", poolId)
 	}
 
-	if biddingCoin.Amount.LT(liquidFarm.MinimumBidAmount) {
-		return types.Bid{}, sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", biddingCoin.Amount, liquidFarm.MinimumBidAmount)
+	if biddingCoin.Amount.LT(liquidFarm.MinBidAmount) {
+		return types.Bid{}, sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", biddingCoin.Amount, liquidFarm.MinBidAmount)
 	}
 
 	// Refund the previous bid if exists

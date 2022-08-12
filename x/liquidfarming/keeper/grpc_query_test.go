@@ -43,11 +43,11 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarms() {
 				for _, liquidFarm := range resp.LiquidFarms {
 					switch liquidFarm.PoolId {
 					case 1:
-						s.Require().Equal(minFarmAmt1, liquidFarm.MinimumFarmAmount)
-						s.Require().Equal(minBidAmt1, liquidFarm.MinimumBidAmount)
+						s.Require().Equal(minFarmAmt1, liquidFarm.MinFarmAmount)
+						s.Require().Equal(minBidAmt1, liquidFarm.MinBidAmount)
 					case 2:
-						s.Require().Equal(minFarmAmt2, liquidFarm.MinimumFarmAmount)
-						s.Require().Equal(minBidAmt2, liquidFarm.MinimumBidAmount)
+						s.Require().Equal(minFarmAmt2, liquidFarm.MinFarmAmount)
+						s.Require().Equal(minBidAmt2, liquidFarm.MinBidAmount)
 					}
 					reserveAddr, _ := sdk.AccAddressFromBech32(liquidFarm.LiquidFarmReserveAddress)
 					poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
@@ -114,8 +114,8 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarm() {
 				s.Require().Equal(stakedAmt, resp.LiquidFarm.StakedCoin.Amount)
 				s.Require().Equal(types.LiquidFarmCoinDenom(pool.Id), resp.LiquidFarm.LFCoinDenom)
 				s.Require().Equal(types.LiquidFarmReserveAddress(pool.Id).String(), resp.LiquidFarm.LiquidFarmReserveAddress)
-				s.Require().Equal(minFarmAmt, resp.LiquidFarm.MinimumFarmAmount)
-				s.Require().Equal(minBidAmt, resp.LiquidFarm.MinimumBidAmount)
+				s.Require().Equal(minFarmAmt, resp.LiquidFarm.MinFarmAmount)
+				s.Require().Equal(minBidAmt, resp.LiquidFarm.MinBidAmount)
 			},
 		},
 	} {

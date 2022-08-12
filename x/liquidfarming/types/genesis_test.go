@@ -34,9 +34,9 @@ func TestGenesisState_Validate(t *testing.T) {
 			func(genState *types.GenesisState) {
 				genState.LiquidFarms = []types.LiquidFarm{
 					{
-						PoolId:            1,
-						MinimumFarmAmount: sdk.ZeroInt(),
-						MinimumBidAmount:  sdk.ZeroInt(),
+						PoolId:        1,
+						MinFarmAmount: sdk.ZeroInt(),
+						MinBidAmount:  sdk.ZeroInt(),
 					},
 				}
 			},

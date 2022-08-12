@@ -54,8 +54,8 @@ func (k Querier) LiquidFarms(c context.Context, req *types.QueryLiquidFarmsReque
 			PoolId:                   liquidFarm.PoolId,
 			LiquidFarmReserveAddress: reserveAddr.String(),
 			LFCoinDenom:              types.LiquidFarmCoinDenom(liquidFarm.PoolId),
-			MinimumFarmAmount:        liquidFarm.MinimumFarmAmount,
-			MinimumBidAmount:         liquidFarm.MinimumBidAmount,
+			MinFarmAmount:            liquidFarm.MinFarmAmount,
+			MinBidAmount:             liquidFarm.MinBidAmount,
 			QueuedCoin:               sdk.NewCoin(poolCoinDenom, queuedAmt),
 			StakedCoin:               sdk.NewCoin(poolCoinDenom, stakedAmt),
 		})
@@ -92,8 +92,8 @@ func (k Querier) LiquidFarm(c context.Context, req *types.QueryLiquidFarmRequest
 				PoolId:                   liquidFarm.PoolId,
 				LiquidFarmReserveAddress: reserveAddr.String(),
 				LFCoinDenom:              types.LiquidFarmCoinDenom(liquidFarm.PoolId),
-				MinimumFarmAmount:        liquidFarm.MinimumFarmAmount,
-				MinimumBidAmount:         liquidFarm.MinimumBidAmount,
+				MinFarmAmount:            liquidFarm.MinFarmAmount,
+				MinBidAmount:             liquidFarm.MinBidAmount,
 				QueuedCoin:               sdk.NewCoin(poolCoinDenom, queuedAmt),
 				StakedCoin:               sdk.NewCoin(poolCoinDenom, stakedAmt),
 			}
