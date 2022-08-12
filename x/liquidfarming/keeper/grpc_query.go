@@ -76,28 +76,28 @@ func (k Querier) LiquidFarm(c context.Context, req *types.QueryLiquidFarmRequest
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	liquidFarmRes := types.LiquidFarmResponse{}
-	for _, liquidFarm := range k.GetAllLiquidFarms(ctx) {
-		if liquidFarm.PoolId == req.PoolId {
-			reserveAddr := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
-			poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
-			queuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
-			stakedAmt := sdk.ZeroInt()
-			staking, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
-			if found {
-				stakedAmt = staking.Amount
-			}
+	liquidFarm, found := k.GetLiquidFarm(ctx, req.PoolId)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "liquid farm by pool id %d not found", req.PoolId)
+	}
 
-			liquidFarmRes = types.LiquidFarmResponse{
-				PoolId:                   liquidFarm.PoolId,
-				LiquidFarmReserveAddress: reserveAddr.String(),
-				LFCoinDenom:              types.LiquidFarmCoinDenom(liquidFarm.PoolId),
-				MinFarmAmount:            liquidFarm.MinFarmAmount,
-				MinBidAmount:             liquidFarm.MinBidAmount,
-				QueuedCoin:               sdk.NewCoin(poolCoinDenom, queuedAmt),
-				StakedCoin:               sdk.NewCoin(poolCoinDenom, stakedAmt),
-			}
-		}
+	reserveAddr := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
+	poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
+	queuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
+	stakedAmt := sdk.ZeroInt()
+	staking, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+	if found {
+		stakedAmt = staking.Amount
+	}
+
+	liquidFarmRes := types.LiquidFarmResponse{
+		PoolId:                   liquidFarm.PoolId,
+		LiquidFarmReserveAddress: reserveAddr.String(),
+		LFCoinDenom:              types.LiquidFarmCoinDenom(liquidFarm.PoolId),
+		MinFarmAmount:            liquidFarm.MinFarmAmount,
+		MinBidAmount:             liquidFarm.MinBidAmount,
+		QueuedCoin:               sdk.NewCoin(poolCoinDenom, queuedAmt),
+		StakedCoin:               sdk.NewCoin(poolCoinDenom, stakedAmt),
 	}
 
 	return &types.QueryLiquidFarmResponse{LiquidFarm: liquidFarmRes}, nil

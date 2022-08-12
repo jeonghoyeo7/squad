@@ -90,16 +90,6 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarm() {
 			nil,
 		},
 		{
-			"query by invalid pool id",
-			&types.QueryLiquidFarmRequest{
-				PoolId: 5,
-			},
-			false,
-			func(resp *types.QueryLiquidFarmResponse) {
-				s.Require().Empty(resp.LiquidFarm)
-			},
-		},
-		{
 			"query by pool id",
 			&types.QueryLiquidFarmRequest{
 				PoolId: pool.Id,
@@ -117,6 +107,14 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarm() {
 				s.Require().Equal(minFarmAmt, resp.LiquidFarm.MinFarmAmount)
 				s.Require().Equal(minBidAmt, resp.LiquidFarm.MinBidAmount)
 			},
+		},
+		{
+			"query by invalid pool id",
+			&types.QueryLiquidFarmRequest{
+				PoolId: 5,
+			},
+			true,
+			nil,
 		},
 	} {
 		s.Run(tc.name, func() {
