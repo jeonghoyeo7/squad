@@ -21,8 +21,8 @@ func (k Keeper) GetLiquidFarm(ctx sdk.Context, poolId uint64) (liquidFarm types.
 }
 
 // GetAllLiquidFarms returns all liquid farm objects stored in the store.
-func (k Keeper) GetAllLiquidFarms(ctx sdk.Context) []types.LiquidFarm {
-	liquidFarms := []types.LiquidFarm{}
+func (k Keeper) GetAllLiquidFarms(ctx sdk.Context) (liquidFarms []types.LiquidFarm) {
+	liquidFarms = []types.LiquidFarm{}
 	k.IterateLiquidFarms(ctx, func(liquidFarm types.LiquidFarm) (stop bool) {
 		liquidFarms = append(liquidFarms, liquidFarm)
 		return false
@@ -77,8 +77,8 @@ func (k Keeper) GetLastRewardsAuctionId(ctx sdk.Context, poolId uint64) uint64 {
 	return id
 }
 
-// SetRewardsAuctionId stores the last rewards auction id.
-func (k Keeper) SetRewardsAuctionId(ctx sdk.Context, poolId uint64, id uint64) {
+// SetLastRewardsAuctionId stores the last rewards auction id.
+func (k Keeper) SetLastRewardsAuctionId(ctx sdk.Context, poolId uint64, id uint64) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&gogotypes.UInt64Value{Value: id})
 	store.Set(types.GetLastRewardsAuctionIdKey(poolId), bz)

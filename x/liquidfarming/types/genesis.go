@@ -7,11 +7,12 @@ import (
 // DefaultGenesis returns the default genesis state.
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
-		Params:            DefaultParams(),
-		LiquidFarms:       []LiquidFarm{},
-		RewardsAuctions:   []RewardsAuction{},
-		Bids:              []Bid{},
-		WinningBidRecords: []WinningBidRecord{},
+		Params:                     DefaultParams(),
+		LastRewardsAuctionIdRecord: []LastRewardsAuctionIdRecord{},
+		LiquidFarms:                []LiquidFarm{},
+		RewardsAuctions:            []RewardsAuction{},
+		Bids:                       []Bid{},
+		WinningBidRecords:          []WinningBidRecord{},
 	}
 }
 

@@ -219,21 +219,18 @@ func (k Keeper) HandleRemovedLiquidFarm(ctx sdk.Context, liquidFarm types.Liquid
 		}
 	}
 
-	// REVIEW: can auction id be 0 in any case?
-	// It is recommended to check if it is zero and continue except for SetCompundingRewards and DeleteLiquidFarm
+	// Handle a case when the last rewards auction id isn't set in the store
 	auctionId := k.GetLastRewardsAuctionId(ctx, liquidFarm.PoolId)
 	auction, found := k.GetRewardsAuction(ctx, liquidFarm.PoolId, auctionId)
-	if !found {
-		panic(fmt.Errorf("rewards auction %d must exist, but somehow it is not found", auctionId))
+	if found {
+		if err := k.RefundAllBids(ctx, auction, types.Bid{}); err != nil {
+			panic(err)
+		}
+		k.DeleteWinningBid(ctx, liquidFarm.PoolId, auctionId)
+		auction.SetStatus(types.AuctionStatusFinished)
+		k.SetRewardsAuction(ctx, auction)
 	}
 
-	if err := k.RefundAllBids(ctx, auction, types.Bid{}); err != nil {
-		panic(err)
-	}
-
-	auction.SetStatus(types.AuctionStatusFinished)
-	k.SetRewardsAuction(ctx, auction)
 	k.SetCompoundingRewards(ctx, liquidFarm.PoolId, types.CompoundingRewards{Amount: sdk.ZeroInt()})
-	k.DeleteWinningBid(ctx, liquidFarm.PoolId, auctionId)
 	k.DeleteLiquidFarm(ctx, liquidFarm)
 }

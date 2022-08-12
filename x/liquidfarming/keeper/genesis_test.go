@@ -8,12 +8,12 @@ import (
 	_ "github.com/stretchr/testify/suite"
 )
 
-func (suite *KeeperTestSuite) TestDefaultGenesis() {
+func (s *KeeperTestSuite) TestDefaultGenesis() {
 	genState := *types.DefaultGenesis()
 
-	suite.keeper.InitGenesis(suite.ctx, genState)
-	got := suite.keeper.ExportGenesis(suite.ctx)
-	suite.Require().Equal(genState, *got)
+	s.keeper.InitGenesis(s.ctx, genState)
+	got := s.keeper.ExportGenesis(s.ctx)
+	s.Require().Equal(genState, *got)
 }
 
 func (s *KeeperTestSuite) TestImportExportGenesis() {

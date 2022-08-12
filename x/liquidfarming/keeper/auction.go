@@ -111,7 +111,7 @@ func (k Keeper) RefundBid(ctx sdk.Context, poolId uint64, bidder sdk.AccAddress)
 // getNextAuctionIdWithUpdate increments rewards auction id by one and store it.
 func (k Keeper) getNextAuctionIdWithUpdate(ctx sdk.Context, poolId uint64) uint64 {
 	id := k.GetLastRewardsAuctionId(ctx, poolId) + 1
-	k.SetRewardsAuctionId(ctx, poolId, id)
+	k.SetLastRewardsAuctionId(ctx, poolId, id)
 	return id
 }
 
@@ -141,7 +141,7 @@ func (k Keeper) RefundAllBids(ctx sdk.Context, auction types.RewardsAuction, win
 			inputs = append(inputs, banktypes.NewInput(auction.GetPayingReserveAddress(), sdk.NewCoins(bid.Amount)))
 			outputs = append(outputs, banktypes.NewOutput(bid.GetBidder(), sdk.NewCoins(bid.Amount)))
 		}
-		k.DeleteBid(ctx, bid) // delete all
+		k.DeleteBid(ctx, bid) // delete all bids
 	}
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		panic(err)
