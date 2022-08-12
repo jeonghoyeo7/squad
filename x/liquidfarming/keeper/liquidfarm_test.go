@@ -17,7 +17,7 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.NewInt(100_000_000), sdk.NewInt(100_000_000)))
+	s.createLiquidFarm(pool.Id, sdk.NewInt(100_000_000), sdk.NewInt(100_000_000))
 
 	for _, tc := range []struct {
 		name        string
@@ -93,7 +93,7 @@ func (s *KeeperTestSuite) TestFarm() {
 	err := s.keeper.Farm(s.ctx, pool.Id, s.addr(0), utils.ParseCoin("1000000pool1"))
 	s.Require().EqualError(err, "liquid farm by pool 1 not found: not found")
 
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
 
 	var (
@@ -124,7 +124,7 @@ func (s *KeeperTestSuite) TestUnfarm_Validation() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 	s.farm(pool.Id, s.addr(0), sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000), true)
 	s.advanceEpochDays()
 
@@ -175,7 +175,7 @@ func (s *KeeperTestSuite) TestUnfarm_All() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
 
 	var (
@@ -212,7 +212,7 @@ func (s *KeeperTestSuite) TestUnfarm_Partial() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
 
 	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
@@ -289,7 +289,7 @@ func (s *KeeperTestSuite) TestUnfarm_Complex_WithRewards() {
 		true,
 	)
 
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
 
 	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
@@ -394,7 +394,7 @@ func (s *KeeperTestSuite) TestUnfarmAndWithdraw() {
 	depositCoins := utils.ParseCoins("100_000_000denom1, 100_000_000denom2")
 	pool := s.createPool(s.addr(0), pair.Id, depositCoins, true)
 
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
 
 	poolAmt := sdk.NewInt(1_000_000_000_000)
@@ -504,7 +504,7 @@ func (s *KeeperTestSuite) TestMintAndBurnRate() {
 		true,
 	)
 
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 	s.Require().Len(s.keeper.GetParams(s.ctx).LiquidFarms, 1)
 
 	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)

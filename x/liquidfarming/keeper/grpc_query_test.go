@@ -20,12 +20,12 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarms() {
 	pair1 := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool1 := s.createPool(s.addr(0), pair1.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 	minFarmAmt1, minBidAmt1 := sdk.NewInt(10_000_000), sdk.NewInt(10_000_000)
-	s.createLiquidFarm(types.NewLiquidFarm(pool1.Id, minFarmAmt1, minBidAmt1))
+	s.createLiquidFarm(pool1.Id, minFarmAmt1, minBidAmt1)
 
 	pair2 := s.createPair(s.addr(1), "denom3", "denom4", true)
 	pool2 := s.createPool(s.addr(1), pair2.Id, utils.ParseCoins("100_000_000denom3, 100_000_000denom4"), true)
 	minFarmAmt2, minBidAmt2 := sdk.NewInt(30_000_000), sdk.NewInt(30_000_000)
-	s.createLiquidFarm(types.NewLiquidFarm(pool2.Id, minFarmAmt2, minBidAmt2))
+	s.createLiquidFarm(pool2.Id, minFarmAmt2, minBidAmt2)
 
 	for _, tc := range []struct {
 		name      string
@@ -51,7 +51,6 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarms() {
 					}
 					reserveAddr, _ := sdk.AccAddressFromBech32(liquidFarm.LiquidFarmReserveAddress)
 					poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
-					reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
 					queuedAmt := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, poolCoinDenom)
 					stakedAmt := s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr).AmountOf(poolCoinDenom)
 					s.Require().Equal(queuedAmt, liquidFarm.QueuedCoin.Amount)
@@ -76,7 +75,7 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarm() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 	minFarmAmt, minBidAmt := sdk.NewInt(10_000_000), sdk.NewInt(10_000_000)
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, minFarmAmt, minBidAmt))
+	s.createLiquidFarm(pool.Id, minFarmAmt, minBidAmt)
 
 	for _, tc := range []struct {
 		name      string
@@ -135,7 +134,7 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarm() {
 func (s *KeeperTestSuite) TestGRPCRewardsAuctions() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 
 	s.deposit(s.addr(1), pool.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 	s.deposit(s.addr(2), pool.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
@@ -217,7 +216,7 @@ func (s *KeeperTestSuite) TestGRPCRewardsAuctions() {
 func (s *KeeperTestSuite) TestGRPCRewardsAuction() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 
 	s.deposit(s.addr(1), pool.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 	s.deposit(s.addr(2), pool.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
@@ -309,7 +308,7 @@ func (s *KeeperTestSuite) TestGRPCRewardsAuction() {
 func (s *KeeperTestSuite) TestGRPCBids() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 
 	s.deposit(s.addr(1), pool.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 	s.deposit(s.addr(2), pool.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
