@@ -103,13 +103,6 @@ func (s *KeeperTestSuite) createPrivateFixedAmountPlan(
 // 	s.Require().NoError(err)
 // }
 
-// TODO: do we need this convenient function?
-// func (s *KeeperTestSuite) harvest(farmerAcc sdk.AccAddress, stakingCoinDenoms []string) {
-// 	s.T().Helper()
-// 	err := s.app.FarmingKeeper.Harvest(s.ctx, farmerAcc, stakingCoinDenoms)
-// 	s.Require().NoError(err)
-// }
-
 func (s *KeeperTestSuite) advanceEpochDays() {
 	currentEpochDays := s.app.FarmingKeeper.GetCurrentEpochDays(s.ctx)
 	s.ctx = s.ctx.WithBlockTime(s.ctx.BlockTime().Add(time.Duration(currentEpochDays) * farmingtypes.Day))
@@ -148,8 +141,9 @@ func (s *KeeperTestSuite) deposit(depositor sdk.AccAddress, poolId uint64, depos
 	return req
 }
 
-func (s *KeeperTestSuite) createLiquidFarm(liquidFarm types.LiquidFarm) types.LiquidFarm {
+func (s *KeeperTestSuite) createLiquidFarm(poolId uint64, minFarmAmt, minBidAmt sdk.Int) types.LiquidFarm {
 	s.T().Helper()
+	liquidFarm := types.NewLiquidFarm(poolId, minFarmAmt, minBidAmt)
 	params := s.keeper.GetParams(s.ctx)
 	params.LiquidFarms = append(params.LiquidFarms, liquidFarm)
 	s.keeper.SetParams(s.ctx, params)
@@ -193,14 +187,6 @@ func (s *KeeperTestSuite) placeBid(poolId uint64, bidder sdk.AccAddress, bidding
 
 	return bid
 }
-
-// TODO: do we need this convenient function?
-// func (s *KeeperTestSuite) refundBid(poolId uint64, bidder sdk.AccAddress) {
-// 	s.T().Helper()
-
-// 	err := s.keeper.RefundBid(s.ctx, types.NewMsgRefundBid(poolId, bidder.String()))
-// 	s.Require().NoError(err)
-// }
 
 //
 // Below are helper functions to write test code easily

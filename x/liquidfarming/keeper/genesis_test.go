@@ -19,7 +19,7 @@ func (suite *KeeperTestSuite) TestDefaultGenesis() {
 func (s *KeeperTestSuite) TestImportExportGenesis() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt()))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
 
 	s.deposit(s.addr(1), pool.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 	s.deposit(s.addr(2), pool.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)

@@ -13,42 +13,38 @@ import (
 	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
 )
 
-// ValidateMsgPlaceBid validates types.MsgPlaceBid.
-func (k Keeper) ValidateMsgPlaceBid(ctx sdk.Context, poolId uint64, bidder sdk.AccAddress, biddingCoin sdk.Coin) error {
+// PlaceBid handles types.MsgPlaceBid and stores bid object.
+func (k Keeper) PlaceBid(ctx sdk.Context, poolId uint64, bidder sdk.AccAddress, biddingCoin sdk.Coin) (types.Bid, error) {
 	liquidFarm, found := k.GetLiquidFarm(ctx, poolId)
 	if !found {
-		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "liquid farm by pool %d not found", poolId)
+		return types.Bid{}, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "liquid farm by pool %d not found", poolId)
 	}
 
 	auctionId := k.GetLastRewardsAuctionId(ctx, poolId)
-	_, found = k.GetRewardsAuction(ctx, poolId, auctionId)
+	auction, found := k.GetRewardsAuction(ctx, poolId, auctionId)
 	if !found {
-		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "auction by pool %d not found", poolId)
+		return types.Bid{}, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "auction by pool %d not found", poolId)
 	}
 
 	if biddingCoin.Amount.LT(liquidFarm.MinimumBidAmount) {
-		return sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", biddingCoin.Amount, liquidFarm.MinimumBidAmount)
+		return types.Bid{}, sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", biddingCoin.Amount, liquidFarm.MinimumBidAmount)
 	}
 
-	// REVIEW: how about making auto refund bid so that bidders cae place their bid?
-	_, found = k.GetBid(ctx, auctionId, bidder)
+	// Refund the previous bid if exists
+	previousBid, found := k.GetBid(ctx, auctionId, bidder)
 	if found {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "refund the previous bid to place new bid")
+		if err := k.bankKeeper.SendCoins(ctx, auction.GetPayingReserveAddress(), previousBid.GetBidder(), sdk.NewCoins(previousBid.Amount)); err != nil {
+			return types.Bid{}, err
+		}
+		k.DeleteBid(ctx, previousBid)
 	}
 
-	return nil
-}
-
-// PlaceBid handles types.MsgPlaceBid and stores bid object.
-func (k Keeper) PlaceBid(ctx sdk.Context, poolId uint64, bidder sdk.AccAddress, biddingCoin sdk.Coin) (types.Bid, error) {
-	if err := k.ValidateMsgPlaceBid(ctx, poolId, bidder, biddingCoin); err != nil {
-		return types.Bid{}, err
+	winningBid, found := k.GetWinningBid(ctx, poolId, auctionId)
+	if found {
+		if biddingCoin.Amount.LTE(winningBid.Amount.Amount) {
+			return types.Bid{}, sdkerrors.Wrapf(types.ErrSmallerThanWinningBidAmount, "%s is smaller than %s", biddingCoin.Amount, winningBid.Amount.Amount)
+		}
 	}
-
-	// REVIEW: validation check for the amount that exceeds winning bid amount? (verify with test case)
-
-	auctionId := k.GetLastRewardsAuctionId(ctx, poolId)
-	auction, _ := k.GetRewardsAuction(ctx, poolId, auctionId)
 
 	if err := k.bankKeeper.SendCoins(ctx, bidder, auction.GetPayingReserveAddress(), sdk.NewCoins(biddingCoin)); err != nil {
 		return types.Bid{}, err
