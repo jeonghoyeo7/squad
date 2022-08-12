@@ -168,7 +168,7 @@ func (s *KeeperTestSuite) farm(poolId uint64, farmer sdk.AccAddress, farmingCoin
 		s.fundAddr(farmer, sdk.NewCoins(farmingCoin))
 	}
 
-	err := s.keeper.Farm(s.ctx, types.NewMsgFarm(poolId, farmer.String(), farmingCoin))
+	err := s.keeper.Farm(s.ctx, poolId, farmer, farmingCoin)
 	s.Require().NoError(err)
 }
 
@@ -188,7 +188,7 @@ func (s *KeeperTestSuite) placeBid(poolId uint64, bidder sdk.AccAddress, bidding
 		s.fundAddr(bidder, sdk.NewCoins(biddingCoin))
 	}
 
-	bid, err := s.keeper.PlaceBid(s.ctx, types.NewMsgPlaceBid(poolId, bidder.String(), biddingCoin))
+	bid, err := s.keeper.PlaceBid(s.ctx, poolId, bidder, biddingCoin)
 	s.Require().NoError(err)
 
 	return bid

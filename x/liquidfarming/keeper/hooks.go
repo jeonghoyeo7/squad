@@ -27,7 +27,9 @@ func (h Hooks) AfterAllocateRewards(ctx sdk.Context) {
 		auctionId := h.k.GetLastRewardsAuctionId(ctx, liquidFarm.PoolId)
 		auction, found := h.k.GetRewardsAuction(ctx, liquidFarm.PoolId, auctionId)
 		if found {
-			h.k.FinishRewardsAuction(ctx, auction)
+			if err := h.k.FinishRewardsAuction(ctx, auction); err != nil {
+				panic(err)
+			}
 		}
 		h.k.CreateRewardsAuction(ctx, liquidFarm.PoolId)
 	}

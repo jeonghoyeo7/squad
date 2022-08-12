@@ -93,14 +93,14 @@ func TestMsgUnfarm(t *testing.T) {
 		{
 			"invalid lf coin",
 			func(msg *types.MsgUnfarm) {
-				msg.UnfarmingCoin = sdk.NewInt64Coin("lf1", 0)
+				msg.BurningCoin = sdk.NewInt64Coin("lf1", 0)
 			},
-			"unfarming coin must be positive: invalid request",
+			"burning coin must be positive: invalid request",
 		},
 		{
 			"invalid lf coin denom",
 			func(msg *types.MsgUnfarm) {
-				msg.UnfarmingCoin = sdk.NewInt64Coin("pool1", 100_000)
+				msg.BurningCoin = sdk.NewInt64Coin("pool1", 100_000)
 			},
 			"expected denom lf1, but got pool1: invalid request",
 		},

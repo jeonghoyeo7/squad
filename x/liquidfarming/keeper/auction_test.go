@@ -62,7 +62,7 @@ func (s *KeeperTestSuite) TestPlaceBid_Validation() {
 				sdk.NewInt64Coin(pool.PoolCoinDenom, 30_000_000),
 			),
 			nil,
-			"100 is smaller than 30000000: insufficient funds",
+			"100pool1 is smaller than 30000000pool1: insufficient funds",
 		},
 		{
 			"minimum bid amount",
@@ -79,7 +79,7 @@ func (s *KeeperTestSuite) TestPlaceBid_Validation() {
 			s.Require().NoError(tc.msg.ValidateBasic())
 			cacheCtx, _ := s.ctx.CacheContext()
 
-			bid, err := s.keeper.PlaceBid(cacheCtx, tc.msg)
+			bid, err := s.keeper.PlaceBid(cacheCtx, tc.msg.PoolId, tc.msg.GetBidder(), tc.msg.BiddingCoin)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
 				bid, found := s.keeper.GetBid(cacheCtx, bid.PoolId, bid.GetBidder())
@@ -96,11 +96,7 @@ func (s *KeeperTestSuite) TestPlaceBid() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	_, err := s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
-		PoolId:      pool.Id,
-		Bidder:      s.addr(0).String(),
-		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000)},
-	)
+	_, err := s.keeper.PlaceBid(s.ctx, pool.Id, s.addr(0), sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000))
 	s.Require().EqualError(err, "liquid farm by pool 1 not found: not found")
 
 	s.createLiquidFarm(types.NewLiquidFarm(pool.Id, sdk.NewInt(10_000_000), sdk.NewInt(10_000_000)))
@@ -108,29 +104,17 @@ func (s *KeeperTestSuite) TestPlaceBid() {
 
 	s.advanceEpochDays() // advance epoch to move from QueuedCoins to StakedCoins
 
-	_, err = s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
-		PoolId:      pool.Id,
-		Bidder:      s.addr(0).String(),
-		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000)},
-	)
+	_, err = s.keeper.PlaceBid(s.ctx, pool.Id, s.addr(0), sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000))
 	s.Require().EqualError(err, "auction by pool 1 not found: not found")
 
 	s.advanceEpochDays() // trigger AfterAllocateRewards hook to create rewards auction
 
 	// Place a bid successfully
-	_, err = s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
-		PoolId:      pool.Id,
-		Bidder:      s.addr(0).String(),
-		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000)},
-	)
+	_, err = s.keeper.PlaceBid(s.ctx, pool.Id, s.addr(0), sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000))
 	s.Require().NoError(err)
 
 	// Error: bid already exists
-	_, err = s.keeper.PlaceBid(s.ctx, &types.MsgPlaceBid{
-		PoolId:      pool.Id,
-		Bidder:      s.addr(0).String(),
-		BiddingCoin: sdk.NewInt64Coin(pool.PoolCoinDenom, 150_000_000)},
-	)
+	_, err = s.keeper.PlaceBid(s.ctx, pool.Id, s.addr(0), sdk.NewInt64Coin(pool.PoolCoinDenom, 150_000_000))
 	s.Require().EqualError(err, "refund the previous bid to place new bid: invalid request")
 }
 
@@ -182,7 +166,7 @@ func (s *KeeperTestSuite) TestRefundBid() {
 		s.Run(tc.name, func() {
 			s.Require().NoError(tc.msg.ValidateBasic())
 			cacheCtx, _ := s.ctx.CacheContext()
-			err := s.keeper.RefundBid(cacheCtx, tc.msg)
+			err := s.keeper.RefundBid(cacheCtx, tc.msg.PoolId, tc.msg.GetBidder())
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
 				_, found := s.keeper.GetBid(cacheCtx, tc.msg.PoolId, s.addr(0))
@@ -230,8 +214,9 @@ func (s *KeeperTestSuite) TestAfterAllocateRewards() {
 	s.Require().Equal(sdk.NewInt(1_000_000), s.getBalance(s.addr(3), "denom3").Amount)
 
 	// Ensure newly staked amount by the liquid farm reserve account
-	queuedCoins := s.app.FarmingKeeper.GetAllQueuedCoinsByFarmer(s.ctx, types.LiquidFarmReserveAddress(pool.Id))
-	s.Require().Equal(sdk.NewInt(30_000_000), queuedCoins.AmountOf(pool.PoolCoinDenom))
+	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
+	queuedCoins := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	s.Require().Equal(sdk.NewInt(30_000_000), queuedCoins)
 }
 
 func (s *KeeperTestSuite) TestAfterAllocateRewards_NoBid() {

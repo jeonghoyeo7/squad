@@ -15,9 +15,9 @@ const (
 	AttributeKeyLiquidFarmReserveAddress = "liquid_farm_reserve_address"
 	AttributeKeyBidder                   = "bidder"
 	AttributeKeyFarmingCoin              = "farming_coin"
-	AttributeKeyFarmCoin                 = "farm_coin"
+	AttributeKeyMintedCoin               = "minted_coin"
 	AttributeKeyBiddingCoin              = "bidding_coin"
-	AttributeKeyUnfarmingCoin            = "unfarming_coin"
-	AttributeKeyUnfarmCoin               = "unfarm_coin"
+	AttributeKeyBurningCoin              = "burning_coin"
+	AttributeKeyUnfarmedCoin             = "unfarmed_coin"
 	AttributeKeyRefundCoin               = "refund_coin"
 )

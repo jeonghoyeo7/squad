@@ -99,6 +99,7 @@ func (k Keeper) GetRewardsAuction(ctx sdk.Context, poolId, auctionId uint64) (au
 
 // GetAllRewardsAuctions returns all rewards auctions in the store.
 func (k Keeper) GetAllRewardsAuctions(ctx sdk.Context) (auctions []types.RewardsAuction) {
+	auctions = []types.RewardsAuction{}
 	k.IterateRewardsAuctions(ctx, func(auction types.RewardsAuction) (stop bool) {
 		auctions = append(auctions, auction)
 		return false

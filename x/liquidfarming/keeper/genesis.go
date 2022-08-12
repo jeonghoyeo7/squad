@@ -13,10 +13,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	}
 
 	// Initialize objects to prevent from having nil slice
-	if genState.Params.LiquidFarms == nil || len(genState.Params.LiquidFarms) == 0 {
+	if genState.Params.LiquidFarms == nil {
 		genState.Params.LiquidFarms = []types.LiquidFarm{}
 	}
-	if genState.RewardsAuctions == nil || len(genState.RewardsAuctions) == 0 {
+	if genState.RewardsAuctions == nil {
 		genState.RewardsAuctions = []types.RewardsAuction{}
 	}
 
@@ -24,6 +24,10 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 
 	for _, liquidFarm := range genState.LiquidFarms {
 		k.SetLiquidFarm(ctx, liquidFarm)
+	}
+
+	for _, record := range genState.LastRewardsAuctionIdRecord {
+		k.SetRewardsAuctionId(ctx, record.PoolId, record.AuctionId)
 	}
 
 	for _, auction := range genState.RewardsAuctions {
@@ -45,10 +49,8 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 
 	// Initialize objects to prevent from having nil slice
 	rewardsAuctions := k.GetAllRewardsAuctions(ctx)
-	if len(rewardsAuctions) == 0 {
-		rewardsAuctions = []types.RewardsAuction{}
-	}
-	if params.LiquidFarms == nil || len(params.LiquidFarms) == 0 {
+
+	if params.LiquidFarms == nil {
 		params.LiquidFarms = []types.LiquidFarm{}
 	}
 
@@ -60,6 +62,7 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	}
 
 	bids := []types.Bid{}
+	lastRewardsAuctionIdRecords := []types.LastRewardsAuctionIdRecord{}
 	winningBidRecords := []types.WinningBidRecord{}
 	for _, poolId := range poolIds {
 		auctionId := k.GetLastRewardsAuctionId(ctx, poolId)
@@ -70,14 +73,19 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 				WinningBid: winningBid,
 			})
 		}
+		lastRewardsAuctionIdRecords = append(lastRewardsAuctionIdRecords, types.LastRewardsAuctionIdRecord{
+			PoolId:    poolId,
+			AuctionId: k.GetLastRewardsAuctionId(ctx, poolId),
+		})
 		bids = append(bids, k.GetBidsByPoolId(ctx, poolId)...)
 	}
 
 	return &types.GenesisState{
-		Params:            params,
-		LiquidFarms:       liquidFarms,
-		RewardsAuctions:   rewardsAuctions,
-		Bids:              bids,
-		WinningBidRecords: winningBidRecords,
+		Params:                     params,
+		LastRewardsAuctionIdRecord: lastRewardsAuctionIdRecords,
+		LiquidFarms:                liquidFarms,
+		RewardsAuctions:            rewardsAuctions,
+		Bids:                       bids,
+		WinningBidRecords:          winningBidRecords,
 	}
 }
