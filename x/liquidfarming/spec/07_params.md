@@ -16,8 +16,8 @@ A single `LiquidFarm` can exist for a given pool.
 
 ```go
 type LiquidFarm struct {
-	PoolId               uint64
+	PoolId            uint64
 	MinimumFarmAmount sdk.Int
-	MinimumBidAmount     sdk.Int
+	MinimumBidAmount  sdk.Int
 }
 ```

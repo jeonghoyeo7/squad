@@ -7,10 +7,10 @@ The Cosmos SDK wraps and unwraps `liquidfarming` module messages from transactio
 
 ## MsgFarm
 
-Farm coin to liquid farm. Farming coins are the pool coin that starts with pool prefix, which is a pool coin of a corresponding pool. 
-It is important to note that a farmer is not receiving a synthetic version of the farming coins right away. 
-It are expected to receive the synthetic version of the farming coins after one epoch at the current mint rate. 
-A synthetic version of the farming coin is called as LFCoin in the module and the terminology is used throughout the documentation and codebase. 
+Farm coin to liquid farm.
+Farming coins are the pool coin that starts with pool prefix, which is a pool coin of a corresponding pool.
+It are expected to receive the synthetic version of the farming coins at the current mint rate.
+A synthetic version of the farming coin is called as LFCoin (also as `mintedCoin`) in the module and the terminology is used throughout the documentation and codebase.
 
 ```go
 type MsgFarm struct {
@@ -92,7 +92,7 @@ Refund the bid that is not winning for the auction.
 
 ```go
 type MsgRefundBid struct {
-	BidId  uint64 // target bid id
+	PoolId uint64 // target pool id
 	Bidder string // the bech32-encoded address that refunds a bid
 }
 ```

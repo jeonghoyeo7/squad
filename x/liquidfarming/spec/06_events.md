@@ -13,7 +13,7 @@ The `liquidfarming` module emits the following events:
 | farm       | pool_id            | {poolId}               |
 | farm       | farmer             | {farmer}               |
 | farm       | farming_coin       | {farmingCoin}          |
-| farm       | farm_coin          | {farmCoin}             |
+| farm       | minted_coin        | {mintedCoin}           |
 | message    | module             | liquidfarming          |
 | message    | action             | farm                   |
 | message    | farmer             | {farmerAddress}        |
@@ -24,8 +24,8 @@ The `liquidfarming` module emits the following events:
 | ---------- | ------------------ | ---------------------- |
 | unfarm     | pool_id            | {poolId}               |
 | unfarm     | farmer             | {farmer}               |
-| unfarm     | unfarming_coin     | {unfarmingCoin}        |
-| unfarm     | unfarm_coin        | {unfarmCoin}           |
+| unfarm     | burning_coin       | {unfarmingCoin}        |
+| unfarm     | unfarmed_coin      | {unfarmCoin}           |
 | message    | module             | liquidfarming          |
 | message    | action             | unfarm                 |
 | message    | farmer             | {farmerAddress}        |
@@ -36,7 +36,8 @@ The `liquidfarming` module emits the following events:
 | ---------- | ------------------ | ---------------------- |
 | unfarm     | pool_id            | {poolId}               |
 | unfarm     | farmer             | {farmer}               |
-| unfarm     | unfarming_coin     | {unfarmingCoin}        |
+| unfarm     | burning_coin       | {unfarmingCoin}        |
+| unfarm     | unfarmed_coin      | {unfarmCoin}           |
 | message    | module             | liquidfarming          |
 | message    | action             | unfarmandwithdraw      |
 | message    | farmer             | {farmerAddress}        |
@@ -47,12 +48,18 @@ The `liquidfarming` module emits the following events:
 | ---------- | ------------------ | ---------------------- |
 | place_bid  | auction_id         | {auctionId}            |
 | place_bid  | bidder             | {bidder}               |
-| place_bid  | amount             | {amount}               |
+| place_bid  | bidding_coin       | {biddingCoin}          |
 | message    | module             | liquidfarming          |
-| message    | action             | deposit                |
+| message    | action             | placebid               |
 | message    | bidder             | {bidderAddress}        |
 
 ### MsgRefundBid 
 
 | Type       | Attribute Key      | Attribute Value        |
 | ---------- | ------------------ | ---------------------- |
+| refund_bid | pool_id            | {auctionId}            |
+| refund_bid | bidder             | {bidder}               |
+| refund_bid | refund_coin        | {bid.amount}           |
+| message    | module             | liquidfarming          |
+| message    | action             | refundbid              |
+| message    | bidder             | {bidderAddress}        |
