@@ -12,6 +12,7 @@ This document specifies the `liquidfarming` module that provides a functionality
 2. **[State](02_state.md)**
 3. **[State Transitions](03_state_transitions.md)**
 4. **[Messages](04_messages.md)**
-5. **[Events](05_events.md)**
-6. **[Parameters](06_params.md)**
-7. **[Hooks](07_hooks.md)**
+4. **[BeginBlock](05_begin_block.md)**
+5. **[Events](06_events.md)**
+6. **[Parameters](07_params.md)**
+7. **[Hooks](08_hooks.md)**

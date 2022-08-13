@@ -254,5 +254,5 @@ func (s *KeeperTestSuite) TestAfterAllocateRewards_NoBid() {
 
 	auction, found = s.keeper.GetRewardsAuction(s.ctx, auction.PoolId, auction.Id)
 	s.Require().True(found)
-	s.Require().Equal(types.AuctionStatusFinished, auction.Status)
+	s.Require().Equal(types.AuctionStatusSkipped, auction.Status)
 }

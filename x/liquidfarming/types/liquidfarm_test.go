@@ -12,12 +12,12 @@ import (
 
 func TestLiquidFarm(t *testing.T) {
 	liquidFarm := types.LiquidFarm{
-		PoolId:            1,
-		MinimumFarmAmount: sdk.ZeroInt(),
-		MinimumBidAmount:  sdk.ZeroInt(),
+		PoolId:        1,
+		MinFarmAmount: sdk.ZeroInt(),
+		MinBidAmount:  sdk.ZeroInt(),
 	}
-	require.Equal(t, `minimum_bid_amount: "0"
-minimum_farm_amount: "0"
+	require.Equal(t, `min_bid_amount: "0"
+min_farm_amount: "0"
 pool_id: "1"
 `, liquidFarm.String())
 }

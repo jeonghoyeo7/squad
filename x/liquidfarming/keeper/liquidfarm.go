@@ -23,8 +23,8 @@ func (k Keeper) ValidateMsgFarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAd
 		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "liquid farm by pool %d not found", poolId)
 	}
 
-	if farmingCoin.Amount.LT(liquidFarm.MinimumFarmAmount) {
-		return sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", farmingCoin.Amount, liquidFarm.MinimumFarmAmount)
+	if farmingCoin.Amount.LT(liquidFarm.MinFarmAmount) {
+		return sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", farmingCoin.Amount, liquidFarm.MinFarmAmount)
 	}
 
 	if pool.PoolCoinDenom != farmingCoin.Denom {
@@ -219,21 +219,18 @@ func (k Keeper) HandleRemovedLiquidFarm(ctx sdk.Context, liquidFarm types.Liquid
 		}
 	}
 
-	// REVIEW: can auction id be 0 in any case?
-	// It is recommended to check if it is zero and continue except for SetCompundingRewards and DeleteLiquidFarm
+	// Handle a case when the last rewards auction id isn't set in the store
 	auctionId := k.GetLastRewardsAuctionId(ctx, liquidFarm.PoolId)
 	auction, found := k.GetRewardsAuction(ctx, liquidFarm.PoolId, auctionId)
-	if !found {
-		panic(fmt.Errorf("rewards auction %d must exist, but somehow it is not found", auctionId))
+	if found {
+		if err := k.RefundAllBids(ctx, auction, types.Bid{}); err != nil {
+			panic(err)
+		}
+		k.DeleteWinningBid(ctx, liquidFarm.PoolId, auctionId)
+		auction.SetStatus(types.AuctionStatusFinished)
+		k.SetRewardsAuction(ctx, auction)
 	}
 
-	if err := k.RefundAllBids(ctx, auction, types.Bid{}); err != nil {
-		panic(err)
-	}
-
-	auction.SetStatus(types.AuctionStatusFinished)
-	k.SetRewardsAuction(ctx, auction)
 	k.SetCompoundingRewards(ctx, liquidFarm.PoolId, types.CompoundingRewards{Amount: sdk.ZeroInt()})
-	k.DeleteWinningBid(ctx, liquidFarm.PoolId, auctionId)
 	k.DeleteLiquidFarm(ctx, liquidFarm)
 }

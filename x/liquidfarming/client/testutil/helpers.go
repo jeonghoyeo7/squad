@@ -18,22 +18,12 @@ var commonArgs = []string{
 	fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 10)).String()),
 }
 
-func MsgFarm(clientCtx client.Context, from, poolId string, farmingCoin sdk.Coin, extraArgs ...string) (testutil.BufferWriter, error) {
+func MsgPlaceBid(clientCtx client.Context, from, poolId string, amount sdk.Coin, extraArgs ...string) (testutil.BufferWriter, error) {
 	args := append(append([]string{
 		poolId,
-		farmingCoin.String(),
+		amount.String(),
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
 	}, commonArgs...), extraArgs...)
 
-	return clitestutil.ExecTestCLICmd(clientCtx, cli.NewFarmCmd(), args)
-}
-
-func MsgUnfarm(clientCtx client.Context, from, poolId string, unfarmingCoin sdk.Coin, extraArgs ...string) (testutil.BufferWriter, error) {
-	args := append(append([]string{
-		poolId,
-		unfarmingCoin.String(),
-		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
-	}, commonArgs...), extraArgs...)
-
-	return clitestutil.ExecTestCLICmd(clientCtx, cli.NewUnfarmCmd(), args)
+	return clitestutil.ExecTestCLICmd(clientCtx, cli.NewPlaceBidCmd(), args)
 }
