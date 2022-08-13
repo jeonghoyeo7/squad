@@ -8,7 +8,7 @@ This document describes the state transaction operations in the `liquidfarming` 
 
 ### Activation of a Liquid Farm
 
-When a new `liquidFarm` with a given pool id is added to the parameter `LiquidFarms` by governance, the `liquidFarm` with the pool id becomes activated and added to the state `LiquidFarms`.
+When a new `liquidFarm` with a given pool id is registered to the parameter `LiquidFarms` by governance, the `liquidFarm` with the pool id becomes activated and added to the state `LiquidFarms`.
 
 ### Deactivation of a Liquid Farm
 
