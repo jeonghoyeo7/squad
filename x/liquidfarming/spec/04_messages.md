@@ -8,8 +8,8 @@ The Cosmos SDK wraps and unwraps `liquidfarming` module messages from transactio
 ## MsgFarm
 
 Farm coin to liquid farm.
-Farming coins are the pool coin that starts with pool prefix, which is a pool coin of a corresponding pool.
-It are expected to receive the synthetic version of the farming coins at the current mint rate.
+Farming coins are the pool coin that starts with `pool` prefix, which is a pool coin of a corresponding pool.
+The farmer is expected to instantly receive the synthetic version of the farming coins at the current mint rate.
 A synthetic version of the farming coin is called as LFCoin (also as `mintedCoin`) in the module and the terminology is used throughout the documentation and codebase.
 
 ```go
