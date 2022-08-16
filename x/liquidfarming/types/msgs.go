@@ -3,6 +3,8 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
 )
 
 var (
@@ -47,6 +49,11 @@ func (msg MsgFarm) ValidateBasic() error {
 	if err := msg.FarmingCoin.Validate(); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "invalid farming coin: %v", err)
 	}
+	poolCoinDenom := liquiditytypes.PoolCoinDenom(msg.PoolId)
+	if poolCoinDenom != msg.FarmingCoin.Denom {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom %s, but got %s", poolCoinDenom, msg.FarmingCoin.Denom)
+	}
+
 	return nil
 }
 

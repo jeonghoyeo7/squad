@@ -52,16 +52,6 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 			"100 is smaller than 100000000: smaller than minimum amount",
 		},
 		{
-			"invalid farming coin denom",
-			types.NewMsgFarm(
-				pool.Id,
-				s.addr(0).String(),
-				sdk.NewInt64Coin("denom1", 500_000_000),
-			),
-			nil,
-			"expected denom pool1, but got denom1: invalid request",
-		},
-		{
 			"insufficient funds",
 			types.NewMsgFarm(
 				pool.Id,
