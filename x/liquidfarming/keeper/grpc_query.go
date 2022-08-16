@@ -118,10 +118,9 @@ func (k Querier) RewardsAuctions(c context.Context, req *types.QueryRewardsAucti
 	auctionStore := prefix.NewStore(store, types.RewardsAuctionKeyPrefix)
 
 	// Filter auctions by descending order to show an ongoing auction first
-	pageReq := &query.PageRequest{
+	req.Pagination = &query.PageRequest{
 		Reverse: true,
 	}
-	req.Pagination = pageReq
 
 	var auctions []types.RewardsAuction
 	pageRes, err := query.FilteredPaginate(auctionStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
@@ -166,7 +165,7 @@ func (k Querier) RewardsAuction(c context.Context, req *types.QueryRewardsAuctio
 
 	auction, found := k.GetRewardsAuction(ctx, req.PoolId, req.AuctionId)
 	if !found {
-		return nil, status.Errorf(codes.NotFound, "auction with pool %d and auction %d doesn't exist", req.PoolId, req.AuctionId)
+		return nil, status.Errorf(codes.NotFound, "auction by pool %d and auction id %d not found", req.PoolId, req.AuctionId)
 	}
 
 	return &types.QueryRewardsAuctionResponse{RewardAuction: auction}, nil
