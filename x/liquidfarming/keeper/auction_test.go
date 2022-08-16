@@ -65,6 +65,16 @@ func (s *KeeperTestSuite) TestPlaceBid_Validation() {
 			"100pool1 is smaller than 30000000pool1: insufficient funds",
 		},
 		{
+			"invalid bidding coin denom",
+			types.NewMsgPlaceBid(
+				pool.Id,
+				s.addr(5).String(),
+				sdk.NewInt64Coin("denom1", 30_000_000),
+			),
+			nil,
+			"expected denom pool1, but got denom1: invalid request",
+		},
+		{
 			"minimum bid amount",
 			types.NewMsgPlaceBid(
 				pool.Id,

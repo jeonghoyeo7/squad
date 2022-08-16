@@ -26,8 +26,19 @@ func (k Keeper) PlaceBid(ctx sdk.Context, poolId uint64, bidder sdk.AccAddress, 
 		return types.Bid{}, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "auction by pool %d not found", poolId)
 	}
 
+	if auction.BiddingCoinDenom != biddingCoin.Denom {
+		return types.Bid{}, sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom %s, but got %s", auction.BiddingCoinDenom, biddingCoin.Denom)
+	}
+
 	if biddingCoin.Amount.LT(liquidFarm.MinBidAmount) {
 		return types.Bid{}, sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", biddingCoin.Amount, liquidFarm.MinBidAmount)
+	}
+
+	winningBid, found := k.GetWinningBid(ctx, poolId, auctionId)
+	if found {
+		if biddingCoin.Amount.LTE(winningBid.Amount.Amount) {
+			return types.Bid{}, sdkerrors.Wrapf(types.ErrSmallerThanWinningBidAmount, "%s is smaller than %s", biddingCoin.Amount, winningBid.Amount.Amount)
+		}
 	}
 
 	// Refund the previous bid if exists
@@ -37,13 +48,6 @@ func (k Keeper) PlaceBid(ctx sdk.Context, poolId uint64, bidder sdk.AccAddress, 
 			return types.Bid{}, err
 		}
 		k.DeleteBid(ctx, previousBid)
-	}
-
-	winningBid, found := k.GetWinningBid(ctx, poolId, auctionId)
-	if found {
-		if biddingCoin.Amount.LTE(winningBid.Amount.Amount) {
-			return types.Bid{}, sdkerrors.Wrapf(types.ErrSmallerThanWinningBidAmount, "%s is smaller than %s", biddingCoin.Amount, winningBid.Amount.Amount)
-		}
 	}
 
 	if err := k.bankKeeper.SendCoins(ctx, bidder, auction.GetPayingReserveAddress(), sdk.NewCoins(biddingCoin)); err != nil {
