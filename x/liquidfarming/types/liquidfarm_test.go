@@ -15,8 +15,10 @@ func TestLiquidFarm(t *testing.T) {
 		PoolId:        1,
 		MinFarmAmount: sdk.ZeroInt(),
 		MinBidAmount:  sdk.ZeroInt(),
+		FeeRate:       sdk.ZeroDec(),
 	}
-	require.Equal(t, `min_bid_amount: "0"
+	require.Equal(t, `fee_rate: "0.000000000000000000"
+min_bid_amount: "0"
 min_farm_amount: "0"
 pool_id: "1"
 `, liquidFarm.String())

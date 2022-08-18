@@ -5,7 +5,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
@@ -23,13 +22,6 @@ func TestParams_Validate(t *testing.T) {
 			"default params",
 			func(params *types.Params) {},
 			"",
-		},
-		{
-			"negative UnfarmFeeRate",
-			func(params *types.Params) {
-				params.UnfarmFeeRate = sdk.NewDec(-1)
-			},
-			"unfarm fee rate must not be negative: -1.000000000000000000",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

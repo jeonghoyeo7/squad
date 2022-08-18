@@ -11,9 +11,6 @@ message Params {
   option (gogoproto.goproto_getters)  = false;
 
   repeated LiquidFarm liquid_farms = 1 [(gogoproto.nullable) = false];
-
-  string unfarm_fee_rate = 2
-    [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
 }
 
 // LiquidFarm defines liquid farm object that provides auto compounding functionality
@@ -30,4 +27,7 @@ message LiquidFarm {
 
   string min_bid_amount = 3
       [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+
+  string fee_rate = 4
+    [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
 }

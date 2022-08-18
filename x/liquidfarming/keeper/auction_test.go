@@ -13,7 +13,7 @@ func (s *KeeperTestSuite) TestPlaceBid_Validation() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.NewInt(1_000_000))
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.NewInt(1_000_000), sdk.ZeroDec())
 	s.farm(pool.Id, s.addr(0), utils.ParseCoin("10_000_000pool1"), true)
 	s.nextBlock()
 
@@ -109,7 +109,7 @@ func (s *KeeperTestSuite) TestPlaceBid() {
 	_, err := s.keeper.PlaceBid(s.ctx, pool.Id, s.addr(0), sdk.NewInt64Coin(pool.PoolCoinDenom, 100_000_000))
 	s.Require().EqualError(err, "liquid farm by pool 1 not found: not found")
 
-	s.createLiquidFarm(pool.Id, sdk.NewInt(10_000_000), sdk.NewInt(10_000_000))
+	s.createLiquidFarm(pool.Id, sdk.NewInt(10_000_000), sdk.NewInt(10_000_000), sdk.ZeroDec())
 	s.farm(pool.Id, s.addr(0), utils.ParseCoin("10_000_000pool1"), true)
 
 	s.advanceEpochDays() // advance epoch to move from QueuedCoins to StakedCoins
@@ -145,7 +145,7 @@ func (s *KeeperTestSuite) TestPlaceBid() {
 func (s *KeeperTestSuite) TestRefundBid() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
-	s.createLiquidFarm(pool.Id, sdk.NewInt(10_000_000), sdk.NewInt(10_000_000))
+	s.createLiquidFarm(pool.Id, sdk.NewInt(10_000_000), sdk.NewInt(10_000_000), sdk.ZeroDec())
 	s.createRewardsAuction(pool.Id)
 	s.placeBid(pool.Id, s.addr(0), sdk.NewInt64Coin(pool.PoolCoinDenom, 500_000_000), true)
 	s.placeBid(pool.Id, s.addr(1), sdk.NewInt64Coin(pool.PoolCoinDenom, 600_000_000), true)
@@ -206,7 +206,7 @@ func (s *KeeperTestSuite) TestAfterAllocateRewards() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroDec())
 
 	s.createPrivateFixedAmountPlan(s.addr(0), map[string]string{pool.PoolCoinDenom: "1"}, map[string]int64{"denom3": 1_000_000}, true)
 	s.farm(pool.Id, s.addr(1), sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(50_000_000)), true)
@@ -247,7 +247,7 @@ func (s *KeeperTestSuite) TestAfterAllocateRewards_NoBid() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt())
+	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroDec())
 
 	s.createPrivateFixedAmountPlan(s.addr(0), map[string]string{pool.PoolCoinDenom: "1"}, map[string]int64{"denom3": 1_000_000}, true)
 	s.farm(pool.Id, s.addr(1), sdk.NewCoin(pool.PoolCoinDenom, sdk.NewInt(50_000_000)), true)

@@ -141,9 +141,9 @@ func (s *KeeperTestSuite) deposit(depositor sdk.AccAddress, poolId uint64, depos
 	return req
 }
 
-func (s *KeeperTestSuite) createLiquidFarm(poolId uint64, minFarmAmt, minBidAmt sdk.Int) types.LiquidFarm {
+func (s *KeeperTestSuite) createLiquidFarm(poolId uint64, minFarmAmt, minBidAmt sdk.Int, feeRate sdk.Dec) types.LiquidFarm {
 	s.T().Helper()
-	liquidFarm := types.NewLiquidFarm(poolId, minFarmAmt, minBidAmt)
+	liquidFarm := types.NewLiquidFarm(poolId, minFarmAmt, minBidAmt, feeRate)
 	params := s.keeper.GetParams(s.ctx)
 	params.LiquidFarms = append(params.LiquidFarms, liquidFarm)
 	s.keeper.SetParams(s.ctx, params)
