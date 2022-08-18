@@ -39,6 +39,7 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ## [Unreleased]
 
 ### Bug Fixes
+
 * (x/liquidstaking) [\#346](https://github.com/cosmosquad-labs/squad/pull/346) fix: calculation bug of liquidstaking voting_power
 
 ## v2.1.1

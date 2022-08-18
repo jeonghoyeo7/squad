@@ -181,7 +181,7 @@ func (k Keeper) CalcLiquidStakingVotingPower(ctx sdk.Context, addr sdk.AccAddres
 		}
 
 		// check if the denom is pool coin
-		if bTokenSharePerPoolCoin, ok := bTokenSharePerPoolCoinMap[coin.Denom]; ok && bTokenSharePerPoolCoin.IsPositive() {
+		if bTokenSharePerPoolCoin, ok := bTokenSharePerPoolCoinMap[coin.Denom]; ok {
 			bTokenAmount = bTokenAmount.Add(utils.GetShareValue(coin.Amount, bTokenSharePerPoolCoin))
 		}
 	}
@@ -242,7 +242,7 @@ func (k Keeper) SetLiquidStakingVotingPowers(ctx sdk.Context, votes govtypes.Vot
 		}
 
 		// if the denom is pool coin, get bToken share and add owned bToken on bTokenOwnMap
-		if bTokenSharePerPoolCoin, ok := bTokenSharePerPoolCoinMap[denom]; ok && bTokenSharePerPoolCoin.IsPositive() {
+		if bTokenSharePerPoolCoin, ok := bTokenSharePerPoolCoinMap[denom]; ok {
 			for voter, balance := range voterBalanceByDenom[denom] {
 				bTokenOwnMap.AddOrSet(voter, utils.GetShareValue(balance, bTokenSharePerPoolCoin))
 			}
