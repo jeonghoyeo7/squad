@@ -41,6 +41,16 @@ service Query {
   rpc Bids(QueryBidsRequest) returns (QueryBidsResponse) {
     option (google.api.http).get = "/squad/liquidfarming/v1beta1/pools/{pool_id}/bids";
   }
+
+  // MintRate returns the current mint rate.
+  rpc MintRate(QueryMintRateRequest) returns (QueryMintRateResponse) {
+    option (google.api.http).get = "/squad/liquidfarming/v1beta1/pools/{pool_id}/mint_rate";
+  }
+
+  // BurnRate returns the current burn rate.
+  rpc BurnRate(QueryBurnRateRequest) returns (QueryBurnRateResponse) {
+    option (google.api.http).get = "/squad/liquidfarming/v1beta1/pools/{pool_id}/burn_rate";
+  }
 }
 
 // QueryLiquidFarmsRequest is the request type for the Query/LiquidFarms RPC method.
@@ -105,6 +115,28 @@ message QueryBidsRequest {
 message QueryBidsResponse {
   repeated Bid bids = 1 [ (gogoproto.nullable) = false ];
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryMintRateRequest is request type for the Query/MintRate RPC method.
+message QueryMintRateRequest {
+  uint64 pool_id = 1;
+}
+
+// QueryMintRateResponse is response type for the Query/MintRate RPC method.
+message QueryMintRateResponse {
+  string mint_rate = 1
+    [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+}
+
+// QueryBurnRateRequest is request type for the Query/BurnRate RPC method.
+message QueryBurnRateRequest {
+  uint64 pool_id = 1;
+}
+
+// QueryBurnRateResponse is response type for the Query/BurnRate RPC method.
+message QueryBurnRateResponse {
+  string burn_rate = 1
+    [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
 }
 
 //

@@ -209,3 +209,71 @@ func (k Querier) Bids(c context.Context, req *types.QueryBidsRequest) (*types.Qu
 
 	return &types.QueryBidsResponse{Bids: bids, Pagination: pageRes}, nil
 }
+
+// MintRate queries the current mint rate.
+func (k Querier) MintRate(c context.Context, req *types.QueryMintRateRequest) (*types.QueryMintRateResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if req.PoolId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "pool id cannot be 0")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	mintRate := sdk.ZeroDec()
+
+	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(req.PoolId)).Amount
+	if !lfCoinTotalSupplyAmt.IsZero() {
+		reserveAddr := types.LiquidFarmReserveAddress(req.PoolId)
+		poolCoinDenom := liquiditytypes.PoolCoinDenom(req.PoolId)
+
+		lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
+		lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+		if !found {
+			lpCoinTotalStaked.Amount = sdk.ZeroInt()
+		}
+		totalFarmingAmt := lpCoinTotalStaked.Amount.Add(lpCoinTotalQueuedAmt)
+
+		// MintRate = LFCoinTotalSupply / LPCoinTotalStaked + LPCoinTotalQueued
+		mintRate = lfCoinTotalSupplyAmt.ToDec().Quo(totalFarmingAmt.ToDec())
+	}
+
+	return &types.QueryMintRateResponse{MintRate: mintRate}, nil
+}
+
+// BurnRate queries the current burn rate.
+func (k Querier) BurnRate(c context.Context, req *types.QueryBurnRateRequest) (*types.QueryBurnRateResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if req.PoolId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "pool id cannot be 0")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	reserveAddr := types.LiquidFarmReserveAddress(req.PoolId)
+	lfCoinDenom := types.LiquidFarmCoinDenom(req.PoolId)
+	poolCoinDenom := liquiditytypes.PoolCoinDenom(req.PoolId)
+
+	// MintRate = LFCoinTotalSupply / LPCoinTotalStaked + LPCoinTotalQueued
+	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, lfCoinDenom).Amount
+	lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
+	lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+	if !found {
+		lpCoinTotalStaked.Amount = sdk.ZeroInt()
+	}
+	compoundingRewards, found := k.GetCompoundingRewards(ctx, req.PoolId)
+	if !found {
+		compoundingRewards.Amount = sdk.ZeroInt()
+	}
+	totalFarmingAmt := lpCoinTotalStaked.Amount.Add(lpCoinTotalQueuedAmt).Sub(compoundingRewards.Amount)
+
+	// BurnRate = LPCoinTotalStaked + LPCoinTotalQueued - CompoundingRewards / LFCoinTotalSupply
+	burnRate := totalFarmingAmt.ToDec().Quo(lfCoinTotalSupplyAmt.ToDec())
+
+	return &types.QueryBurnRateResponse{BurnRate: burnRate}, nil
+}

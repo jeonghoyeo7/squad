@@ -36,16 +36,15 @@ func (k Keeper) Farm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, farm
 	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)
 	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(pool.Id)).Amount
 	lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
-	lpCoinTotalStakedAmt := sdk.ZeroInt()
-	staking, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
-	if found {
-		lpCoinTotalStakedAmt = staking.Amount
+	lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+	if !found {
+		lpCoinTotalStaked.Amount = sdk.ZeroInt()
 	}
 
 	mintedAmt := types.CalculateFarmMintingAmount(
 		lfCoinTotalSupplyAmt,
 		lpCoinTotalQueuedAmt,
-		lpCoinTotalStakedAmt,
+		lpCoinTotalStaked.Amount,
 		farmingCoin.Amount,
 	)
 	mintedCoin := sdk.NewCoin(lfCoinDenom, mintedAmt)
@@ -95,10 +94,9 @@ func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, bu
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(pool.Id)
 	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(pool.Id)).Amount
 	lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
-	lpCoinTotalStakedAmt := sdk.ZeroInt()
-	staking, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
-	if found {
-		lpCoinTotalStakedAmt = staking.Amount
+	lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+	if !found {
+		lpCoinTotalStaked.Amount = sdk.ZeroInt()
 	}
 	compoundingRewards, found := k.GetCompoundingRewards(ctx, pool.Id)
 	if !found {
@@ -107,19 +105,19 @@ func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, bu
 
 	_, found = k.GetLiquidFarm(ctx, poolId)
 	if !found {
-		if !lpCoinTotalStakedAmt.IsZero() || !lpCoinTotalQueuedAmt.IsZero() {
-			panic(fmt.Errorf("unexpected amount; staked amount: %s; queued amount: %s", lpCoinTotalStakedAmt, lpCoinTotalQueuedAmt))
+		if !lpCoinTotalStaked.Amount.IsZero() || !lpCoinTotalQueuedAmt.IsZero() {
+			panic(fmt.Errorf("unexpected amount; staked amount: %s; queued amount: %s", lpCoinTotalStaked.Amount, lpCoinTotalQueuedAmt))
 		}
 		// Handle a case when liquid farm is removed in params
 		// Since the reserve account must have unstaked all staked coins from the farming module,
 		// the module must use the reserve account balance (staked + queued) and make queued amount zero
-		lpCoinTotalStakedAmt = k.bankKeeper.SpendableCoins(ctx, reserveAddr).AmountOf(poolCoinDenom)
+		lpCoinTotalStaked.Amount = k.bankKeeper.SpendableCoins(ctx, reserveAddr).AmountOf(poolCoinDenom)
 	}
 
 	unfarmedAmt := types.CalculateUnfarmedAmount(
 		lfCoinTotalSupplyAmt,
 		lpCoinTotalQueuedAmt,
-		lpCoinTotalStakedAmt,
+		lpCoinTotalStaked.Amount,
 		burningCoin.Amount,
 		compoundingRewards.Amount,
 	)
