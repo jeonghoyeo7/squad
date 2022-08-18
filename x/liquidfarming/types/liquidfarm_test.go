@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	utils "github.com/cosmosquad-labs/squad/v2/types"
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
 )
 
@@ -164,6 +165,40 @@ func TestCalculateUnfarmAmount(t *testing.T) {
 				tc.compoundingRewards,
 			)
 			require.Equal(t, tc.expectedAmt, unfarmedAmt)
+		})
+	}
+}
+
+func TestDeductFees(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		feeRate  sdk.Dec
+		rewards  sdk.Coins
+		deducted sdk.Coins
+	}{
+		{
+			name:     "zero fee rate",
+			feeRate:  sdk.ZeroDec(),
+			rewards:  utils.ParseCoins("100denom1"),
+			deducted: utils.ParseCoins("100denom1"),
+		},
+		{
+			name:     "fee rate - 10%",
+			feeRate:  sdk.MustNewDecFromStr("0.1"),
+			rewards:  utils.ParseCoins("100denom1"),
+			deducted: utils.ParseCoins("90denom1"),
+		},
+		{
+			name:     "fee rate - 0.066666666666666",
+			feeRate:  sdk.MustNewDecFromStr("0.066666666666666"),
+			rewards:  utils.ParseCoins("100000denom1"),
+			deducted: utils.ParseCoins("93333denom1"),
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			deducted, err := types.DeductFees(1, tc.rewards, tc.feeRate)
+			require.NoError(t, err)
+			require.Equal(t, tc.deducted, deducted)
 		})
 	}
 }

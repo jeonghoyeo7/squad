@@ -154,7 +154,7 @@ func (k Keeper) RefundAllBids(ctx sdk.Context, auction types.RewardsAuction, win
 }
 
 // FinishRewardsAuction finishes the ongoing rewards auction.
-func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAuction) error {
+func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAuction, feeRate sdk.Dec) error {
 	liquidFarmReserveAddr := types.LiquidFarmReserveAddress(auction.PoolId)
 	payingReserveAddr := auction.GetPayingReserveAddress()
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(auction.PoolId)
@@ -171,7 +171,12 @@ func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAucti
 			return err
 		}
 
-		if err := k.bankKeeper.SendCoins(ctx, liquidFarmReserveAddr, winningBid.GetBidder(), rewards); err != nil {
+		deducted, err := types.DeductFees(auction.PoolId, rewards, feeRate)
+		if err != nil {
+			return err
+		}
+
+		if err := k.bankKeeper.SendCoins(ctx, liquidFarmReserveAddr, winningBid.GetBidder(), deducted); err != nil {
 			return err
 		}
 

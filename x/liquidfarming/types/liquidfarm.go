@@ -119,9 +119,18 @@ func CalculateUnfarmedAmount(
 	unfarmingAmt sdk.Int,
 	compoundingRewards sdk.Int,
 ) sdk.Int {
-	if lfCoinTotalSupplyAmt.Equal(unfarmingAmt) { // TODO: decide if fee is needed here
+	if lfCoinTotalSupplyAmt.Equal(unfarmingAmt) {
 		return lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt)
 	}
 	totalFarmingAmt := lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt).Sub(compoundingRewards)
 	return totalFarmingAmt.Mul(unfarmingAmt).Quo(lfCoinTotalSupplyAmt)
+}
+
+// DeductFees deducts fee rates from the farming rewards.
+func DeductFees(poolId uint64, rewards sdk.Coins, feeRate sdk.Dec) (sdk.Coins, error) {
+	for i, reward := range rewards {
+		multiplier := sdk.OneDec().Sub(feeRate)                                                     // 1 - feeRate
+		rewards[i] = sdk.NewCoin(reward.Denom, reward.Amount.ToDec().Mul(multiplier).TruncateInt()) // reward * multiplier
+	}
+	return rewards, nil
 }
