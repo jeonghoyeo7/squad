@@ -89,20 +89,6 @@ func (s *KeeperTestSuite) createPrivateFixedAmountPlan(
 	s.Require().NoError(err)
 }
 
-// TODO: do we need this convenient function?
-// func (s *KeeperTestSuite) stake(farmerAcc sdk.AccAddress, amt sdk.Coins) {
-// 	s.T().Helper()
-// 	err := s.app.FarmingKeeper.Stake(s.ctx, farmerAcc, amt)
-// 	s.Require().NoError(err)
-// }
-
-// TODO: do we need this convenient function?
-// func (s *KeeperTestSuite) unstake(farmerAcc sdk.AccAddress, amt sdk.Coins) {
-// 	s.T().Helper()
-// 	err := s.app.FarmingKeeper.Unstake(s.ctx, farmerAcc, amt)
-// 	s.Require().NoError(err)
-// }
-
 func (s *KeeperTestSuite) advanceEpochDays() {
 	currentEpochDays := s.app.FarmingKeeper.GetCurrentEpochDays(s.ctx)
 	s.ctx = s.ctx.WithBlockTime(s.ctx.BlockTime().Add(time.Duration(currentEpochDays) * farmingtypes.Day))
