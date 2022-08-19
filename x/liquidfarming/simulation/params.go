@@ -3,7 +3,7 @@ package simulation
 // DONTCOVER
 
 import (
-	"fmt"
+	"encoding/json"
 	"math/rand"
 
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
@@ -18,7 +18,11 @@ func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
 	return []simtypes.ParamChange{
 		simulation.NewSimParamChange(types.ModuleName, string(types.KeyLiquidFarms),
 			func(r *rand.Rand) string {
-				return fmt.Sprintf("\"%s\"", GenLiquidFarms(r))
+				bz, err := json.Marshal(GenLiquidFarms(r))
+				if err != nil {
+					panic(err)
+				}
+				return string(bz)
 			},
 		),
 	}
