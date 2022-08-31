@@ -8,6 +8,8 @@
   - x/liquidstaking/**/*
 "x/mint":
   - x/mint/**/*
+"x/marketmaker":
+  - x/marketmaker/**/*
 "c-sync":
   - x/claim/**/*
   - x/farming/**/*
