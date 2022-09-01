@@ -38,6 +38,15 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+### Features
+
+* (x/marketmaker) [\#321](https://github.com/cosmosquad-labs/squad/pull/321) feat: add marketmaker module
+* (x/liquidity) [\#339](https://github.com/cosmosquad-labs/squad/pull/339) feat: add market making order type
+
+### State Machine Breaking
+
+* (ibc) [\#352](https://github.com/cosmosquad-labs/squad/pull/352) fix!: upgrade ibc-go for pool coin blacklisting
+
 ### Bug Fixes
 
 * (x/liquidstaking) [\#346](https://github.com/cosmosquad-labs/squad/pull/346) fix: calculation bug of liquidstaking voting_power
