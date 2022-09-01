@@ -11,7 +11,7 @@ import (
 
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/types"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/types"
 )
 
 func TestParams(t *testing.T) {

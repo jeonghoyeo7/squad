@@ -12,8 +12,8 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/simulation"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/types"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/simulation"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/types"
 )
 
 // TestRandomizedGenState tests the normal scenario of applying RandomizedGenState.

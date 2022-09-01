@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/amm"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/amm"
 )
 
 // OrderDirectionFromAMM converts amm.OrderDirection to liquidity module's

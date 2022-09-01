@@ -7,11 +7,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	v2liquidity "github.com/cosmosquad-labs/squad/v2/x/liquidity/legacy/v2"
-	v3liquidity "github.com/cosmosquad-labs/squad/v2/x/liquidity/legacy/v3"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	v2liquidity "github.com/cosmosquad-labs/squad/v3/x/liquidity/legacy/v2"
+	v3liquidity "github.com/cosmosquad-labs/squad/v3/x/liquidity/legacy/v3"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 func TestMigrateOrders(t *testing.T) {

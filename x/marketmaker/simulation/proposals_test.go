@@ -6,9 +6,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmosquad-labs/squad/v2/app/params"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/simulation"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/types"
+	"github.com/cosmosquad-labs/squad/v3/app/params"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/simulation"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/types"
 )
 
 func TestProposalContents(t *testing.T) {

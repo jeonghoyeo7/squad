@@ -13,11 +13,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
-	"github.com/cosmosquad-labs/squad/v2/x/claim/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/claim/types"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
-	liquidstakingtypes "github.com/cosmosquad-labs/squad/v2/x/liquidstaking/types"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
+	"github.com/cosmosquad-labs/squad/v3/x/claim/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/claim/types"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
+	liquidstakingtypes "github.com/cosmosquad-labs/squad/v3/x/liquidstaking/types"
 )
 
 type KeeperTestSuite struct {

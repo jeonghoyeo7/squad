@@ -38,6 +38,8 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+## v3.0.0
+
 ### Features
 
 * (x/marketmaker) [\#321](https://github.com/cosmosquad-labs/squad/pull/321) feat: add marketmaker module

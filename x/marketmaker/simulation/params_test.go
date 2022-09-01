@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/simulation"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/simulation"
 )
 
 func TestParamChanges(t *testing.T) {

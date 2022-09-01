@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
-	farmingtypes "github.com/cosmosquad-labs/squad/v2/x/farming/types"
+	farmingtypes "github.com/cosmosquad-labs/squad/v3/x/farming/types"
 )
 
 // Parameter store keys

@@ -12,7 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/cosmosquad-labs/squad/v2/x/claim/types"
+	"github.com/cosmosquad-labs/squad/v3/x/claim/types"
 )
 
 // GetTxCmd returns the transaction commands for the module.

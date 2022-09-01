@@ -10,9 +10,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	"github.com/cosmosquad-labs/squad/v2/x/mint/simulation"
-	"github.com/cosmosquad-labs/squad/v2/x/mint/types"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	"github.com/cosmosquad-labs/squad/v3/x/mint/simulation"
+	"github.com/cosmosquad-labs/squad/v3/x/mint/types"
 )
 
 func TestDecodeLastBlockTimeStore(t *testing.T) {
