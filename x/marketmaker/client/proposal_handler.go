@@ -3,8 +3,8 @@ package client
 import (
 	govclient "github.com/cosmos/cosmos-sdk/x/gov/client"
 
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/client/cli"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/client/rest"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/client/cli"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/client/rest"
 )
 
 // ProposalHandler is the market maker proposal command handler.

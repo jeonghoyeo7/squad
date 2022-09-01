@@ -18,10 +18,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/client/cli"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/simulation"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/types"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/client/cli"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/simulation"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/types"
 )
 
 var (

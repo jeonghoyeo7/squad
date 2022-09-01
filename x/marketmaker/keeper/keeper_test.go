@@ -9,11 +9,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
 
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/types"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/types"
 )
 
 const (

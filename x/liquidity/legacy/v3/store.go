@@ -4,8 +4,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	v2liquidity "github.com/cosmosquad-labs/squad/v2/x/liquidity/legacy/v2"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	v2liquidity "github.com/cosmosquad-labs/squad/v3/x/liquidity/legacy/v2"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 func MigrateOrders(store sdk.KVStore, cdc codec.BinaryCodec) error {

@@ -8,9 +8,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
-	"github.com/cosmosquad-labs/squad/v2/x/farming/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/farming/types"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
+	"github.com/cosmosquad-labs/squad/v3/x/farming/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/farming/types"
 )
 
 const (

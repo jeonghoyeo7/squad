@@ -8,11 +8,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/amm"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/amm"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 func BenchmarkMatching(b *testing.B) {

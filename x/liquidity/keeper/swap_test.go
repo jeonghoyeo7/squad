@@ -8,10 +8,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/amm"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/amm"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 
 	_ "github.com/stretchr/testify/suite"
 )

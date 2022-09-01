@@ -7,10 +7,10 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	"github.com/cosmosquad-labs/squad/v2/app/params"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/marketmaker/types"
-	minttypes "github.com/cosmosquad-labs/squad/v2/x/mint/types"
+	"github.com/cosmosquad-labs/squad/v3/app/params"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker/types"
+	minttypes "github.com/cosmosquad-labs/squad/v3/x/mint/types"
 )
 
 // Simulation operation weights constants.

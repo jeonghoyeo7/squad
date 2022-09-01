@@ -10,10 +10,10 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	appparams "github.com/cosmosquad-labs/squad/v2/app/params"
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	marketmakerkeeper "github.com/cosmosquad-labs/squad/v2/x/marketmaker/keeper"
-	marketmakertypes "github.com/cosmosquad-labs/squad/v2/x/marketmaker/types"
+	appparams "github.com/cosmosquad-labs/squad/v3/app/params"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	marketmakerkeeper "github.com/cosmosquad-labs/squad/v3/x/marketmaker/keeper"
+	marketmakertypes "github.com/cosmosquad-labs/squad/v3/x/marketmaker/types"
 )
 
 // Simulation operation weights constants.
