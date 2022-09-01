@@ -3,12 +3,8 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-<<<<<<< Updated upstream
 	v2 "github.com/cosmosquad-labs/squad/v3/x/liquidity/legacy/v2"
 	v3 "github.com/cosmosquad-labs/squad/v3/x/liquidity/legacy/v3"
-=======
-	v2 "github.com/cosmosquad-labs/squad/v3/x/liquidity/legacy/v2"
->>>>>>> Stashed changes
 )
 
 type Migrator struct {

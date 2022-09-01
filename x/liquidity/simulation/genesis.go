@@ -12,12 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-<<<<<<< Updated upstream
 	utils "github.com/cosmosquad-labs/squad/v3/types"
 	"github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
-=======
-	"github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
->>>>>>> Stashed changes
 )
 
 // Simulation parameter constants.
