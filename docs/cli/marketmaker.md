@@ -79,8 +79,6 @@ squad q marketmaker marketmakers -o json | jq
 
 For testing purpose, create a `proposal.json` file to include the applied market maker.
 
-TODO: `cosmos1ddn66jv0sjpmck0ptegmhmqtn35qsg2vxyk2hn9sqf4qxtzqz3sqanrtcm` (BudgetAcc) doesn't have balances. Send some stake manually?
-
 ```json
 {
   "title": "Market Maker Proposal",
