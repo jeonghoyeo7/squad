@@ -60,8 +60,8 @@ genesis:
       params:
         liquid_farms:
           - pool_id: "1"
-            minimum_farm_amount: "1"
-            minimum_bid_amount: "1"
+            min_farm_amount: "1"
+            min_bid_amount: "1"
     claim:
       airdrops:
         - id: "1"

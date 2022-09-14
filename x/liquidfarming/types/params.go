@@ -3,17 +3,14 @@ package types
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // Parameter store keys
 var (
-	KeyLiquidFarms   = []byte("LiquidFarms")
-	KeyUnfarmFeeRate = []byte("UnfarmFeeRate")
+	KeyLiquidFarms = []byte("LiquidFarms")
 
-	DefaultLiquidFarms   = []LiquidFarm{}
-	DefaultUnfarmFeeRate = sdk.ZeroDec()
+	DefaultLiquidFarms = []LiquidFarm{}
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -26,8 +23,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
 	return Params{
-		LiquidFarms:   DefaultLiquidFarms,
-		UnfarmFeeRate: DefaultUnfarmFeeRate,
+		LiquidFarms: DefaultLiquidFarms,
 	}
 }
 
@@ -35,7 +31,6 @@ func DefaultParams() Params {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyLiquidFarms, &p.LiquidFarms, validateLiquidFarms),
-		paramtypes.NewParamSetPair(KeyUnfarmFeeRate, &p.UnfarmFeeRate, validateUnfarmFeeRate),
 	}
 }
 
@@ -46,7 +41,6 @@ func (p Params) Validate() error {
 		validator func(interface{}) error
 	}{
 		{p.LiquidFarms, validateLiquidFarms},
-		{p.UnfarmFeeRate, validateUnfarmFeeRate},
 	} {
 		if err := v.validator(v.value); err != nil {
 			return err
@@ -65,19 +59,6 @@ func validateLiquidFarms(i interface{}) error {
 		if err := liquidFarm.Validate(); err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-func validateUnfarmFeeRate(i interface{}) error {
-	v, ok := i.(sdk.Dec)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.IsNegative() {
-		return fmt.Errorf("unfarm fee rate must not be negative: %s", v)
 	}
 
 	return nil

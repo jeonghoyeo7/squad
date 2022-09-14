@@ -11,22 +11,28 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	farmingtypes "github.com/cosmosquad-labs/squad/v2/x/farming/types"
+	"github.com/cosmosquad-labs/squad/v2/x/liquidstaking/types"
 )
 
 const (
-	LiquidFarmReserveAccPrefix string = "LiquidFarmReserveAcc"
+	LiquidFarmReserveAccPrefix    string = "LiquidFarmReserveAcc"
+	LiquidFarmFeeCollectorAccName string = "LiquidFarmFeeCollectorAcc"
 )
 
 var (
 	liquidFarmCoinDenomRegexp = regexp.MustCompile(`^lf([1-9]\d*)$`)
+
+	// LiquidFarmFeeCollectorAcc is the fee collector address for liquid farms that collects all fees generated from the module.
+	LiquidFarmFeeCollectorAcc = farmingtypes.DeriveAddress(farmingtypes.ReserveAddressType, types.ModuleName, LiquidFarmFeeCollectorAccName)
 )
 
 // NewLiquidFarm returns a new LiquidFarm.
-func NewLiquidFarm(poolId uint64, minFarmAmt, minBidAmount sdk.Int) LiquidFarm {
+func NewLiquidFarm(poolId uint64, minFarmAmt, minBidAmount sdk.Int, feeRate sdk.Dec) LiquidFarm {
 	return LiquidFarm{
 		PoolId:        poolId,
 		MinFarmAmount: minFarmAmt,
 		MinBidAmount:  minBidAmount,
+		FeeRate:       feeRate,
 	}
 }
 
@@ -40,6 +46,9 @@ func (l LiquidFarm) Validate() error {
 	}
 	if l.MinFarmAmount.IsNegative() {
 		return fmt.Errorf("minimum farm amount must be 0 or positive value: %s", l.MinFarmAmount)
+	}
+	if l.FeeRate.IsNegative() {
+		return fmt.Errorf("fee rate must be 0 or positive value: %s", l.FeeRate)
 	}
 	return nil
 }
@@ -110,9 +119,18 @@ func CalculateUnfarmedAmount(
 	unfarmingAmt sdk.Int,
 	compoundingRewards sdk.Int,
 ) sdk.Int {
-	if lfCoinTotalSupplyAmt.Equal(unfarmingAmt) { // TODO: decide if fee is needed here
+	if lfCoinTotalSupplyAmt.Equal(unfarmingAmt) {
 		return lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt)
 	}
 	totalFarmingAmt := lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt).Sub(compoundingRewards)
 	return totalFarmingAmt.Mul(unfarmingAmt).Quo(lfCoinTotalSupplyAmt)
+}
+
+// DeductFees deducts fee rates from the farming rewards.
+func DeductFees(poolId uint64, rewards sdk.Coins, feeRate sdk.Dec) (sdk.Coins, error) {
+	for i, reward := range rewards {
+		multiplier := sdk.OneDec().Sub(feeRate)                                                     // 1 - feeRate
+		rewards[i] = sdk.NewCoin(reward.Denom, reward.Amount.ToDec().Mul(multiplier).TruncateInt()) // reward * multiplier
+	}
+	return rewards, nil
 }

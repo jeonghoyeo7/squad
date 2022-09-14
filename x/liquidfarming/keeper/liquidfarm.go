@@ -11,54 +11,40 @@ import (
 	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
 )
 
-// ValidateMsgFarm validates types.MsgFarm.
-func (k Keeper) ValidateMsgFarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, farmingCoin sdk.Coin) error {
+// Farm handles types.MsgFarm to liquid farm.
+func (k Keeper) Farm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, farmingCoin sdk.Coin) error {
 	pool, found := k.liquidityKeeper.GetPool(ctx, poolId)
 	if !found {
 		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "pool %d not found", poolId)
 	}
 
-	liquidFarm, found := k.GetLiquidFarm(ctx, poolId)
+	liquidFarm, found := k.GetLiquidFarm(ctx, pool.Id)
 	if !found {
-		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "liquid farm by pool %d not found", poolId)
+		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "liquid farm by pool %d not found", pool.Id)
 	}
 
 	if farmingCoin.Amount.LT(liquidFarm.MinFarmAmount) {
 		return sdkerrors.Wrapf(types.ErrSmallerThanMinimumAmount, "%s is smaller than %s", farmingCoin.Amount, liquidFarm.MinFarmAmount)
 	}
 
-	if pool.PoolCoinDenom != farmingCoin.Denom {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidRequest, "expected denom %s, but got %s", pool.PoolCoinDenom, farmingCoin.Denom)
-	}
-
-	return nil
-}
-
-// Farm handles types.MsgFarm to liquid farm.
-func (k Keeper) Farm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, farmingCoin sdk.Coin) error {
-	if err := k.ValidateMsgFarm(ctx, poolId, farmer, farmingCoin); err != nil {
-		return err
-	}
-
-	reserveAddr := types.LiquidFarmReserveAddress(poolId)
+	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
 	if err := k.bankKeeper.SendCoins(ctx, farmer, reserveAddr, sdk.NewCoins(farmingCoin)); err != nil {
 		return err
 	}
 
-	poolCoinDenom := liquiditytypes.PoolCoinDenom(poolId)
-	lfCoinDenom := types.LiquidFarmCoinDenom(poolId)
-	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(poolId)).Amount
+	poolCoinDenom := liquiditytypes.PoolCoinDenom(pool.Id)
+	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)
+	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(pool.Id)).Amount
 	lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
-	lpCoinTotalStakedAmt := sdk.ZeroInt()
-	staking, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
-	if found {
-		lpCoinTotalStakedAmt = staking.Amount
+	lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+	if !found {
+		lpCoinTotalStaked.Amount = sdk.ZeroInt()
 	}
 
 	mintedAmt := types.CalculateFarmMintingAmount(
 		lfCoinTotalSupplyAmt,
 		lpCoinTotalQueuedAmt,
-		lpCoinTotalStakedAmt,
+		lpCoinTotalStaked.Amount,
 		farmingCoin.Amount,
 	)
 	mintedCoin := sdk.NewCoin(lfCoinDenom, mintedAmt)
@@ -108,10 +94,9 @@ func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, bu
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(pool.Id)
 	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(pool.Id)).Amount
 	lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
-	lpCoinTotalStakedAmt := sdk.ZeroInt()
-	staking, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
-	if found {
-		lpCoinTotalStakedAmt = staking.Amount
+	lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+	if !found {
+		lpCoinTotalStaked.Amount = sdk.ZeroInt()
 	}
 	compoundingRewards, found := k.GetCompoundingRewards(ctx, pool.Id)
 	if !found {
@@ -120,19 +105,19 @@ func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, bu
 
 	_, found = k.GetLiquidFarm(ctx, poolId)
 	if !found {
-		if !lpCoinTotalStakedAmt.IsZero() || !lpCoinTotalQueuedAmt.IsZero() {
-			panic(fmt.Errorf("unexpected amount; staked amount: %s; queued amount: %s", lpCoinTotalStakedAmt, lpCoinTotalQueuedAmt))
+		if !lpCoinTotalStaked.Amount.IsZero() || !lpCoinTotalQueuedAmt.IsZero() {
+			panic(fmt.Errorf("unexpected amount; staked amount: %s; queued amount: %s", lpCoinTotalStaked.Amount, lpCoinTotalQueuedAmt))
 		}
 		// Handle a case when liquid farm is removed in params
 		// Since the reserve account must have unstaked all staked coins from the farming module,
 		// the module must use the reserve account balance (staked + queued) and make queued amount zero
-		lpCoinTotalStakedAmt = k.bankKeeper.SpendableCoins(ctx, reserveAddr).AmountOf(poolCoinDenom)
+		lpCoinTotalStaked.Amount = k.bankKeeper.SpendableCoins(ctx, reserveAddr).AmountOf(poolCoinDenom)
 	}
 
 	unfarmedAmt := types.CalculateUnfarmedAmount(
 		lfCoinTotalSupplyAmt,
 		lpCoinTotalQueuedAmt,
-		lpCoinTotalStakedAmt,
+		lpCoinTotalStaked.Amount,
 		burningCoin.Amount,
 		compoundingRewards.Amount,
 	)

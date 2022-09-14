@@ -37,6 +37,7 @@ func TestGenesisState_Validate(t *testing.T) {
 						PoolId:        1,
 						MinFarmAmount: sdk.ZeroInt(),
 						MinBidAmount:  sdk.ZeroInt(),
+						FeeRate:       sdk.ZeroDec(),
 					},
 				}
 			},

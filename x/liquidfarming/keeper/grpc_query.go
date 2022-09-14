@@ -118,10 +118,9 @@ func (k Querier) RewardsAuctions(c context.Context, req *types.QueryRewardsAucti
 	auctionStore := prefix.NewStore(store, types.RewardsAuctionKeyPrefix)
 
 	// Filter auctions by descending order to show an ongoing auction first
-	pageReq := &query.PageRequest{
+	req.Pagination = &query.PageRequest{
 		Reverse: true,
 	}
-	req.Pagination = pageReq
 
 	var auctions []types.RewardsAuction
 	pageRes, err := query.FilteredPaginate(auctionStore, req.Pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
@@ -166,7 +165,7 @@ func (k Querier) RewardsAuction(c context.Context, req *types.QueryRewardsAuctio
 
 	auction, found := k.GetRewardsAuction(ctx, req.PoolId, req.AuctionId)
 	if !found {
-		return nil, status.Errorf(codes.NotFound, "auction with pool %d and auction %d doesn't exist", req.PoolId, req.AuctionId)
+		return nil, status.Errorf(codes.NotFound, "auction by pool %d and auction id %d not found", req.PoolId, req.AuctionId)
 	}
 
 	return &types.QueryRewardsAuctionResponse{RewardAuction: auction}, nil
@@ -209,4 +208,70 @@ func (k Querier) Bids(c context.Context, req *types.QueryBidsRequest) (*types.Qu
 	}
 
 	return &types.QueryBidsResponse{Bids: bids, Pagination: pageRes}, nil
+}
+
+// MintRate queries the current mint rate.
+func (k Querier) MintRate(c context.Context, req *types.QueryMintRateRequest) (*types.QueryMintRateResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if req.PoolId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "pool id cannot be 0")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	mintRate := sdk.ZeroDec()
+	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(req.PoolId)).Amount
+	if !lfCoinTotalSupplyAmt.IsZero() {
+		reserveAddr := types.LiquidFarmReserveAddress(req.PoolId)
+		poolCoinDenom := liquiditytypes.PoolCoinDenom(req.PoolId)
+
+		lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
+		lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+		if !found {
+			lpCoinTotalStaked.Amount = sdk.ZeroInt()
+		}
+		totalFarmingAmt := lpCoinTotalStaked.Amount.Add(lpCoinTotalQueuedAmt)
+		// MintRate = LFCoinTotalSupply / LPCoinTotalStaked + LPCoinTotalQueued
+		mintRate = lfCoinTotalSupplyAmt.ToDec().Quo(totalFarmingAmt.ToDec())
+	}
+
+	return &types.QueryMintRateResponse{MintRate: mintRate}, nil
+}
+
+// BurnRate queries the current burn rate.
+func (k Querier) BurnRate(c context.Context, req *types.QueryBurnRateRequest) (*types.QueryBurnRateResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	if req.PoolId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "pool id cannot be 0")
+	}
+
+	ctx := sdk.UnwrapSDKContext(c)
+
+	burnRate := sdk.ZeroDec()
+	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(req.PoolId)).Amount
+	if !lfCoinTotalSupplyAmt.IsZero() {
+		reserveAddr := types.LiquidFarmReserveAddress(req.PoolId)
+		poolCoinDenom := liquiditytypes.PoolCoinDenom(req.PoolId)
+
+		lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
+		lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+		if !found {
+			lpCoinTotalStaked.Amount = sdk.ZeroInt()
+		}
+		compoundingRewards, found := k.GetCompoundingRewards(ctx, req.PoolId)
+		if !found {
+			compoundingRewards.Amount = sdk.ZeroInt()
+		}
+		totalFarmingAmt := lpCoinTotalStaked.Amount.Add(lpCoinTotalQueuedAmt).Sub(compoundingRewards.Amount)
+		// BurnRate = LPCoinTotalStaked + LPCoinTotalQueued - CompoundingRewards / LFCoinTotalSupply
+		burnRate = totalFarmingAmt.ToDec().Quo(lfCoinTotalSupplyAmt.ToDec())
+	}
+
+	return &types.QueryBurnRateResponse{BurnRate: burnRate}, nil
 }

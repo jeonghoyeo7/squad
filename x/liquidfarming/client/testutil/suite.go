@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/gogo/protobuf/proto"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -26,6 +27,7 @@ import (
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/client/cli"
 	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
 	liquiditytestutil "github.com/cosmosquad-labs/squad/v2/x/liquidity/client/testutil"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
 )
 
 type IntegrationTestSuite struct {
@@ -131,7 +133,7 @@ func (s *IntegrationTestSuite) createPool(pairId uint64, depositCoins sdk.Coins)
 // Query CLI Integration Tests
 //
 
-func (s *IntegrationTestSuite) TestCmdQueryParams() {
+func (s *IntegrationTestSuite) TestNewQueryParamsCmd() {
 	val := s.network.Validators[0]
 	clientCtx := val.ClientCtx
 
@@ -171,7 +173,7 @@ func (s *IntegrationTestSuite) TestCmdQueryParams() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestCmdQueryLiquidFarms() {
+func (s *IntegrationTestSuite) TestNewQueryLiquidFarmsCmd() {
 	val := s.network.Validators[0]
 	clientCtx := val.ClientCtx
 
@@ -188,8 +190,26 @@ func (s *IntegrationTestSuite) TestCmdQueryLiquidFarms() {
 			},
 			false,
 			func(resp *types.QueryLiquidFarmsResponse) {
-				fmt.Println("resp: ", resp.LiquidFarms)
 				s.Require().Len(resp.LiquidFarms, 1)
+				s.Require().Equal(uint64(1), resp.LiquidFarms[0].PoolId)
+				s.Require().Equal(types.LiquidFarmCoinDenom(1), resp.LiquidFarms[0].LFCoinDenom)
+				s.Require().Equal(sdk.NewInt(100_000), resp.LiquidFarms[0].MinFarmAmount)
+				s.Require().Equal(sdk.NewInt(100_000), resp.LiquidFarms[0].MinBidAmount)
+			},
+		},
+		{
+			"with specific height",
+			[]string{
+				fmt.Sprintf("--%s=1", flags.FlagHeight),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
+			func(resp *types.QueryLiquidFarmsResponse) {
+				s.Require().Len(resp.LiquidFarms, 1)
+				s.Require().Equal(uint64(1), resp.LiquidFarms[0].PoolId)
+				s.Require().Equal(types.LiquidFarmCoinDenom(1), resp.LiquidFarms[0].LFCoinDenom)
+				s.Require().Equal(sdk.NewInt(100_000), resp.LiquidFarms[0].MinFarmAmount)
+				s.Require().Equal(sdk.NewInt(100_000), resp.LiquidFarms[0].MinBidAmount)
 			},
 		},
 	}
@@ -211,7 +231,7 @@ func (s *IntegrationTestSuite) TestCmdQueryLiquidFarms() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestCmdQueryLiquidFarm() {
+func (s *IntegrationTestSuite) TestNewQueryLiquidFarmCmd() {
 	val := s.network.Validators[0]
 	clientCtx := val.ClientCtx
 
@@ -225,6 +245,20 @@ func (s *IntegrationTestSuite) TestCmdQueryLiquidFarm() {
 			"happy case",
 			[]string{
 				strconv.Itoa(1),
+				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
+			},
+			false,
+			func(resp *types.QueryLiquidFarmResponse) {
+				s.Require().Equal(uint64(1), resp.LiquidFarm.PoolId)
+				s.Require().Equal(sdk.NewInt(100_000), resp.LiquidFarm.MinFarmAmount)
+				s.Require().Equal(sdk.NewInt(100_000), resp.LiquidFarm.MinBidAmount)
+			},
+		},
+		{
+			"with specific height",
+			[]string{
+				strconv.Itoa(1),
+				fmt.Sprintf("--%s=1", flags.FlagHeight),
 				fmt.Sprintf("--%s=json", tmcli.OutputFlag),
 			},
 			false,
@@ -262,11 +296,11 @@ func (s *IntegrationTestSuite) TestCmdQueryLiquidFarm() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestCmdQueryRewardsAuctions() {
+func (s *IntegrationTestSuite) TestNewQueryRewardsAuctionsCmd() {
 	val := s.network.Validators[0]
 	clientCtx := val.ClientCtx
 
-	// Advance epoch by 1
+	// Advance epoch to create first rewards auction
 	_, err := farmingtestutil.MsgAdvanceEpochExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -312,11 +346,11 @@ func (s *IntegrationTestSuite) TestCmdQueryRewardsAuctions() {
 	}
 }
 
-func (s *IntegrationTestSuite) TestCmdQueryRewardsAuction() {
+func (s *IntegrationTestSuite) TestNewQueryRewardsAuctionCmd() {
 	val := s.network.Validators[0]
 	clientCtx := val.ClientCtx
 
-	// Advance epoch by 1
+	// Advance epoch to create first rewards auction
 	_, err := farmingtestutil.MsgAdvanceEpochExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -357,6 +391,305 @@ func (s *IntegrationTestSuite) TestCmdQueryRewardsAuction() {
 				var resp types.QueryRewardsAuctionResponse
 				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp), out.String())
 				tc.postRun(&resp)
+			}
+		})
+	}
+}
+
+//
+// Transaction CLI Integration Tests
+//
+
+func (s *IntegrationTestSuite) TestNewFarmCmd() {
+	val := s.network.Validators[0]
+
+	testCases := []struct {
+		name         string
+		args         []string
+		expectErr    bool
+		respType     proto.Message
+		expectedCode uint32
+	}{
+		{
+			"happy case",
+			[]string{
+				strconv.Itoa(1),
+				sdk.NewInt64Coin(liquiditytypes.PoolCoinDenom(1), 1_000_000).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			false, &sdk.TxResponse{}, 0,
+		},
+		{
+			"invalid case: invalid denom",
+			[]string{
+				strconv.Itoa(1),
+				sdk.NewInt64Coin(s.denom1, 1_000_000).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			true, &sdk.TxResponse{}, 18,
+		},
+		{
+			"invalid case: minimum farm amount",
+			[]string{
+				strconv.Itoa(1),
+				sdk.NewInt64Coin(liquiditytypes.PoolCoinDenom(1), 100).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			false, &sdk.TxResponse{}, 2,
+		},
+		{
+			"invalid case: pool id not found",
+			[]string{
+				strconv.Itoa(10),
+				sdk.NewInt64Coin(liquiditytypes.PoolCoinDenom(10), 1_000_000).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			false, &sdk.TxResponse{}, 38,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			cmd := cli.NewFarmCmd()
+			clientCtx := val.ClientCtx
+
+			out, err := utilcli.ExecTestCLICmd(clientCtx, cmd, tc.args)
+
+			if tc.expectErr {
+				s.Require().Error(err)
+			} else {
+				s.Require().NoError(err, out.String())
+				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+
+				txResp := tc.respType.(*sdk.TxResponse)
+				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestNewUnfarmCmd() {
+	val := s.network.Validators[0]
+
+	_, err := MsgFarmExec(
+		val.ClientCtx,
+		val.Address.String(),
+		strconv.Itoa(1),
+		sdk.NewInt64Coin(liquiditytypes.PoolCoinDenom(1), 100_000_000),
+	)
+	s.Require().NoError(err)
+
+	testCases := []struct {
+		name         string
+		args         []string
+		expectErr    bool
+		respType     proto.Message
+		expectedCode uint32
+	}{
+		{
+			"happy case",
+			[]string{
+				strconv.Itoa(1),
+				sdk.NewInt64Coin(types.LiquidFarmCoinDenom(1), 1_000_000).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			false, &sdk.TxResponse{}, 0,
+		},
+		{
+			"invalid case: invalid denom",
+			[]string{
+				strconv.Itoa(1),
+				sdk.NewInt64Coin(s.denom1, 1_000_000).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			true, &sdk.TxResponse{}, 0,
+		},
+		{
+			"invalid case: pool id not found",
+			[]string{
+				strconv.Itoa(10),
+				sdk.NewInt64Coin(types.LiquidFarmCoinDenom(10), 1_000_000).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			false, &sdk.TxResponse{}, 38,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			cmd := cli.NewUnfarmCmd()
+			clientCtx := val.ClientCtx
+
+			out, err := utilcli.ExecTestCLICmd(clientCtx, cmd, tc.args)
+
+			if tc.expectErr {
+				s.Require().Error(err)
+			} else {
+				s.Require().NoError(err, out.String())
+				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+
+				txResp := tc.respType.(*sdk.TxResponse)
+				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestNewPlaceBidCmd() {
+	val := s.network.Validators[0]
+
+	_, err := farmingtestutil.MsgAdvanceEpochExec(
+		val.ClientCtx,
+		val.Address.String(),
+	)
+	s.Require().NoError(err)
+
+	testCases := []struct {
+		name         string
+		args         []string
+		expectErr    bool
+		respType     proto.Message
+		expectedCode uint32
+	}{
+		{
+			"happy case",
+			[]string{
+				strconv.Itoa(1),
+				sdk.NewInt64Coin(liquiditytypes.PoolCoinDenom(1), 1_000_000).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			false, &sdk.TxResponse{}, 0,
+		},
+		{
+			"invalid case: minimum bid amount",
+			[]string{
+				strconv.Itoa(1),
+				sdk.NewInt64Coin(liquiditytypes.PoolCoinDenom(1), 100).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			false, &sdk.TxResponse{}, 2,
+		},
+		{
+			"invalid case: invalid bidding coin denom",
+			[]string{
+				strconv.Itoa(1),
+				sdk.NewInt64Coin(s.denom1, 1_000_000).String(),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			false, &sdk.TxResponse{}, 18,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			cmd := cli.NewPlaceBidCmd()
+			clientCtx := val.ClientCtx
+
+			out, err := utilcli.ExecTestCLICmd(clientCtx, cmd, tc.args)
+
+			if tc.expectErr {
+				s.Require().Error(err)
+			} else {
+				s.Require().NoError(err, out.String())
+				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+
+				txResp := tc.respType.(*sdk.TxResponse)
+				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
+			}
+		})
+	}
+}
+
+func (s *IntegrationTestSuite) TestNewRefundBidCmd() {
+	val := s.network.Validators[0]
+
+	_, err := farmingtestutil.MsgAdvanceEpochExec(
+		val.ClientCtx,
+		val.Address.String(),
+	)
+	s.Require().NoError(err)
+
+	_, err = MsgPlaceBidExec(
+		val.ClientCtx,
+		val.Address.String(),
+		strconv.Itoa(1),
+		sdk.NewInt64Coin(liquiditytypes.PoolCoinDenom(1), 10_000_000),
+	)
+	s.Require().NoError(err)
+
+	testCases := []struct {
+		name         string
+		args         []string
+		expectErr    bool
+		respType     proto.Message
+		expectedCode uint32
+	}{
+		{
+			"invalid case",
+			[]string{
+				strconv.Itoa(1),
+				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
+				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(s.cfg.BondDenom, 10)).String()),
+			},
+			false, &sdk.TxResponse{}, 18,
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		s.Run(tc.name, func() {
+			cmd := cli.NewRefundBidCmd()
+			clientCtx := val.ClientCtx
+
+			out, err := utilcli.ExecTestCLICmd(clientCtx, cmd, tc.args)
+
+			if tc.expectErr {
+				s.Require().Error(err)
+			} else {
+				s.Require().NoError(err, out.String())
+				s.Require().NoError(clientCtx.Codec.UnmarshalJSON(out.Bytes(), tc.respType), out.String())
+
+				txResp := tc.respType.(*sdk.TxResponse)
+				s.Require().Equal(tc.expectedCode, txResp.Code, out.String())
 			}
 		})
 	}

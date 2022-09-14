@@ -41,9 +41,18 @@ func TestMsgFarm(t *testing.T) {
 		{
 			"invalid farming coin",
 			func(msg *types.MsgFarm) {
-				msg.FarmingCoin = sdk.NewInt64Coin("denom1", 0)
+				msg.PoolId = 1
+				msg.FarmingCoin = sdk.NewInt64Coin("pool1", 0)
 			},
 			"farming coin must be positive: invalid request",
+		},
+		{
+			"invalid farming coin denom",
+			func(msg *types.MsgFarm) {
+				msg.PoolId = 1
+				msg.FarmingCoin = sdk.NewInt64Coin("denom1", 100_000)
+			},
+			"expected denom pool1, but got denom1: invalid request",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
