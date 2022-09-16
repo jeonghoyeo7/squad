@@ -13,7 +13,7 @@ import (
 
 // Simulation parameter constants
 const (
-	FeeCollector = "fee_collector"
+	FeeCollector       = "fee_collector"
 	MaxNumPrivatePlans = "max_num_private_plans"
 )
 

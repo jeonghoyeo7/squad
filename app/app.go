@@ -456,6 +456,7 @@ func NewApp(
 		app.GetSubspace(farmtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
+		app.LiquidityKeeper,
 	)
 
 	// register the proposal types
