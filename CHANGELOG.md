@@ -53,6 +53,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 * (x/liquidstaking) [\#346](https://github.com/cosmosquad-labs/squad/pull/346) fix: calculation bug of liquidstaking voting_power
 
+### Improvements
+
+* (x/mint) [\#361](https://github.com/cosmosquad-labs/squad/pull/361) feat: add last block time endpoint
+
 ## v2.1.1
 
 ### Improvements
