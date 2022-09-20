@@ -8,9 +8,11 @@ import (
 
 // Parameter store keys
 var (
-	KeyLiquidFarms = []byte("LiquidFarms")
+	KeyLiquidFarms        = []byte("LiquidFarms")
+	KeyAuctionPeriodHours = []byte("AuctionPeriodHours")
 
-	DefaultLiquidFarms = []LiquidFarm{}
+	DefaultLiquidFarms               = []LiquidFarm{}
+	DefaultAuctionPeriodHours uint32 = 12
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -23,7 +25,8 @@ func ParamKeyTable() paramtypes.KeyTable {
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
 	return Params{
-		LiquidFarms: DefaultLiquidFarms,
+		LiquidFarms:        DefaultLiquidFarms,
+		AuctionPeriodHours: DefaultAuctionPeriodHours,
 	}
 }
 
@@ -31,6 +34,7 @@ func DefaultParams() Params {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyLiquidFarms, &p.LiquidFarms, validateLiquidFarms),
+		paramtypes.NewParamSetPair(KeyAuctionPeriodHours, &p.AuctionPeriodHours, validateAuctionPeriodHours),
 	}
 }
 
@@ -41,6 +45,7 @@ func (p Params) Validate() error {
 		validator func(interface{}) error
 	}{
 		{p.LiquidFarms, validateLiquidFarms},
+		{p.AuctionPeriodHours, validateAuctionPeriodHours},
 	} {
 		if err := v.validator(v.value); err != nil {
 			return err
@@ -61,5 +66,13 @@ func validateLiquidFarms(i interface{}) error {
 		}
 	}
 
+	return nil
+}
+
+func validateAuctionPeriodHours(i interface{}) error {
+	_, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
 	return nil
 }
