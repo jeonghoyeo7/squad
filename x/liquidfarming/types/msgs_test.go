@@ -13,34 +13,34 @@ import (
 
 var testAddr = sdk.AccAddress(crypto.AddressHash([]byte("test")))
 
-func TestMsgFarm(t *testing.T) {
+func TestMsgLiquidFarm(t *testing.T) {
 	for _, tc := range []struct {
 		name        string
-		malleate    func(msg *types.MsgFarm)
+		malleate    func(msg *types.MsgLiquidFarm)
 		expectedErr string
 	}{
 		{
 			"happy case",
-			func(msg *types.MsgFarm) {},
+			func(msg *types.MsgLiquidFarm) {},
 			"",
 		},
 		{
 			"invalid pool id",
-			func(msg *types.MsgFarm) {
+			func(msg *types.MsgLiquidFarm) {
 				msg.PoolId = 0
 			},
 			"invalid pool id: invalid request",
 		},
 		{
 			"invalid farmer",
-			func(msg *types.MsgFarm) {
+			func(msg *types.MsgLiquidFarm) {
 				msg.Farmer = "invalidaddr"
 			},
 			"invalid farmer address: decoding bech32 failed: invalid separator index -1: invalid address",
 		},
 		{
 			"invalid farming coin",
-			func(msg *types.MsgFarm) {
+			func(msg *types.MsgLiquidFarm) {
 				msg.PoolId = 1
 				msg.FarmingCoin = sdk.NewInt64Coin("pool1", 0)
 			},
@@ -48,7 +48,7 @@ func TestMsgFarm(t *testing.T) {
 		},
 		{
 			"invalid farming coin denom",
-			func(msg *types.MsgFarm) {
+			func(msg *types.MsgLiquidFarm) {
 				msg.PoolId = 1
 				msg.FarmingCoin = sdk.NewInt64Coin("denom1", 100_000)
 			},
@@ -56,9 +56,9 @@ func TestMsgFarm(t *testing.T) {
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			msg := types.NewMsgFarm(1, testAddr.String(), utils.ParseCoin("1000000pool1"))
+			msg := types.NewMsgLiquidFarm(1, testAddr.String(), utils.ParseCoin("1000000pool1"))
 			tc.malleate(msg)
-			require.Equal(t, types.TypeMsgFarm, msg.Type())
+			require.Equal(t, types.TypeMsgLiquidFarm, msg.Type())
 			require.Equal(t, types.RouterKey, msg.Route())
 			require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 			err := msg.ValidateBasic()
@@ -74,50 +74,50 @@ func TestMsgFarm(t *testing.T) {
 	}
 }
 
-func TestMsgUnfarm(t *testing.T) {
+func TestMsgLiquidUnfarm(t *testing.T) {
 	for _, tc := range []struct {
 		name        string
-		malleate    func(msg *types.MsgUnfarm)
+		malleate    func(msg *types.MsgLiquidUnfarm)
 		expectedErr string
 	}{
 		{
 			"happy case",
-			func(msg *types.MsgUnfarm) {},
+			func(msg *types.MsgLiquidUnfarm) {},
 			"",
 		},
 		{
 			"invalid pool id",
-			func(msg *types.MsgUnfarm) {
+			func(msg *types.MsgLiquidUnfarm) {
 				msg.PoolId = 0
 			},
 			"invalid pool id: invalid request",
 		},
 		{
 			"invalid farmer",
-			func(msg *types.MsgUnfarm) {
+			func(msg *types.MsgLiquidUnfarm) {
 				msg.Farmer = "invalidaddr"
 			},
 			"invalid farmer address: decoding bech32 failed: invalid separator index -1: invalid address",
 		},
 		{
 			"invalid lf coin",
-			func(msg *types.MsgUnfarm) {
+			func(msg *types.MsgLiquidUnfarm) {
 				msg.BurningCoin = sdk.NewInt64Coin("lf1", 0)
 			},
 			"burning coin must be positive: invalid request",
 		},
 		{
 			"invalid lf coin denom",
-			func(msg *types.MsgUnfarm) {
+			func(msg *types.MsgLiquidUnfarm) {
 				msg.BurningCoin = sdk.NewInt64Coin("pool1", 100_000)
 			},
 			"expected denom lf1, but got pool1: invalid request",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			msg := types.NewMsgUnfarm(1, testAddr.String(), utils.ParseCoin("1000000lf1"))
+			msg := types.NewMsgLiquidUnfarm(1, testAddr.String(), utils.ParseCoin("1000000lf1"))
 			tc.malleate(msg)
-			require.Equal(t, types.TypeMsgUnfarm, msg.Type())
+			require.Equal(t, types.TypeMsgLiquidUnfarm, msg.Type())
 			require.Equal(t, types.RouterKey, msg.Route())
 			require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 			err := msg.ValidateBasic()
@@ -133,50 +133,50 @@ func TestMsgUnfarm(t *testing.T) {
 	}
 }
 
-func TestMsgUnfarmAndWithdraw(t *testing.T) {
+func TestMsgLiquidUnfarmAndWithdraw(t *testing.T) {
 	for _, tc := range []struct {
 		name        string
-		malleate    func(msg *types.MsgUnfarmAndWithdraw)
+		malleate    func(msg *types.MsgLiquidUnfarmAndWithdraw)
 		expectedErr string
 	}{
 		{
 			"happy case",
-			func(msg *types.MsgUnfarmAndWithdraw) {},
+			func(msg *types.MsgLiquidUnfarmAndWithdraw) {},
 			"",
 		},
 		{
 			"invalid pool id",
-			func(msg *types.MsgUnfarmAndWithdraw) {
+			func(msg *types.MsgLiquidUnfarmAndWithdraw) {
 				msg.PoolId = 0
 			},
 			"invalid pool id: invalid request",
 		},
 		{
 			"invalid farmer",
-			func(msg *types.MsgUnfarmAndWithdraw) {
+			func(msg *types.MsgLiquidUnfarmAndWithdraw) {
 				msg.Farmer = "invalidaddr"
 			},
 			"invalid farmer address: decoding bech32 failed: invalid separator index -1: invalid address",
 		},
 		{
 			"invalid lf coin",
-			func(msg *types.MsgUnfarmAndWithdraw) {
+			func(msg *types.MsgLiquidUnfarmAndWithdraw) {
 				msg.UnfarmingCoin = sdk.NewInt64Coin("lf1", 0)
 			},
 			"unfarming coin must be positive: invalid request",
 		},
 		{
 			"invalid lf coin denom",
-			func(msg *types.MsgUnfarmAndWithdraw) {
+			func(msg *types.MsgLiquidUnfarmAndWithdraw) {
 				msg.UnfarmingCoin = sdk.NewInt64Coin("pool1", 100_000)
 			},
 			"expected denom lf1, but got pool1: invalid request",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			msg := types.NewMsgUnfarmAndWithdraw(1, testAddr.String(), utils.ParseCoin("1000000lf1"))
+			msg := types.NewMsgLiquidUnfarmAndWithdraw(1, testAddr.String(), utils.ParseCoin("1000000lf1"))
 			tc.malleate(msg)
-			require.Equal(t, types.TypeMsgUnfarmAndWithdraw, msg.Type())
+			require.Equal(t, types.TypeMsgLiquidUnfarmAndWithdraw, msg.Type())
 			require.Equal(t, types.RouterKey, msg.Route())
 			require.Equal(t, sdk.MustSortJSON(types.ModuleCdc.MustMarshalJSON(msg)), msg.GetSignBytes())
 			err := msg.ValidateBasic()

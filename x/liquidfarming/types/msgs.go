@@ -8,35 +8,35 @@ import (
 )
 
 var (
-	_ sdk.Msg = (*MsgFarm)(nil)
-	_ sdk.Msg = (*MsgUnfarm)(nil)
-	_ sdk.Msg = (*MsgUnfarmAndWithdraw)(nil)
+	_ sdk.Msg = (*MsgLiquidFarm)(nil)
+	_ sdk.Msg = (*MsgLiquidUnfarm)(nil)
+	_ sdk.Msg = (*MsgLiquidUnfarmAndWithdraw)(nil)
 	_ sdk.Msg = (*MsgPlaceBid)(nil)
 )
 
 // Message types for the module
 const (
-	TypeMsgFarm              = "farm"
-	TypeMsgUnfarm            = "unfarm"
-	TypeMsgUnfarmAndWithdraw = "unfarm_and_withdraw"
-	TypeMsgPlaceBid          = "place_bid"
-	TypeMsgRefundBid         = "refund_bid"
+	TypeMsgLiquidFarm              = "liquid_farm"
+	TypeMsgLiquidUnfarm            = "liquid_unfarm"
+	TypeMsgLiquidUnfarmAndWithdraw = "liquid_unfarm_and_withdraw"
+	TypeMsgPlaceBid                = "place_bid"
+	TypeMsgRefundBid               = "refund_bid"
 )
 
-// NewMsgFarm creates a new MsgFarm
-func NewMsgFarm(poolId uint64, farmer string, farmingCoin sdk.Coin) *MsgFarm {
-	return &MsgFarm{
+// NewMsgLiquidFarm creates a new MsgLiquidFarm
+func NewMsgLiquidFarm(poolId uint64, farmer string, farmingCoin sdk.Coin) *MsgLiquidFarm {
+	return &MsgLiquidFarm{
 		PoolId:      poolId,
 		Farmer:      farmer,
 		FarmingCoin: farmingCoin,
 	}
 }
 
-func (msg MsgFarm) Route() string { return RouterKey }
+func (msg MsgLiquidFarm) Route() string { return RouterKey }
 
-func (msg MsgFarm) Type() string { return TypeMsgFarm }
+func (msg MsgLiquidFarm) Type() string { return TypeMsgLiquidFarm }
 
-func (msg MsgFarm) ValidateBasic() error {
+func (msg MsgLiquidFarm) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Farmer); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid farmer address: %v", err)
 	}
@@ -57,11 +57,11 @@ func (msg MsgFarm) ValidateBasic() error {
 	return nil
 }
 
-func (msg MsgFarm) GetSignBytes() []byte {
+func (msg MsgLiquidFarm) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }
 
-func (msg MsgFarm) GetSigners() []sdk.AccAddress {
+func (msg MsgLiquidFarm) GetSigners() []sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.Farmer)
 	if err != nil {
 		panic(err)
@@ -69,7 +69,7 @@ func (msg MsgFarm) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{addr}
 }
 
-func (msg MsgFarm) GetFarmer() sdk.AccAddress {
+func (msg MsgLiquidFarm) GetFarmer() sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.Farmer)
 	if err != nil {
 		panic(err)
@@ -77,20 +77,20 @@ func (msg MsgFarm) GetFarmer() sdk.AccAddress {
 	return addr
 }
 
-// NewMsgUnfarm creates a new MsgUnfarm
-func NewMsgUnfarm(poolId uint64, farmer string, burningCoin sdk.Coin) *MsgUnfarm {
-	return &MsgUnfarm{
+// NewMsgLiquidUnfarm creates a new MsgLiquidUnfarm
+func NewMsgLiquidUnfarm(poolId uint64, farmer string, burningCoin sdk.Coin) *MsgLiquidUnfarm {
+	return &MsgLiquidUnfarm{
 		PoolId:      poolId,
 		Farmer:      farmer,
 		BurningCoin: burningCoin,
 	}
 }
 
-func (msg MsgUnfarm) Route() string { return RouterKey }
+func (msg MsgLiquidUnfarm) Route() string { return RouterKey }
 
-func (msg MsgUnfarm) Type() string { return TypeMsgUnfarm }
+func (msg MsgLiquidUnfarm) Type() string { return TypeMsgLiquidUnfarm }
 
-func (msg MsgUnfarm) ValidateBasic() error {
+func (msg MsgLiquidUnfarm) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Farmer); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid farmer address: %v", err)
 	}
@@ -110,11 +110,11 @@ func (msg MsgUnfarm) ValidateBasic() error {
 	return nil
 }
 
-func (msg MsgUnfarm) GetSignBytes() []byte {
+func (msg MsgLiquidUnfarm) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }
 
-func (msg MsgUnfarm) GetSigners() []sdk.AccAddress {
+func (msg MsgLiquidUnfarm) GetSigners() []sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.Farmer)
 	if err != nil {
 		panic(err)
@@ -122,7 +122,7 @@ func (msg MsgUnfarm) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{addr}
 }
 
-func (msg MsgUnfarm) GetFarmer() sdk.AccAddress {
+func (msg MsgLiquidUnfarm) GetFarmer() sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.Farmer)
 	if err != nil {
 		panic(err)
@@ -130,20 +130,20 @@ func (msg MsgUnfarm) GetFarmer() sdk.AccAddress {
 	return addr
 }
 
-// NewMsgUnfarmAndWithdraw creates a new MsgUnfarmAndWithdraw
-func NewMsgUnfarmAndWithdraw(poolId uint64, farmer string, unfarmingCoin sdk.Coin) *MsgUnfarmAndWithdraw {
-	return &MsgUnfarmAndWithdraw{
+// NewMsgLiquidUnfarmAndWithdraw creates a new MsgLiquidUnfarmAndWithdraw
+func NewMsgLiquidUnfarmAndWithdraw(poolId uint64, farmer string, unfarmingCoin sdk.Coin) *MsgLiquidUnfarmAndWithdraw {
+	return &MsgLiquidUnfarmAndWithdraw{
 		PoolId:        poolId,
 		Farmer:        farmer,
 		UnfarmingCoin: unfarmingCoin,
 	}
 }
 
-func (msg MsgUnfarmAndWithdraw) Route() string { return RouterKey }
+func (msg MsgLiquidUnfarmAndWithdraw) Route() string { return RouterKey }
 
-func (msg MsgUnfarmAndWithdraw) Type() string { return TypeMsgUnfarmAndWithdraw }
+func (msg MsgLiquidUnfarmAndWithdraw) Type() string { return TypeMsgLiquidUnfarmAndWithdraw }
 
-func (msg MsgUnfarmAndWithdraw) ValidateBasic() error {
+func (msg MsgLiquidUnfarmAndWithdraw) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(msg.Farmer); err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid farmer address: %v", err)
 	}
@@ -163,11 +163,11 @@ func (msg MsgUnfarmAndWithdraw) ValidateBasic() error {
 	return nil
 }
 
-func (msg MsgUnfarmAndWithdraw) GetSignBytes() []byte {
+func (msg MsgLiquidUnfarmAndWithdraw) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }
 
-func (msg MsgUnfarmAndWithdraw) GetSigners() []sdk.AccAddress {
+func (msg MsgLiquidUnfarmAndWithdraw) GetSigners() []sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.Farmer)
 	if err != nil {
 		panic(err)
@@ -175,7 +175,7 @@ func (msg MsgUnfarmAndWithdraw) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{addr}
 }
 
-func (msg MsgUnfarmAndWithdraw) GetFarmer() sdk.AccAddress {
+func (msg MsgLiquidUnfarmAndWithdraw) GetFarmer() sdk.AccAddress {
 	addr, err := sdk.AccAddressFromBech32(msg.Farmer)
 	if err != nil {
 		panic(err)

@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	farmtypes "github.com/cosmosquad-labs/squad/v3/x/farm/types"
 	farmingtypes "github.com/cosmosquad-labs/squad/v3/x/farming/types"
 	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
@@ -27,7 +28,16 @@ type BankKeeper interface {
 	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
 }
 
+// FarmKeeper defines the expected interface needed for the module.
+type FarmKeeper interface {
+	Farm(ctx sdk.Context, farmerAddr sdk.AccAddress, coin sdk.Coin) (withdrawnRewards sdk.Coins, err error)
+	Unfarm(ctx sdk.Context, farmerAddr sdk.AccAddress, coin sdk.Coin) (withdrawnRewards sdk.Coins, err error)
+	Harvest(ctx sdk.Context, farmerAddr sdk.AccAddress, denom string) (withdrawnRewards sdk.Coins, err error)
+	Rewards(ctx sdk.Context, position farmtypes.Position, endPeriod uint64) sdk.DecCoins
+}
+
 // FarmingKeeper defines the expected interface needed for the module.
+// [DEPRECATED]
 type FarmingKeeper interface {
 	Stake(ctx sdk.Context, farmerAcc sdk.AccAddress, amount sdk.Coins) error
 	Unstake(ctx sdk.Context, farmerAcc sdk.AccAddress, amount sdk.Coins) error

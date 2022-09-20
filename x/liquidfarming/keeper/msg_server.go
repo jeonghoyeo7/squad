@@ -20,39 +20,39 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-// Farm defines a method for farming pool coin to get minted LFCoin.
-func (m msgServer) Farm(goCtx context.Context, msg *types.MsgFarm) (*types.MsgFarmResponse, error) {
+// LiquidFarm defines a method for farming pool coin to get minted LFCoin.
+func (m msgServer) LiquidFarm(goCtx context.Context, msg *types.MsgLiquidFarm) (*types.MsgLiquidFarmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if err := m.Keeper.Farm(ctx, msg.PoolId, msg.GetFarmer(), msg.FarmingCoin); err != nil {
+	if err := m.Keeper.LiquidFarm(ctx, msg.PoolId, msg.GetFarmer(), msg.FarmingCoin); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgFarmResponse{}, nil
+	return &types.MsgLiquidFarmResponse{}, nil
 }
 
-// Unfarm defines a method for unfarming LFCoin to receive the corresponding amount of pool coin.
-func (m msgServer) Unfarm(goCtx context.Context, msg *types.MsgUnfarm) (*types.MsgUnfarmResponse, error) {
+// LiquidUnfarm defines a method for unfarming LFCoin to receive the corresponding amount of pool coin.
+func (m msgServer) LiquidUnfarm(goCtx context.Context, msg *types.MsgLiquidUnfarm) (*types.MsgLiquidUnfarmResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if _, err := m.Keeper.Unfarm(ctx, msg.PoolId, msg.GetFarmer(), msg.BurningCoin); err != nil {
+	if _, err := m.Keeper.LiquidUnfarm(ctx, msg.PoolId, msg.GetFarmer(), msg.BurningCoin); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgUnfarmResponse{}, nil
+	return &types.MsgLiquidUnfarmResponse{}, nil
 }
 
-// UnfarmAndWithdraw defines a method for unfarming LFCoin and withdraw the corresponding amount of pool coin
+// LiquidUnfarmAndWithdraw defines a method for unfarming LFCoin and withdraw the corresponding amount of pool coin
 // from the pool in the liquidity module.
 // This is a convenient transaction message for a bidder to use when they participate in rewards auction.
-func (m msgServer) UnfarmAndWithdraw(goCtx context.Context, msg *types.MsgUnfarmAndWithdraw) (*types.MsgUnfarmAndWithdrawResponse, error) {
+func (m msgServer) LiquidUnfarmAndWithdraw(goCtx context.Context, msg *types.MsgLiquidUnfarmAndWithdraw) (*types.MsgLiquidUnfarmAndWithdrawResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if err := m.Keeper.UnfarmAndWithdraw(ctx, msg.PoolId, msg.GetFarmer(), msg.UnfarmingCoin); err != nil {
+	if err := m.Keeper.LiquidUnfarmAndWithdraw(ctx, msg.PoolId, msg.GetFarmer(), msg.UnfarmingCoin); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgUnfarmAndWithdrawResponse{}, nil
+	return &types.MsgLiquidUnfarmAndWithdrawResponse{}, nil
 }
 
 // PlaceBid defines a method for placing a bid for a rewards auction.

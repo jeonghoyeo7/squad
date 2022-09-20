@@ -12,7 +12,7 @@ import (
 )
 
 func (s *KeeperTestSuite) TestFarm_Validation() {
-	err := s.keeper.Farm(s.ctx, 1, s.addr(0), utils.ParseCoin("100000000pool1"))
+	err := s.keeper.LiquidFarm(s.ctx, 1, s.addr(0), utils.ParseCoin("100000000pool1"))
 	s.Require().EqualError(err, "pool 1 not found: not found")
 
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
@@ -21,13 +21,13 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 
 	for _, tc := range []struct {
 		name        string
-		msg         *types.MsgFarm
+		msg         *types.MsgLiquidFarm
 		postRun     func(ctx sdk.Context, farmerAcc sdk.AccAddress)
 		expectedErr string
 	}{
 		{
 			"happy case",
-			types.NewMsgFarm(
+			types.NewMsgLiquidFarm(
 				pool.Id,
 				s.addr(0).String(),
 				sdk.NewInt64Coin(pool.PoolCoinDenom, 1_000_000_000),
@@ -43,7 +43,7 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 		},
 		{
 			"minimum farm amount",
-			types.NewMsgFarm(
+			types.NewMsgLiquidFarm(
 				pool.Id,
 				s.addr(0).String(),
 				sdk.NewInt64Coin(pool.PoolCoinDenom, 100),
@@ -53,7 +53,7 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 		},
 		{
 			"insufficient funds",
-			types.NewMsgFarm(
+			types.NewMsgLiquidFarm(
 				pool.Id,
 				s.addr(5).String(),
 				sdk.NewInt64Coin(pool.PoolCoinDenom, 500_000_000),
@@ -65,7 +65,7 @@ func (s *KeeperTestSuite) TestFarm_Validation() {
 		s.Run(tc.name, func() {
 			s.Require().NoError(tc.msg.ValidateBasic())
 			cacheCtx, _ := s.ctx.CacheContext()
-			err := s.keeper.Farm(cacheCtx, tc.msg.PoolId, tc.msg.GetFarmer(), tc.msg.FarmingCoin)
+			err := s.keeper.LiquidFarm(cacheCtx, tc.msg.PoolId, tc.msg.GetFarmer(), tc.msg.FarmingCoin)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
 				tc.postRun(cacheCtx, tc.msg.GetFarmer())
@@ -80,7 +80,7 @@ func (s *KeeperTestSuite) TestFarm() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"), true)
 
-	err := s.keeper.Farm(s.ctx, pool.Id, s.addr(0), utils.ParseCoin("1000000pool1"))
+	err := s.keeper.LiquidFarm(s.ctx, pool.Id, s.addr(0), utils.ParseCoin("1000000pool1"))
 	s.Require().EqualError(err, "liquid farm by pool 1 not found: not found")
 
 	s.createLiquidFarm(pool.Id, sdk.ZeroInt(), sdk.ZeroInt(), sdk.ZeroDec())
@@ -108,7 +108,7 @@ func (s *KeeperTestSuite) TestFarm() {
 }
 
 func (s *KeeperTestSuite) TestUnfarm_Validation() {
-	_, err := s.keeper.Unfarm(s.ctx, 1, s.addr(0), utils.ParseCoin("100000000pool1"))
+	_, err := s.keeper.LiquidUnfarm(s.ctx, 1, s.addr(0), utils.ParseCoin("100000000pool1"))
 	s.Require().EqualError(err, "pool 1 not found: not found")
 
 	pair := s.createPair(s.addr(0), "denom1", "denom2", true)
@@ -120,13 +120,13 @@ func (s *KeeperTestSuite) TestUnfarm_Validation() {
 
 	for _, tc := range []struct {
 		name        string
-		msg         *types.MsgUnfarm
+		msg         *types.MsgLiquidUnfarm
 		postRun     func(ctx sdk.Context, unfarmInfo keeper.UnfarmInfo)
 		expectedErr string
 	}{
 		{
 			"happy case",
-			types.NewMsgUnfarm(
+			types.NewMsgLiquidUnfarm(
 				pool.Id,
 				s.addr(0).String(),
 				sdk.NewInt64Coin(types.LiquidFarmCoinDenom(pool.Id), 1_000_000_000),
@@ -138,7 +138,7 @@ func (s *KeeperTestSuite) TestUnfarm_Validation() {
 		},
 		{
 			"insufficient balance",
-			types.NewMsgUnfarm(
+			types.NewMsgLiquidUnfarm(
 				pool.Id,
 				s.addr(5).String(),
 				sdk.NewInt64Coin(types.LiquidFarmCoinDenom(pool.Id), 1_000_000_000),
@@ -150,7 +150,7 @@ func (s *KeeperTestSuite) TestUnfarm_Validation() {
 		s.Run(tc.name, func() {
 			s.Require().NoError(tc.msg.ValidateBasic())
 			cacheCtx, _ := s.ctx.CacheContext()
-			unfarmInfo, err := s.keeper.Unfarm(cacheCtx, tc.msg.PoolId, tc.msg.GetFarmer(), tc.msg.BurningCoin)
+			unfarmInfo, err := s.keeper.LiquidUnfarm(cacheCtx, tc.msg.PoolId, tc.msg.GetFarmer(), tc.msg.BurningCoin)
 			if tc.expectedErr == "" {
 				s.Require().NoError(err)
 				tc.postRun(cacheCtx, unfarmInfo)
@@ -404,7 +404,7 @@ func (s *KeeperTestSuite) TestUnfarmAndWithdraw() {
 	s.Require().Equal(sdk.NewCoin(lfCoinDenom, poolAmt), lfCoinBalance)
 
 	// Call UnfarmAndWithdraw
-	err := s.keeper.UnfarmAndWithdraw(s.ctx, pool.Id, s.addr(0), lfCoinBalance)
+	err := s.keeper.LiquidUnfarmAndWithdraw(s.ctx, pool.Id, s.addr(0), lfCoinBalance)
 	s.Require().NoError(err)
 
 	// Call nextBlock as Withdraw is executed in batch

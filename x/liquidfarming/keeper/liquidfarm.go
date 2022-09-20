@@ -11,8 +11,8 @@ import (
 	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
-// Farm handles types.MsgFarm to liquid farm.
-func (k Keeper) Farm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, farmingCoin sdk.Coin) error {
+// LiquidFarm handles types.MsgFarm to liquid farm.
+func (k Keeper) LiquidFarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, farmingCoin sdk.Coin) error {
 	pool, found := k.liquidityKeeper.GetPool(ctx, poolId)
 	if !found {
 		return sdkerrors.Wrapf(sdkerrors.ErrNotFound, "pool %d not found", poolId)
@@ -81,10 +81,10 @@ type UnfarmInfo struct {
 	UnfarmedCoin sdk.Coin
 }
 
-// Unfarm handles types.MsgUnfarm to unfarm LFCoin.
+// LiquidUnfarm handles types.MsgUnfarm to unfarm LFCoin.
 // It doesn't validate if the liquid farm exists because farmers still need to be able to
 // unfarm their LFCoin although the liquid farm object is removed in params.
-func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, burningCoin sdk.Coin) (UnfarmInfo, error) {
+func (k Keeper) LiquidUnfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, burningCoin sdk.Coin) (UnfarmInfo, error) {
 	pool, found := k.liquidityKeeper.GetPool(ctx, poolId)
 	if !found {
 		return UnfarmInfo{}, sdkerrors.Wrapf(sdkerrors.ErrNotFound, "pool %d not found", poolId)
@@ -156,9 +156,9 @@ func (k Keeper) Unfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, bu
 	return UnfarmInfo{Farmer: farmer, UnfarmedCoin: unfarmedCoin}, nil
 }
 
-// UnfarmAndWithdraw handles types.MsgUnfarmAndWithdraw to unfarm LFCoin and withdraw pool coin from the pool.
-func (k Keeper) UnfarmAndWithdraw(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, burningCoin sdk.Coin) error {
-	unfarmInfo, err := k.Unfarm(ctx, poolId, farmer, burningCoin)
+// LiquidUnfarmAndWithdraw handles types.MsgUnfarmAndWithdraw to unfarm LFCoin and withdraw pool coin from the pool.
+func (k Keeper) LiquidUnfarmAndWithdraw(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress, burningCoin sdk.Coin) error {
+	unfarmInfo, err := k.LiquidUnfarm(ctx, poolId, farmer, burningCoin)
 	if err != nil {
 		return err
 	}

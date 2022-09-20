@@ -148,7 +148,7 @@ func (s *KeeperTestSuite) farm(poolId uint64, farmer sdk.AccAddress, farmingCoin
 		s.fundAddr(farmer, sdk.NewCoins(farmingCoin))
 	}
 
-	err := s.keeper.Farm(s.ctx, poolId, farmer, farmingCoin)
+	err := s.keeper.LiquidFarm(s.ctx, poolId, farmer, farmingCoin)
 	s.Require().NoError(err)
 }
 
@@ -158,7 +158,7 @@ func (s *KeeperTestSuite) unfarm(poolId uint64, farmer sdk.AccAddress, lfCoin sd
 		s.fundAddr(farmer, sdk.NewCoins(lfCoin))
 	}
 
-	_, err := s.keeper.Unfarm(s.ctx, poolId, farmer, lfCoin)
+	_, err := s.keeper.LiquidUnfarm(s.ctx, poolId, farmer, lfCoin)
 	s.Require().NoError(err)
 }
 
