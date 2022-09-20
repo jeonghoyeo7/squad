@@ -28,13 +28,13 @@ The following messages cause state transition on the `bank`, `liquidty`, and `fa
 ### MsgUnfarm
 
 - LF coins are sent to the `liquidfarm` module account, and the LF coins are burnt.
-- The `liquidfarming` module unstakes pool coins from the `farming` module. 
+- The `liquidfarming` module unstakes pool coins from the `farming` module.
 - The pool coins are sent from a reserve address of a liquid farm to a farmer.
 
 ### MsgUnfarmWithdraw
 
 - LF coins are sent to the `liquidfarm` module account, and the LF coins are burnt.
-- The `liquidfarming` module unstakes pool coins from the `farming` module. 
+- The `liquidfarming` module unstakes pool coins from the `farming` module.
 - The pool coins are sent from a reserve account of a liquid farm to a farmer.
 - The pool coins are sent to a reserve account in `liquidity` module, and the corresponding coins are withdrawn to the farmer.
 
@@ -45,18 +45,3 @@ The following messages cause state transition on the `bank`, `liquidty`, and `fa
 ### MsgRefundBid
 
 - Bidding coins are sent to a bidder account from the `PayingReserveAddress` of an auction.
-
-
-## State transition by hooks from other module
-The following events triggered by hooks cause state transition on the `bank`, `liquidty`, and `farming` modules.
-
-### AfterAllocateRewards hook from `farming` module
-
-When `AfterAllocateRewards` hook is delivered, the following operations are performed.
-- If the auction currently going on exists, the current auction becomes finished. And, 
-  - the winner is chosen,
-  - the rewards is harvested and sent to the winner,
-  - the pool coins from the winner in the paying reserve address is sent to the module account,
-  - the module stakes the pool coins from the auction, the amount of these pool coins is saved to `CompoundingRewards`
-  - the pool coins from the others not winner in the paying reserve address is refunded to each bidder’s account.
-- A new auction is created.

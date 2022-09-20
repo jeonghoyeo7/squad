@@ -4,7 +4,7 @@
 
 ## Abstract
 
-This document specifies the `liquidfarming` module that provides a functionality for farmers to have another option to use with their liquidity pool coins in Crescent Network. 
+This document specifies the `liquidfarming` module that provides a functionality for farmers to have another option to use with their liquidity pool coins in Crescent Network.
 
 ## Contents
 
@@ -12,7 +12,6 @@ This document specifies the `liquidfarming` module that provides a functionality
 2. **[State](02_state.md)**
 3. **[State Transitions](03_state_transitions.md)**
 4. **[Messages](04_messages.md)**
-4. **[BeginBlock](05_begin_block.md)**
-5. **[Events](06_events.md)**
-6. **[Parameters](07_params.md)**
-7. **[Hooks](08_hooks.md)**
+5. **[BeginBlock](05_begin_block.md)**
+6. **[Events](06_events.md)**
+7. **[Parameters](07_params.md)**
