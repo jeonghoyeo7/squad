@@ -12,13 +12,13 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	"github.com/cosmosquad-labs/squad/v2/x/farming"
-	farmingtypes "github.com/cosmosquad-labs/squad/v2/x/farming/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	"github.com/cosmosquad-labs/squad/v3/x/farming"
+	farmingtypes "github.com/cosmosquad-labs/squad/v3/x/farming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 type KeeperTestSuite struct {

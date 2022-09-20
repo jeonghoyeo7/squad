@@ -4,10 +4,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	"github.com/cosmosquad-labs/squad/v2/x/claim"
-	"github.com/cosmosquad-labs/squad/v2/x/claim/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	"github.com/cosmosquad-labs/squad/v3/x/claim"
+	"github.com/cosmosquad-labs/squad/v3/x/claim/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity"
 
 	_ "github.com/stretchr/testify/suite"
 )

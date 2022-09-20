@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/cosmosquad-labs/squad/v2/x/farming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/farming/types"
 )
 
 // Implements FarmingHooks interface

@@ -7,8 +7,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
 )
 
 // BeginBlocker compares all LiquidFarms stored in the store with all LiquidFarms registered in params.

@@ -3,7 +3,7 @@ init:
 build:
   ldflags:
     [
-      "-X github.com/cosmosquad-labs/squad/v2/x/farming/keeper.enableAdvanceEpoch=true",
+      "-X github.com/cosmosquad-labs/squad/v3/x/farming/keeper.enableAdvanceEpoch=true",
     ]
 accounts:
   - name: alice # cosmos1zaavvzxez0elundtn32qnk9lkm8kmcszzsv80v
@@ -42,7 +42,16 @@ genesis:
           - amount: "1"
             denom: "stake"
       voting_params:
-        voting_period: "30s"
+        voting_period: "20s"
+    budget:
+      params:
+        budgets:
+          - name: "incentivize-marketmaker-20201Q-20301Q"
+            rate: "0.300000000000000000"
+            source_address: "cosmos17xpfvakm2amg962yls6f84z3kell8c5lserqta"
+            destination_address: "cosmos1ddn66jv0sjpmck0ptegmhmqtn35qsg2vxyk2hn9sqf4qxtzqz3sqanrtcm"
+            start_time: "2020-03-01T00:00:00Z"
+            end_time: "2030-03-01T00:00:00Z"
     farming:
       params:
         private_plan_creation_fee:
@@ -56,6 +65,21 @@ genesis:
         pool_creation_fee:
           - amount: "100000"
             denom: "stake"
+    marketmaker:
+      params:
+        incentive_pairs:
+          - pair_id: 1
+            update_time: "2022-09-10T00:00:00Z"
+            incentive_weight: "0.000000000000000000"
+            max_spread: "0"
+            min_width: "0"
+            min_depth: "0"
+          - pair_id: 2
+            update_time: "2022-09-10T00:00:00Z"
+            incentive_weight: "0.000000000000000000"
+            max_spread: "0"
+            min_width: "0"
+            min_depth: "0"
     liquidstaking:
       params:
         liquid_bond_denom: "bstake"

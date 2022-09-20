@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/amm"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/amm"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 // getNextPoolIdWithUpdate increments pool id by one and set it.

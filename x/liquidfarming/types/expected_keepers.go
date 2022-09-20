@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	farmingtypes "github.com/cosmosquad-labs/squad/v2/x/farming/types"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	farmingtypes "github.com/cosmosquad-labs/squad/v3/x/farming/types"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 // AccountKeeper defines the expected interface needed for the module.

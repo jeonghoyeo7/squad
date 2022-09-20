@@ -96,30 +96,37 @@ import (
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	farmingparams "github.com/cosmosquad-labs/squad/v2/app/params"
-	v2_0_0 "github.com/cosmosquad-labs/squad/v2/app/upgrades/mainnet/v2.0.0"
-	"github.com/cosmosquad-labs/squad/v2/x/claim"
-	claimkeeper "github.com/cosmosquad-labs/squad/v2/x/claim/keeper"
-	claimtypes "github.com/cosmosquad-labs/squad/v2/x/claim/types"
-	"github.com/cosmosquad-labs/squad/v2/x/farming"
-	farmingclient "github.com/cosmosquad-labs/squad/v2/x/farming/client"
-	farmingkeeper "github.com/cosmosquad-labs/squad/v2/x/farming/keeper"
-	farmingtypes "github.com/cosmosquad-labs/squad/v2/x/farming/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming"
-	liquidfarmingkeeper "github.com/cosmosquad-labs/squad/v2/x/liquidfarming/keeper"
-	liquidfarmingtypes "github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity"
-	liquiditykeeper "github.com/cosmosquad-labs/squad/v2/x/liquidity/keeper"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidstaking"
-	liquidstakingkeeper "github.com/cosmosquad-labs/squad/v2/x/liquidstaking/keeper"
-	liquidstakingtypes "github.com/cosmosquad-labs/squad/v2/x/liquidstaking/types"
-	"github.com/cosmosquad-labs/squad/v2/x/mint"
-	mintkeeper "github.com/cosmosquad-labs/squad/v2/x/mint/keeper"
-	minttypes "github.com/cosmosquad-labs/squad/v2/x/mint/types"
+	farmingparams "github.com/cosmosquad-labs/squad/v3/app/params"
+	v2_0_0 "github.com/cosmosquad-labs/squad/v3/app/upgrades/mainnet/v2.0.0"
+	"github.com/cosmosquad-labs/squad/v3/x/claim"
+	claimkeeper "github.com/cosmosquad-labs/squad/v3/x/claim/keeper"
+	claimtypes "github.com/cosmosquad-labs/squad/v3/x/claim/types"
+	"github.com/cosmosquad-labs/squad/v3/x/farm"
+	farmkeeper "github.com/cosmosquad-labs/squad/v3/x/farm/keeper"
+	farmtypes "github.com/cosmosquad-labs/squad/v3/x/farm/types"
+	"github.com/cosmosquad-labs/squad/v3/x/farming"
+	farmingclient "github.com/cosmosquad-labs/squad/v3/x/farming/client"
+	farmingkeeper "github.com/cosmosquad-labs/squad/v3/x/farming/keeper"
+	farmingtypes "github.com/cosmosquad-labs/squad/v3/x/farming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming"
+	liquidfarmingkeeper "github.com/cosmosquad-labs/squad/v3/x/liquidfarming/keeper"
+	liquidfarmingtypes "github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity"
+	liquiditykeeper "github.com/cosmosquad-labs/squad/v3/x/liquidity/keeper"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidstaking"
+	liquidstakingkeeper "github.com/cosmosquad-labs/squad/v3/x/liquidstaking/keeper"
+	liquidstakingtypes "github.com/cosmosquad-labs/squad/v3/x/liquidstaking/types"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker"
+	marketmakerclient "github.com/cosmosquad-labs/squad/v3/x/marketmaker/client"
+	marketmakerkeeper "github.com/cosmosquad-labs/squad/v3/x/marketmaker/keeper"
+	marketmakertypes "github.com/cosmosquad-labs/squad/v3/x/marketmaker/types"
+	"github.com/cosmosquad-labs/squad/v3/x/mint"
+	mintkeeper "github.com/cosmosquad-labs/squad/v3/x/mint/keeper"
+	minttypes "github.com/cosmosquad-labs/squad/v3/x/mint/types"
 
 	// unnamed import of statik for swagger UI support
-	_ "github.com/cosmosquad-labs/squad/v2/client/docs/statik"
+	_ "github.com/cosmosquad-labs/squad/v3/client/docs/statik"
 )
 
 var (
@@ -145,6 +152,7 @@ var (
 			ibcclientclient.UpdateClientProposalHandler,
 			ibcclientclient.UpgradeProposalHandler,
 			farmingclient.ProposalHandler,
+			marketmakerclient.ProposalHandler,
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
@@ -162,6 +170,8 @@ var (
 		liquidstaking.AppModuleBasic{},
 		liquidfarming.AppModuleBasic{},
 		claim.AppModuleBasic{},
+		marketmaker.AppModuleBasic{},
+		farm.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -179,6 +189,7 @@ var (
 		liquidfarmingtypes.ModuleName:  {authtypes.Minter, authtypes.Burner},
 		claimtypes.ModuleName:          nil,
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		marketmakertypes.ModuleName:    nil,
 	}
 )
 
@@ -227,6 +238,8 @@ type App struct {
 	LiquidStakingKeeper liquidstakingkeeper.Keeper
 	LiquidFarmingKeeper liquidfarmingkeeper.Keeper
 	ClaimKeeper         claimkeeper.Keeper
+	MarketMakerKeeper   marketmakerkeeper.Keeper
+	FarmKeeper          farmkeeper.Keeper
 
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
@@ -295,6 +308,8 @@ func NewApp(
 		liquidstakingtypes.StoreKey,
 		liquidfarmingtypes.StoreKey,
 		claimtypes.StoreKey,
+		marketmakertypes.StoreKey,
+		farmtypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -435,6 +450,21 @@ func NewApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 	)
+	app.MarketMakerKeeper = marketmakerkeeper.NewKeeper(
+		appCodec,
+		keys[marketmakertypes.StoreKey],
+		app.GetSubspace(marketmakertypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+	)
+	app.FarmKeeper = farmkeeper.NewKeeper(
+		appCodec,
+		keys[farmtypes.StoreKey],
+		app.GetSubspace(farmtypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.LiquidityKeeper,
+	)
 
 	// register the proposal types
 	govRouter := govtypes.NewRouter()
@@ -444,7 +474,9 @@ func NewApp(
 		AddRoute(distrtypes.RouterKey, distr.NewCommunityPoolSpendProposalHandler(app.DistrKeeper)).
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
-		AddRoute(farmingtypes.RouterKey, farming.NewPublicPlanProposalHandler(app.FarmingKeeper))
+		AddRoute(farmingtypes.RouterKey, farming.NewPublicPlanProposalHandler(app.FarmingKeeper)).
+		AddRoute(marketmakertypes.RouterKey, marketmaker.NewMarketMakerProposalHandler(app.MarketMakerKeeper))
+	// TODO: add x/farm proposal handler
 
 	app.GovKeeper = govkeeper.NewKeeper(
 		appCodec,
@@ -561,6 +593,8 @@ func NewApp(
 		liquidstaking.NewAppModule(appCodec, app.LiquidStakingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GovKeeper),
 		liquidfarming.NewAppModule(appCodec, app.LiquidFarmingKeeper, app.AccountKeeper, app.BankKeeper),
 		claim.NewAppModule(appCodec, app.ClaimKeeper, app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.GovKeeper, app.LiquidityKeeper, app.LiquidStakingKeeper),
+		marketmaker.NewAppModule(appCodec, app.MarketMakerKeeper, app.AccountKeeper, app.BankKeeper),
+		farm.NewAppModule(appCodec, app.FarmKeeper, app.AccountKeeper, app.BankKeeper),
 		app.transferModule,
 	)
 
@@ -581,6 +615,7 @@ func NewApp(
 		liquiditytypes.ModuleName,
 		liquidfarmingtypes.ModuleName,
 		ibchost.ModuleName,
+		farmtypes.ModuleName,
 
 		// empty logic modules
 		authtypes.ModuleName,
@@ -595,6 +630,7 @@ func NewApp(
 		ibctransfertypes.ModuleName,
 		farmingtypes.ModuleName,
 		claimtypes.ModuleName,
+		marketmakertypes.ModuleName,
 	)
 	app.mm.SetOrderEndBlockers(
 		// EndBlocker of crisis module called AssertInvariants
@@ -624,6 +660,8 @@ func NewApp(
 		ibctransfertypes.ModuleName,
 		claimtypes.ModuleName,
 		budgettypes.ModuleName,
+		marketmakertypes.ModuleName,
+		farmtypes.ModuleName,
 	)
 
 	// NOTE: The genutils module must occur after staking so that pools are
@@ -652,6 +690,8 @@ func NewApp(
 		liquidstakingtypes.ModuleName,
 		liquidfarmingtypes.ModuleName,
 		claimtypes.ModuleName,
+		marketmakertypes.ModuleName,
+		farmtypes.ModuleName,
 
 		// empty logic modules
 		paramstypes.ModuleName,
@@ -692,6 +732,8 @@ func NewApp(
 		liquidstaking.NewAppModule(appCodec, app.LiquidStakingKeeper, app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.GovKeeper),
 		claim.NewAppModule(appCodec, app.ClaimKeeper, app.AccountKeeper, app.BankKeeper, app.DistrKeeper, app.GovKeeper, app.LiquidityKeeper, app.LiquidStakingKeeper),
 		liquidfarming.NewAppModule(appCodec, app.LiquidFarmingKeeper, app.AccountKeeper, app.BankKeeper),
+		marketmaker.NewAppModule(appCodec, app.MarketMakerKeeper, app.AccountKeeper, app.BankKeeper),
+		farm.NewAppModule(appCodec, app.FarmKeeper, app.AccountKeeper, app.BankKeeper),
 		ibc.NewAppModule(app.IBCKeeper),
 		app.transferModule,
 	)
@@ -897,6 +939,8 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(liquiditytypes.ModuleName)
 	paramsKeeper.Subspace(liquidstakingtypes.ModuleName)
 	paramsKeeper.Subspace(liquidfarmingtypes.ModuleName)
+	paramsKeeper.Subspace(marketmakertypes.ModuleName)
+	paramsKeeper.Subspace(farmtypes.ModuleName)
 
 	return paramsKeeper
 }

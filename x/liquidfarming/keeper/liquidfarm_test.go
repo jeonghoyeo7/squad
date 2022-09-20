@@ -4,11 +4,11 @@ import (
 	_ "github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	utils "github.com/cosmosquad-labs/squad/v2/types"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
 )
 
 func (s *KeeperTestSuite) TestFarm_Validation() {

@@ -10,12 +10,15 @@
   - x/liquidfarming/**/*
 "x/mint":
   - x/mint/**/*
+"x/marketmaker":
+  - x/marketmaker/**/*
 "c-sync":
   - x/claim/**/*
   - x/farming/**/*
   - x/liquidity/**/*
   - x/liquidstaking/**/*
   - x/mint/**/*
+  - x/marketmaker/**/*
   - docs/**/*
   - Makefile
 "documentation":

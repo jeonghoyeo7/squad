@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/simulation"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/simulation"
 )
 
 func TestParamChanges(t *testing.T) {
@@ -22,10 +22,10 @@ func TestParamChanges(t *testing.T) {
 		subspace    string
 	}{
 		{"liquidity/BatchSize", "BatchSize", "5", "liquidity"},
-		{"liquidity/TickPrecision", "TickPrecision", "2", "liquidity"},
-		{"liquidity/MaxPriceLimitRatio", "MaxPriceLimitRatio", "\"0.151488470335453781\"", "liquidity"},
-		{"liquidity/WithdrawFeeRate", "WithdrawFeeRate", "\"0.001083067024517151\"", "liquidity"},
-		{"liquidity/MaxOrderLifespan", "MaxOrderLifespan", "\"229244578894929\"", "liquidity"},
+		{"liquidity/TickPrecision", "TickPrecision", "3", "liquidity"},
+		{"liquidity/MaxPriceLimitRatio", "MaxPriceLimitRatio", "\"0.187775771919630322\"", "liquidity"},
+		{"liquidity/WithdrawFeeRate", "WithdrawFeeRate", "\"0.001029277270893505\"", "liquidity"},
+		{"liquidity/MaxOrderLifespan", "MaxOrderLifespan", "\"87434677422456\"", "liquidity"},
 	}
 
 	for i, p := range paramChanges {

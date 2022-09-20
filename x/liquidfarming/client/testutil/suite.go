@@ -20,14 +20,14 @@ import (
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	dbm "github.com/tendermint/tm-db"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
-	"github.com/cosmosquad-labs/squad/v2/app/params"
-	farmingtestutil "github.com/cosmosquad-labs/squad/v2/x/farming/client/testutil"
-	farmingkeeper "github.com/cosmosquad-labs/squad/v2/x/farming/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/client/cli"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
-	liquiditytestutil "github.com/cosmosquad-labs/squad/v2/x/liquidity/client/testutil"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
+	"github.com/cosmosquad-labs/squad/v3/app/params"
+	farmingtestutil "github.com/cosmosquad-labs/squad/v3/x/farming/client/testutil"
+	farmingkeeper "github.com/cosmosquad-labs/squad/v3/x/farming/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/client/cli"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
+	liquiditytestutil "github.com/cosmosquad-labs/squad/v3/x/liquidity/client/testutil"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 type IntegrationTestSuite struct {

@@ -21,15 +21,15 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	"github.com/cosmosquad-labs/squad/v2/x/farming"
-	farmingtypes "github.com/cosmosquad-labs/squad/v2/x/farming/types"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidstaking"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidstaking/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidstaking/types"
-	"github.com/cosmosquad-labs/squad/v2/x/mint"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	"github.com/cosmosquad-labs/squad/v3/x/farming"
+	farmingtypes "github.com/cosmosquad-labs/squad/v3/x/farming/types"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidstaking"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidstaking/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidstaking/types"
+	"github.com/cosmosquad-labs/squad/v3/x/mint"
 )
 
 var (
@@ -403,6 +403,15 @@ func (s *KeeperTestSuite) Stake(farmerAcc sdk.AccAddress, amt sdk.Coins) {
 func (s *KeeperTestSuite) Unstake(farmerAcc sdk.AccAddress, amt sdk.Coins) {
 	err := s.app.FarmingKeeper.Unstake(s.ctx, farmerAcc, amt)
 	s.Require().NoError(err)
+}
+
+func (s *KeeperTestSuite) assertTallyResult(yes, no, vito, abstain int64, proposal govtypes.Proposal) {
+	cachedCtx, _ := s.ctx.CacheContext()
+	_, _, result := s.app.GovKeeper.Tally(cachedCtx, proposal)
+	s.Require().Equal(sdk.NewInt(yes), result.Yes)
+	s.Require().Equal(sdk.NewInt(no), result.No)
+	s.Require().Equal(sdk.NewInt(vito), result.NoWithVeto)
+	s.Require().Equal(sdk.NewInt(abstain), result.Abstain)
 }
 
 func (s *KeeperTestSuite) assertVotingPower(addr sdk.AccAddress, stakingVotingPower, liquidStakingVotingPower, validatorVotingPower sdk.Int) {
