@@ -72,38 +72,33 @@ func TestLiquidFarmReserveAddress(t *testing.T) {
 
 func TestCalculateMintingFarmAmount(t *testing.T) {
 	for _, tc := range []struct {
-		name             string
-		totalSupplyLFAmt sdk.Int
-		totalStakedLPAmt sdk.Int
-		totalQueuedLPAmt sdk.Int
-		newFarmingAmt    sdk.Int
-		expectedAmt      sdk.Int
+		name              string
+		lfTotalSupplyAmt  sdk.Int
+		lpTotalFarmingAmt sdk.Int
+		newFarmingAmt     sdk.Int
+		expectedAmt       sdk.Int
 	}{
 		{
-			name:             "initial minting",
-			totalSupplyLFAmt: sdk.ZeroInt(),
-			totalStakedLPAmt: sdk.ZeroInt(),
-			totalQueuedLPAmt: sdk.ZeroInt(),
-			newFarmingAmt:    sdk.NewInt(1_000_00_000),
-			expectedAmt:      sdk.NewInt(1_000_00_000),
+			name:              "initial minting",
+			lfTotalSupplyAmt:  sdk.ZeroInt(),
+			lpTotalFarmingAmt: sdk.ZeroInt(),
+			newFarmingAmt:     sdk.NewInt(1_000_00_000),
+			expectedAmt:       sdk.NewInt(1_000_00_000),
 		},
 		{
-			name:             "case #1",
-			totalSupplyLFAmt: sdk.NewInt(5_000_000_000),
-			totalStakedLPAmt: sdk.ZeroInt(),
-			totalQueuedLPAmt: sdk.NewInt(5_000_000_000),
-			newFarmingAmt:    sdk.NewInt(1_000_000_000),
-			expectedAmt:      sdk.NewInt(1000000000),
+			name:              "case #1",
+			lfTotalSupplyAmt:  sdk.NewInt(1_000_000_000),
+			lpTotalFarmingAmt: sdk.NewInt(2_000_000_000),
+			newFarmingAmt:     sdk.NewInt(1_000_000_000),
+			expectedAmt:       sdk.NewInt(500_000_000),
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			mintingAmt := types.CalculateFarmMintingAmount(
-				tc.totalSupplyLFAmt,
-				tc.totalStakedLPAmt,
-				tc.totalQueuedLPAmt,
+				tc.lfTotalSupplyAmt,
+				tc.lpTotalFarmingAmt,
 				tc.newFarmingAmt,
 			)
-			// fmt.Println("minting: ", mintingAmt)
 			require.Equal(t, tc.expectedAmt, mintingAmt)
 		})
 	}
@@ -112,59 +107,53 @@ func TestCalculateMintingFarmAmount(t *testing.T) {
 func TestCalculateUnfarmAmount(t *testing.T) {
 	for _, tc := range []struct {
 		name               string
-		totalSupplyLFAmt   sdk.Int
-		totalStakedLPAmt   sdk.Int
-		totalQueuedLPAmt   sdk.Int
-		unfarmingLFAmt     sdk.Int
+		lfTotalSupplyAmt   sdk.Int
+		lpTotalFarmingAmt  sdk.Int
+		unfarmingAmt       sdk.Int
 		compoundingRewards sdk.Int
 		expectedAmt        sdk.Int
 	}{
 		{
 			name:               "supply equals to unfarming amount",
-			totalSupplyLFAmt:   sdk.NewInt(100_000_000),
-			totalStakedLPAmt:   sdk.NewInt(50_000_000),
-			totalQueuedLPAmt:   sdk.NewInt(50_000_000),
-			unfarmingLFAmt:     sdk.NewInt(100_000_000),
+			lfTotalSupplyAmt:   sdk.NewInt(100_000_000),
+			lpTotalFarmingAmt:  sdk.NewInt(50_000_000),
+			unfarmingAmt:       sdk.NewInt(100_000_000),
 			compoundingRewards: sdk.ZeroInt(),
 			expectedAmt:        sdk.NewInt(100_000_000),
 		},
 		{
 			name:               "small unfarming amount",
-			totalSupplyLFAmt:   sdk.NewInt(100_000_000),
-			totalStakedLPAmt:   sdk.NewInt(50_000_000),
-			totalQueuedLPAmt:   sdk.NewInt(50_000_000),
-			unfarmingLFAmt:     sdk.NewInt(1),
+			lfTotalSupplyAmt:   sdk.NewInt(100_000_000),
+			lpTotalFarmingAmt:  sdk.NewInt(50_000_000),
+			unfarmingAmt:       sdk.NewInt(1),
 			compoundingRewards: sdk.ZeroInt(),
 			expectedAmt:        sdk.NewInt(1),
 		},
 		{
 			name:               "case #1: bidding amount is auto staked",
-			totalSupplyLFAmt:   sdk.NewInt(2000000000),
-			totalStakedLPAmt:   sdk.NewInt(2200000000),
-			totalQueuedLPAmt:   sdk.NewInt(30000000),
-			unfarmingLFAmt:     sdk.NewInt(1000000000),
+			lfTotalSupplyAmt:   sdk.NewInt(2000000000),
+			lpTotalFarmingAmt:  sdk.NewInt(2200000000),
+			unfarmingAmt:       sdk.NewInt(1000000000),
 			compoundingRewards: sdk.NewInt(30000000),
 			expectedAmt:        sdk.NewInt(1100000000),
 		},
 		{
 			name:               "case #2: bidding amount is auto staked",
-			totalSupplyLFAmt:   sdk.NewInt(1000000000),
-			totalStakedLPAmt:   sdk.NewInt(1130000000),
-			totalQueuedLPAmt:   sdk.NewInt(0),
-			unfarmingLFAmt:     sdk.NewInt(1000000000),
+			lfTotalSupplyAmt:   sdk.NewInt(1000000000),
+			lpTotalFarmingAmt:  sdk.NewInt(1130000000),
+			unfarmingAmt:       sdk.NewInt(1000000000),
 			compoundingRewards: sdk.NewInt(30000000),
 			expectedAmt:        sdk.NewInt(1130000000),
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			unfarmedAmt := types.CalculateUnfarmedAmount(
-				tc.totalSupplyLFAmt,
-				tc.totalStakedLPAmt,
-				tc.totalQueuedLPAmt,
-				tc.unfarmingLFAmt,
+			unfarmingAmt := types.CalculateUnfarmingAmount(
+				tc.lfTotalSupplyAmt,
+				tc.lpTotalFarmingAmt,
+				tc.unfarmingAmt,
 				tc.compoundingRewards,
 			)
-			require.Equal(t, tc.expectedAmt, unfarmedAmt)
+			require.Equal(t, tc.expectedAmt, unfarmingAmt)
 		})
 	}
 }

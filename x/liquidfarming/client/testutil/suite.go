@@ -400,7 +400,7 @@ func (s *IntegrationTestSuite) TestNewQueryRewardsAuctionCmd() {
 // Transaction CLI Integration Tests
 //
 
-func (s *IntegrationTestSuite) TestNewFarmCmd() {
+func (s *IntegrationTestSuite) TestNewLiquidFarmCmd() {
 	val := s.network.Validators[0]
 
 	testCases := []struct {
@@ -464,7 +464,7 @@ func (s *IntegrationTestSuite) TestNewFarmCmd() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewFarmCmd()
+			cmd := cli.NewLiquidFarmCmd()
 			clientCtx := val.ClientCtx
 
 			out, err := utilcli.ExecTestCLICmd(clientCtx, cmd, tc.args)
@@ -485,7 +485,7 @@ func (s *IntegrationTestSuite) TestNewFarmCmd() {
 func (s *IntegrationTestSuite) TestNewUnfarmCmd() {
 	val := s.network.Validators[0]
 
-	_, err := MsgFarmExec(
+	_, err := MsgLiquidFarmExec(
 		val.ClientCtx,
 		val.Address.String(),
 		strconv.Itoa(1),
@@ -542,7 +542,7 @@ func (s *IntegrationTestSuite) TestNewUnfarmCmd() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewUnfarmCmd()
+			cmd := cli.NewLiquidUnfarmCmd()
 			clientCtx := val.ClientCtx
 
 			out, err := utilcli.ExecTestCLICmd(clientCtx, cmd, tc.args)

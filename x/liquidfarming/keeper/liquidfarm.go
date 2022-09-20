@@ -32,32 +32,30 @@ func (k Keeper) LiquidFarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress
 		return err
 	}
 
-	poolCoinDenom := liquiditytypes.PoolCoinDenom(pool.Id)
 	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)
-	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(pool.Id)).Amount
-	lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
-	lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
-	if !found {
-		lpCoinTotalStaked.Amount = sdk.ZeroInt()
+	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, lfCoinDenom).Amount
+	lpCoinTotalFarmingAmt := sdk.ZeroInt()
+	farm, found := k.farmKeeper.GetFarm(ctx, farmingCoin.Denom)
+	if found {
+		lpCoinTotalFarmingAmt = farm.TotalFarmingAmount
 	}
 
-	mintedAmt := types.CalculateFarmMintingAmount(
+	mintingAmt := types.CalculateFarmMintingAmount(
 		lfCoinTotalSupplyAmt,
-		lpCoinTotalQueuedAmt,
-		lpCoinTotalStaked.Amount,
+		lpCoinTotalFarmingAmt,
 		farmingCoin.Amount,
 	)
-	mintedCoin := sdk.NewCoin(lfCoinDenom, mintedAmt)
+	mintingCoin := sdk.NewCoin(lfCoinDenom, mintingAmt)
 
-	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(mintedCoin)); err != nil {
+	if err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(mintingCoin)); err != nil {
 		return err
 	}
 
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, farmer, sdk.NewCoins(mintedCoin)); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, farmer, sdk.NewCoins(mintingCoin)); err != nil {
 		return err
 	}
 
-	if err := k.farmingKeeper.Stake(ctx, reserveAddr, sdk.NewCoins(farmingCoin)); err != nil {
+	if _, err := k.farmKeeper.Farm(ctx, reserveAddr, farmingCoin); err != nil {
 		return err
 	}
 
@@ -67,7 +65,7 @@ func (k Keeper) LiquidFarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddress
 			sdk.NewAttribute(types.AttributeKeyPoolId, strconv.FormatUint(poolId, 10)),
 			sdk.NewAttribute(types.AttributeKeyFarmer, farmer.String()),
 			sdk.NewAttribute(types.AttributeKeyFarmingCoin, farmingCoin.String()),
-			sdk.NewAttribute(types.AttributeKeyMintedCoin, mintedCoin.String()),
+			sdk.NewAttribute(types.AttributeKeyMintedCoin, mintingCoin.String()),
 			sdk.NewAttribute(types.AttributeKeyLiquidFarmReserveAddress, reserveAddr.String()),
 		),
 	})
@@ -92,45 +90,48 @@ func (k Keeper) LiquidUnfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddre
 
 	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(pool.Id)
-	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, types.LiquidFarmCoinDenom(pool.Id)).Amount
-	lpCoinTotalQueuedAmt := k.farmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(ctx, reserveAddr, poolCoinDenom)
-	lpCoinTotalStaked, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
-	if !found {
-		lpCoinTotalStaked.Amount = sdk.ZeroInt()
+	lfCoinDenom := types.LiquidFarmCoinDenom(pool.Id)
+	lfCoinTotalSupplyAmt := k.bankKeeper.GetSupply(ctx, lfCoinDenom).Amount
+	lpCoinTotalFarmingAmt := sdk.ZeroInt()
+	compoundingRewardsAmt := sdk.ZeroInt()
+	farm, found := k.farmKeeper.GetFarm(ctx, poolCoinDenom)
+	if found {
+		lpCoinTotalFarmingAmt = farm.TotalFarmingAmount
 	}
 	compoundingRewards, found := k.GetCompoundingRewards(ctx, pool.Id)
-	if !found {
-		compoundingRewards.Amount = sdk.ZeroInt()
+	if found {
+		compoundingRewardsAmt = compoundingRewards.Amount
 	}
 
 	_, found = k.GetLiquidFarm(ctx, poolId)
 	if !found {
-		if !lpCoinTotalStaked.Amount.IsZero() || !lpCoinTotalQueuedAmt.IsZero() {
-			panic(fmt.Errorf("unexpected amount; staked amount: %s; queued amount: %s", lpCoinTotalStaked.Amount, lpCoinTotalQueuedAmt))
+		// TODO: check if this is necessary any more
+		if !lpCoinTotalFarmingAmt.IsZero() {
+			panic(fmt.Errorf("unexpected lp coin total farming amount %s", lpCoinTotalFarmingAmt))
 		}
 		// Handle a case when liquid farm is removed in params
 		// Since the reserve account must have unstaked all staked coins from the farming module,
 		// the module must use the reserve account balance (staked + queued) and make queued amount zero
-		lpCoinTotalStaked.Amount = k.bankKeeper.SpendableCoins(ctx, reserveAddr).AmountOf(poolCoinDenom)
+		lpCoinTotalFarmingAmt = k.bankKeeper.SpendableCoins(ctx, reserveAddr).AmountOf(poolCoinDenom)
 	}
 
-	unfarmedAmt := types.CalculateUnfarmedAmount(
+	unfarmingAmt := types.CalculateUnfarmingAmount(
 		lfCoinTotalSupplyAmt,
-		lpCoinTotalQueuedAmt,
-		lpCoinTotalStaked.Amount,
+		lpCoinTotalFarmingAmt,
 		burningCoin.Amount,
-		compoundingRewards.Amount,
+		compoundingRewardsAmt,
 	)
-	unfarmedCoin := sdk.NewCoin(poolCoinDenom, unfarmedAmt)
+	unfarmingCoin := sdk.NewCoin(poolCoinDenom, unfarmingAmt)
 
+	// TODO: check if this if statement is necessary any more
 	if found {
 		// Unstake unfarm coin in the farming module and release it to the farmer
-		if err := k.farmingKeeper.Unstake(ctx, reserveAddr, sdk.NewCoins(unfarmedCoin)); err != nil {
+		if _, err := k.farmKeeper.Unfarm(ctx, reserveAddr, unfarmingCoin); err != nil {
 			return UnfarmInfo{}, err
 		}
 	}
 
-	if err := k.bankKeeper.SendCoins(ctx, reserveAddr, farmer, sdk.NewCoins(unfarmedCoin)); err != nil {
+	if err := k.bankKeeper.SendCoins(ctx, reserveAddr, farmer, sdk.NewCoins(unfarmingCoin)); err != nil {
 		return UnfarmInfo{}, err
 	}
 
@@ -149,11 +150,11 @@ func (k Keeper) LiquidUnfarm(ctx sdk.Context, poolId uint64, farmer sdk.AccAddre
 			sdk.NewAttribute(types.AttributeKeyPoolId, strconv.FormatUint(poolId, 10)),
 			sdk.NewAttribute(types.AttributeKeyFarmer, farmer.String()),
 			sdk.NewAttribute(types.AttributeKeyBurningCoin, burningCoin.String()),
-			sdk.NewAttribute(types.AttributeKeyUnfarmedCoin, unfarmedCoin.String()),
+			sdk.NewAttribute(types.AttributeKeyUnfarmedCoin, unfarmingCoin.String()),
 		),
 	})
 
-	return UnfarmInfo{Farmer: farmer, UnfarmedCoin: unfarmedCoin}, nil
+	return UnfarmInfo{Farmer: farmer, UnfarmedCoin: unfarmingCoin}, nil
 }
 
 // LiquidUnfarmAndWithdraw handles types.MsgUnfarmAndWithdraw to unfarm LFCoin and withdraw pool coin from the pool.
@@ -185,21 +186,20 @@ func (k Keeper) LiquidUnfarmAndWithdraw(ctx sdk.Context, poolId uint64, farmer s
 	return nil
 }
 
-// HandleRemovedLiquidFarm unstakes all staked pool coins from the farming module and
+// HandleRemovedLiquidFarm unstakes all staked pool coins from the farm module and
 // remove the liquid farm object in the store
 func (k Keeper) HandleRemovedLiquidFarm(ctx sdk.Context, liquidFarm types.LiquidFarm) {
 	reserveAddr := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
 	stakedAmt := sdk.ZeroInt()
-	staking, found := k.farmingKeeper.GetStaking(ctx, poolCoinDenom, reserveAddr)
+	position, found := k.farmKeeper.GetPosition(ctx, reserveAddr, poolCoinDenom) // TODO: used to use GetStaking. Double check with this function.
 	if found {
-		stakedAmt = staking.Amount
+		stakedAmt = position.FarmingAmount
 	}
-
 	stakedCoin := sdk.NewCoin(poolCoinDenom, stakedAmt)
 	if !stakedCoin.IsZero() {
 		// Unstake all staked coins so that there will be no rewards accumulating
-		if err := k.farmingKeeper.Unstake(ctx, reserveAddr, sdk.NewCoins(stakedCoin)); err != nil {
+		if _, err := k.farmKeeper.Unfarm(ctx, reserveAddr, stakedCoin); err != nil {
 			panic(err)
 		}
 	}

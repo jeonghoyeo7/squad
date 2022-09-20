@@ -18,14 +18,14 @@ var commonArgs = []string{
 	fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 10)).String()),
 }
 
-func MsgFarmExec(clientCtx client.Context, from, poolId string, amount sdk.Coin, extraArgs ...string) (testutil.BufferWriter, error) {
+func MsgLiquidFarmExec(clientCtx client.Context, from, poolId string, amount sdk.Coin, extraArgs ...string) (testutil.BufferWriter, error) {
 	args := append(append([]string{
 		poolId,
 		amount.String(),
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, from),
 	}, commonArgs...), extraArgs...)
 
-	return clitestutil.ExecTestCLICmd(clientCtx, cli.NewFarmCmd(), args)
+	return clitestutil.ExecTestCLICmd(clientCtx, cli.NewLiquidFarmCmd(), args)
 }
 
 func MsgPlaceBidExec(clientCtx client.Context, from, poolId string, amount sdk.Coin, extraArgs ...string) (testutil.BufferWriter, error) {

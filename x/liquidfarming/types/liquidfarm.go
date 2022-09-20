@@ -96,33 +96,30 @@ func LiquidFarmReserveAddress(poolId uint64) sdk.AccAddress {
 }
 
 // CalculateFarmMintingAmount calculates minting liquid farm amount.
-// MintingAmt = LFCoinTotalSupply / (LPCoinTotalStaked + LPCoinTotalQueued) * LPCoinFarmingAmount
+// MintingAmt = LFCoinTotalSupply / LPCoinTotalAmount * LPCoinFarmingAmount
 func CalculateFarmMintingAmount(
 	lfCoinTotalSupplyAmt sdk.Int,
-	lpCoinTotalQueuedAmt sdk.Int,
-	lpCoinTotalStakedAmt sdk.Int,
+	lpCoinTotalFarmingAmt sdk.Int,
 	newFarmingAmt sdk.Int,
 ) sdk.Int {
 	if lfCoinTotalSupplyAmt.IsZero() { // initial minting
 		return newFarmingAmt
 	}
-	totalFarmingAmt := lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt)
-	return lfCoinTotalSupplyAmt.Mul(newFarmingAmt).Quo(totalFarmingAmt)
+	return lfCoinTotalSupplyAmt.Mul(newFarmingAmt).Quo(lpCoinTotalFarmingAmt)
 }
 
-// CalculateUnfarmedAmount calculates unfarmed amount.
-// UnfarmAmount = LPCoinTotalStaked + LPCoinTotalQueued - CompoundingRewards / LFCoinTotalSupply * LFCoinUnfarmingAmount
-func CalculateUnfarmedAmount(
+// CalculateUnfarmingAmount calculates unfarming amount.
+// UnfarmingAmount = LPCoinTotalAmount - CompoundingRewards / LFCoinTotalSupply * LFCoinUnfarmingAmount
+func CalculateUnfarmingAmount(
 	lfCoinTotalSupplyAmt sdk.Int,
-	lpCoinTotalStakedAmt sdk.Int,
-	lpCoinTotalQueuedAmt sdk.Int,
+	lpCoinTotalFarmingAmt sdk.Int,
 	unfarmingAmt sdk.Int,
 	compoundingRewards sdk.Int,
 ) sdk.Int {
-	if lfCoinTotalSupplyAmt.Equal(unfarmingAmt) {
-		return lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt)
+	if lfCoinTotalSupplyAmt.Equal(unfarmingAmt) { // last one to unfarm
+		return lpCoinTotalFarmingAmt.Mul(unfarmingAmt).Quo(lfCoinTotalSupplyAmt)
 	}
-	totalFarmingAmt := lpCoinTotalStakedAmt.Add(lpCoinTotalQueuedAmt).Sub(compoundingRewards)
+	totalFarmingAmt := lpCoinTotalFarmingAmt.Sub(compoundingRewards)
 	return totalFarmingAmt.Mul(unfarmingAmt).Quo(lfCoinTotalSupplyAmt)
 }
 

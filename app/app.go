@@ -507,7 +507,7 @@ func NewApp(
 		app.GetSubspace(liquidfarmingtypes.ModuleName),
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.FarmingKeeper,
+		app.FarmKeeper,
 		app.LiquidityKeeper,
 	)
 

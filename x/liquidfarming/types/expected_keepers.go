@@ -34,6 +34,8 @@ type FarmKeeper interface {
 	Unfarm(ctx sdk.Context, farmerAddr sdk.AccAddress, coin sdk.Coin) (withdrawnRewards sdk.Coins, err error)
 	Harvest(ctx sdk.Context, farmerAddr sdk.AccAddress, denom string) (withdrawnRewards sdk.Coins, err error)
 	Rewards(ctx sdk.Context, position farmtypes.Position, endPeriod uint64) sdk.DecCoins
+	GetFarm(ctx sdk.Context, denom string) (farm farmtypes.Farm, found bool)
+	GetPosition(ctx sdk.Context, farmerAddr sdk.AccAddress, denom string) (position farmtypes.Position, found bool)
 }
 
 // FarmingKeeper defines the expected interface needed for the module.
