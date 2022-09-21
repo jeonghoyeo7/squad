@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
 )
 
 // GetTxCmd returns the cli transaction commands for the module
@@ -27,19 +27,20 @@ func GetTxCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		NewFarmCmd(),
-		NewUnfarmCmd(),
+		NewLiquidFarmCmd(),
+		NewLiquidUnfarmCmd(),
 		NewPlaceBidCmd(),
 		NewRefundBidCmd(),
 	)
 
 	return cmd
+
 }
 
-// NewFarmCmd implements the farm command handler.
-func NewFarmCmd() *cobra.Command {
+// NewLiquidFarmCmd implements the liquid farm command handler.
+func NewLiquidFarmCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "farm [pool-id] [amount]",
+		Use:   "liquid-farm [pool-id] [amount]",
 		Args:  cobra.ExactArgs(2),
 		Short: "Farm pool coin for liquid farming",
 		Long: strings.TrimSpace(
@@ -70,7 +71,7 @@ $ %s tx %s farm 1 100000000pool1 --from mykey
 				return fmt.Errorf("invalid coin: %w", err)
 			}
 
-			msg := types.NewMsgFarm(
+			msg := types.NewMsgLiquidFarm(
 				poolId,
 				clientCtx.GetFromAddress().String(),
 				farmingCoin,
@@ -85,10 +86,10 @@ $ %s tx %s farm 1 100000000pool1 --from mykey
 	return cmd
 }
 
-// NewUnfarmCmd implements the unfarm command handler.
-func NewUnfarmCmd() *cobra.Command {
+// NewLiquidUnfarmCmd implements the liquid unfarm command handler.
+func NewLiquidUnfarmCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "unfarm [pool-id] [amount]",
+		Use:   "liquid-unfarm [pool-id] [amount]",
 		Args:  cobra.ExactArgs(2),
 		Short: "Unfarm liquid farming coin",
 		Long: strings.TrimSpace(
@@ -116,7 +117,7 @@ $ %s tx %s unfarm 1 100000lf1 --from mykey
 				return fmt.Errorf("invalid coin: %w", err)
 			}
 
-			msg := types.NewMsgUnfarm(
+			msg := types.NewMsgLiquidUnfarm(
 				poolId,
 				clientCtx.GetFromAddress().String(),
 				unfarmingCoin,

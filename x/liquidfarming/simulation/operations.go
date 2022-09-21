@@ -9,9 +9,9 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	appparams "github.com/cosmosquad-labs/squad/v2/app/params"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
+	appparams "github.com/cosmosquad-labs/squad/v3/app/params"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
 )
 
 // Simulation operation weights constants.

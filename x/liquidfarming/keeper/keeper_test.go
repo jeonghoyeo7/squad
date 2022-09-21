@@ -12,13 +12,13 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	"github.com/cosmosquad-labs/squad/v2/x/farming"
-	farmingtypes "github.com/cosmosquad-labs/squad/v2/x/farming/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	"github.com/cosmosquad-labs/squad/v3/x/farming"
+	farmingtypes "github.com/cosmosquad-labs/squad/v3/x/farming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 type KeeperTestSuite struct {
@@ -139,7 +139,8 @@ func (s *KeeperTestSuite) createLiquidFarm(poolId uint64, minFarmAmt, minBidAmt 
 
 func (s *KeeperTestSuite) createRewardsAuction(poolId uint64) {
 	s.T().Helper()
-	s.keeper.CreateRewardsAuction(s.ctx, poolId)
+	nextAuctionTime := s.ctx.BlockTime().Add(time.Duration(types.DefaultAuctionPeriodHours) * time.Hour)
+	s.keeper.CreateRewardsAuction(s.ctx, poolId, nextAuctionTime)
 }
 
 func (s *KeeperTestSuite) farm(poolId uint64, farmer sdk.AccAddress, farmingCoin sdk.Coin, fund bool) {
@@ -148,7 +149,7 @@ func (s *KeeperTestSuite) farm(poolId uint64, farmer sdk.AccAddress, farmingCoin
 		s.fundAddr(farmer, sdk.NewCoins(farmingCoin))
 	}
 
-	err := s.keeper.Farm(s.ctx, poolId, farmer, farmingCoin)
+	err := s.keeper.LiquidFarm(s.ctx, poolId, farmer, farmingCoin)
 	s.Require().NoError(err)
 }
 
@@ -158,7 +159,7 @@ func (s *KeeperTestSuite) unfarm(poolId uint64, farmer sdk.AccAddress, lfCoin sd
 		s.fundAddr(farmer, sdk.NewCoins(lfCoin))
 	}
 
-	_, err := s.keeper.Unfarm(s.ctx, poolId, farmer, lfCoin)
+	_, err := s.keeper.LiquidUnfarm(s.ctx, poolId, farmer, lfCoin)
 	s.Require().NoError(err)
 }
 

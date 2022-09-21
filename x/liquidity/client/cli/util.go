@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 // excConditions returns true when exactly one condition is true.

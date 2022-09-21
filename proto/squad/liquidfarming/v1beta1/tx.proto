@@ -9,14 +9,14 @@ option go_package = "github.com/cosmosquad-labs/squad/x/liquidfarming/types";
 
 // Msg defines the Msg service.
 service Msg {
-  // Farm defines a method for farming pool coin for a liquid farm
-  rpc Farm(MsgFarm) returns (MsgFarmResponse);
+  // LiquidFarm defines a method for farming pool coin for a liquid farm
+  rpc LiquidFarm(MsgLiquidFarm) returns (MsgLiquidFarmResponse);
 
-  // Unfarm defines a method for unfarming amount of LFCoin
-  rpc Unfarm(MsgUnfarm) returns (MsgUnfarmResponse);
+  // LiquidUnfarm defines a method for unfarming amount of LFCoin
+  rpc LiquidUnfarm(MsgLiquidUnfarm) returns (MsgLiquidUnfarmResponse);
 
-  // UnfarmAndWithdraw defines a method for unfarming amount of LFCoin and withdraw pool coin from the pool
-  rpc UnfarmAndWithdraw(MsgUnfarmAndWithdraw) returns (MsgUnfarmAndWithdrawResponse);
+  // LiquidUnfarmAndWithdraw defines a method for unfarming amount of LFCoin and withdraw pool coin from the pool
+  rpc LiquidUnfarmAndWithdraw(MsgLiquidUnfarmAndWithdraw) returns (MsgLiquidUnfarmAndWithdrawResponse);
   
   // PlaceBid defines a method for placing a bid for a rewards auction
   rpc PlaceBid(MsgPlaceBid) returns (MsgPlaceBidResponse);
@@ -25,8 +25,8 @@ service Msg {
   rpc RefundBid(MsgRefundBid) returns (MsgRefundBidResponse);
 }
 
-// MsgFarm defines a SDK message for farming pool coin for a liquid farm.
-message MsgFarm {
+// MsgLiquidFarm defines a SDK message for farming pool coin for a liquid farm.
+message MsgLiquidFarm {
   option (gogoproto.goproto_getters) = false;
 
   uint64 pool_id = 1;
@@ -39,11 +39,11 @@ message MsgFarm {
   ];
 }
 
-// MsgFarmResponse defines the MsgFarmResponse response type.
-message MsgFarmResponse {}
+// MsgLiquidFarmResponse defines the MsgLiquidFarmResponse response type.
+message MsgLiquidFarmResponse {}
 
-// MsgUnfarm defines a SDK message for unfarming LFCoin.
-message MsgUnfarm {
+// MsgLiquidUnfarm defines a SDK message for unfarming LFCoin.
+message MsgLiquidUnfarm {
   option (gogoproto.goproto_getters) = false;
 
   uint64 pool_id = 1;
@@ -56,11 +56,11 @@ message MsgUnfarm {
   ];
 }
 
-// MsgUnfarmResponse defines the MsgUnfarmResponse response type.
-message MsgUnfarmResponse {}
+// MsgLiquidUnfarmResponse defines the MsgLiquidUnfarmResponse response type.
+message MsgLiquidUnfarmResponse {}
 
-// MsgUnfarmAndWithdraw defines a SDK message for unfarming LFCoin.
-message MsgUnfarmAndWithdraw {
+// MsgLiquidUnfarmAndWithdraw defines a SDK message for unfarming LFCoin.
+message MsgLiquidUnfarmAndWithdraw {
   option (gogoproto.goproto_getters) = false;
 
   uint64 pool_id = 1;
@@ -73,8 +73,8 @@ message MsgUnfarmAndWithdraw {
   ];
 }
 
-// MsgUnfarmAndWithdrawResponse defines the MsgUnfarmAndWithdrawResponse response type.
-message MsgUnfarmAndWithdrawResponse {}
+// MsgLiquidUnfarmAndWithdrawResponse defines the MsgLiquidUnfarmAndWithdrawResponse response type.
+message MsgLiquidUnfarmAndWithdrawResponse {}
 
 // MsgPlaceBid defines a SDK message for placing a bid for a rewards auction.
 message MsgPlaceBid {

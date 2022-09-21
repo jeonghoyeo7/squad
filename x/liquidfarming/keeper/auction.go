@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -8,9 +9,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	farmingtypes "github.com/cosmosquad-labs/squad/v2/x/farming/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 // PlaceBid handles types.MsgPlaceBid and stores bid object.
@@ -120,13 +120,11 @@ func (k Keeper) getNextAuctionIdWithUpdate(ctx sdk.Context, poolId uint64) uint6
 }
 
 // CreateRewardsAuction creates new rewards auction and store it.
-func (k Keeper) CreateRewardsAuction(ctx sdk.Context, poolId uint64) {
+func (k Keeper) CreateRewardsAuction(ctx sdk.Context, poolId uint64, auctionTime time.Time) {
 	nextAuctionId := k.getNextAuctionIdWithUpdate(ctx, poolId)
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(poolId)
-	currentEpochDays := k.farmingKeeper.GetCurrentEpochDays(ctx)
 	startTime := ctx.BlockTime()
-	endTime := startTime.Add(time.Duration(currentEpochDays) * farmingtypes.Day)
-
+	endTime := auctionTime
 	k.SetRewardsAuction(ctx, types.NewRewardsAuction(
 		nextAuctionId,
 		poolId,
@@ -137,7 +135,12 @@ func (k Keeper) CreateRewardsAuction(ctx sdk.Context, poolId uint64) {
 }
 
 // RefundAllBids refunds all bids at once as the rewards auction is finished and delete all bids.
-func (k Keeper) RefundAllBids(ctx sdk.Context, auction types.RewardsAuction, winningBid types.Bid) error {
+func (k Keeper) RefundAllBids(ctx sdk.Context, auction types.RewardsAuction) error {
+	winningBid, found := k.GetWinningBid(ctx, auction.PoolId, auction.Id)
+	if !found {
+		winningBid = types.Bid{}
+	}
+
 	inputs := []banktypes.Input{}
 	outputs := []banktypes.Output{}
 	for _, bid := range k.GetBidsByPoolId(ctx, auction.PoolId) {
@@ -145,7 +148,7 @@ func (k Keeper) RefundAllBids(ctx sdk.Context, auction types.RewardsAuction, win
 			inputs = append(inputs, banktypes.NewInput(auction.GetPayingReserveAddress(), sdk.NewCoins(bid.Amount)))
 			outputs = append(outputs, banktypes.NewOutput(bid.GetBidder(), sdk.NewCoins(bid.Amount)))
 		}
-		k.DeleteBid(ctx, bid) // delete all bids
+		k.DeleteBid(ctx, bid)
 	}
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
 		panic(err)
@@ -158,7 +161,15 @@ func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAucti
 	liquidFarmReserveAddr := types.LiquidFarmReserveAddress(auction.PoolId)
 	payingReserveAddr := auction.GetPayingReserveAddress()
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(auction.PoolId)
-	rewards := k.farmingKeeper.Rewards(ctx, liquidFarmReserveAddr, poolCoinDenom)
+	// TODO: wait for farm module to update this. Now, the module must use cacheCtx to get rewards
+	cacheCtx, _ := ctx.CacheContext()
+	period := k.farmKeeper.IncrementFarmPeriod(cacheCtx, poolCoinDenom)
+	position, found := k.farmKeeper.GetPosition(cacheCtx, liquidFarmReserveAddr, poolCoinDenom)
+	if !found {
+		fmt.Printf("position is not found; address: %s pool coin denom: %s ", liquidFarmReserveAddr.String(), poolCoinDenom)
+	}
+	rewards := k.farmKeeper.Rewards(cacheCtx, position, period)
+	truncatedRewards, _ := rewards.TruncateDecimal()
 	compoundingRewards := types.CompoundingRewards{Amount: sdk.ZeroInt()}
 	status := types.AuctionStatusFinished
 
@@ -167,11 +178,11 @@ func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAucti
 	// stake the winning bid amount in the farming module for farmers so that it acts as auto compounding functionality.
 	winningBid, found := k.GetWinningBid(ctx, auction.PoolId, auction.Id)
 	if found {
-		if err := k.farmingKeeper.Harvest(ctx, liquidFarmReserveAddr, []string{poolCoinDenom}); err != nil {
+		if _, err := k.farmKeeper.Harvest(ctx, liquidFarmReserveAddr, poolCoinDenom); err != nil {
 			return err
 		}
 
-		deducted, err := types.DeductFees(auction.PoolId, rewards, feeRate)
+		deducted, err := types.DeductFees(auction.PoolId, truncatedRewards, feeRate)
 		if err != nil {
 			return err
 		}
@@ -180,7 +191,7 @@ func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAucti
 			return err
 		}
 
-		if err := k.RefundAllBids(ctx, auction, winningBid); err != nil {
+		if err := k.RefundAllBids(ctx, auction); err != nil {
 			return err
 		}
 
@@ -188,7 +199,7 @@ func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAucti
 			return err
 		}
 
-		if err := k.farmingKeeper.Stake(ctx, liquidFarmReserveAddr, sdk.NewCoins(winningBid.Amount)); err != nil {
+		if _, err := k.farmKeeper.Farm(ctx, liquidFarmReserveAddr, winningBid.Amount); err != nil {
 			return err
 		}
 
@@ -198,7 +209,7 @@ func (k Keeper) FinishRewardsAuction(ctx sdk.Context, auction types.RewardsAucti
 	}
 
 	auction.SetWinner(winningBid.Bidder)
-	auction.SetRewards(rewards)
+	auction.SetRewards(truncatedRewards)
 	auction.SetStatus(status)
 	k.SetRewardsAuction(ctx, auction)
 	k.SetCompoundingRewards(ctx, auction.PoolId, compoundingRewards)

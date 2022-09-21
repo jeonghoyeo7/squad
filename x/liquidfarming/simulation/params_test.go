@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/simulation"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/simulation"
 )
 
 func TestParamChanges(t *testing.T) {

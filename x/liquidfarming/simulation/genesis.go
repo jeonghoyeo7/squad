@@ -7,7 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/module"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
 )
 
 // Simulation parameter constants.

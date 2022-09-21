@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/cosmosquad-labs/squad/v2/x/claim/client/cli"
-	"github.com/cosmosquad-labs/squad/v2/x/claim/types"
+	"github.com/cosmosquad-labs/squad/v3/x/claim/client/cli"
+	"github.com/cosmosquad-labs/squad/v3/x/claim/types"
 )
 
 func TestNormalizeConditionType(t *testing.T) {

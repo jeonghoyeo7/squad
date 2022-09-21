@@ -1,11 +1,13 @@
 package keeper
 
 import (
+	"time"
+
 	gogotypes "github.com/gogo/protobuf/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
 )
 
 // GetLiquidFarm returns liquid farm object by the given pool id.
@@ -43,25 +45,6 @@ func (k Keeper) DeleteLiquidFarm(ctx sdk.Context, liquidFarm types.LiquidFarm) {
 	store.Delete(types.GetLiquidFarmKey(liquidFarm.PoolId))
 }
 
-// GetCompoundingRewards returns the last farming rewards by the given pool id.
-func (k Keeper) GetCompoundingRewards(ctx sdk.Context, poolId uint64) (rewards types.CompoundingRewards, found bool) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.GetCompoundingRewardsKey(poolId))
-	if bz == nil {
-		return
-	}
-	k.cdc.MustUnmarshal(bz, &rewards)
-	found = true
-	return
-}
-
-// SetCompoundingRewards stores compounding rewards with the given pool id.
-func (k Keeper) SetCompoundingRewards(ctx sdk.Context, poolId uint64, rewards types.CompoundingRewards) {
-	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshal(&rewards)
-	store.Set(types.GetCompoundingRewardsKey(poolId), bz)
-}
-
 // GetLastRewardsAuctionId returns the last rewards auction id.
 func (k Keeper) GetLastRewardsAuctionId(ctx sdk.Context, poolId uint64) uint64 {
 	var id uint64
@@ -82,6 +65,25 @@ func (k Keeper) SetLastRewardsAuctionId(ctx sdk.Context, poolId uint64, id uint6
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&gogotypes.UInt64Value{Value: id})
 	store.Set(types.GetLastRewardsAuctionIdKey(poolId), bz)
+}
+
+func (k Keeper) GetAuctionTime(ctx sdk.Context) *time.Time {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.AuctionTimeKey)
+	if bz == nil {
+		return nil
+	}
+	ts, err := sdk.ParseTimeBytes(bz)
+	if err != nil {
+		panic(err)
+	}
+	return &ts
+}
+
+func (k Keeper) SetAuctionTime(ctx sdk.Context, auctionTime time.Time) {
+	store := ctx.KVStore(k.storeKey)
+	bz := sdk.FormatTimeBytes(auctionTime)
+	store.Set(types.AuctionTimeKey, bz)
 }
 
 // GetRewardsAuction returns the reward auction object by the given pool id and auction id.
@@ -112,6 +114,25 @@ func (k Keeper) SetRewardsAuction(ctx sdk.Context, auction types.RewardsAuction)
 	store := ctx.KVStore(k.storeKey)
 	bz := types.MustMarshalRewardsAuction(k.cdc, auction)
 	store.Set(types.GetRewardsAuctionKey(auction.PoolId, auction.Id), bz)
+}
+
+// GetCompoundingRewards returns the last farming rewards by the given pool id.
+func (k Keeper) GetCompoundingRewards(ctx sdk.Context, poolId uint64) (rewards types.CompoundingRewards, found bool) {
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.GetCompoundingRewardsKey(poolId))
+	if bz == nil {
+		return
+	}
+	k.cdc.MustUnmarshal(bz, &rewards)
+	found = true
+	return
+}
+
+// SetCompoundingRewards stores compounding rewards with the given pool id.
+func (k Keeper) SetCompoundingRewards(ctx sdk.Context, poolId uint64, rewards types.CompoundingRewards) {
+	store := ctx.KVStore(k.storeKey)
+	bz := k.cdc.MustMarshal(&rewards)
+	store.Set(types.GetCompoundingRewardsKey(poolId), bz)
 }
 
 // GetBid returns the bid object by the given pool id and bidder address.

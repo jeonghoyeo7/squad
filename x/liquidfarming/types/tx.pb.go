@@ -30,25 +30,25 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgFarm defines a SDK message for farming pool coin for a liquid farm.
-type MsgFarm struct {
+// MsgLiquidFarm defines a SDK message for farming pool coin for a liquid farm.
+type MsgLiquidFarm struct {
 	PoolId      uint64     `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 	Farmer      string     `protobuf:"bytes,2,opt,name=farmer,proto3" json:"farmer,omitempty"`
 	FarmingCoin types.Coin `protobuf:"bytes,3,opt,name=farming_coin,json=farmingCoin,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coin" json:"farming_coin"`
 }
 
-func (m *MsgFarm) Reset()         { *m = MsgFarm{} }
-func (m *MsgFarm) String() string { return proto.CompactTextString(m) }
-func (*MsgFarm) ProtoMessage()    {}
-func (*MsgFarm) Descriptor() ([]byte, []int) {
+func (m *MsgLiquidFarm) Reset()         { *m = MsgLiquidFarm{} }
+func (m *MsgLiquidFarm) String() string { return proto.CompactTextString(m) }
+func (*MsgLiquidFarm) ProtoMessage()    {}
+func (*MsgLiquidFarm) Descriptor() ([]byte, []int) {
 	return fileDescriptor_db3f4cd082b3b711, []int{0}
 }
-func (m *MsgFarm) XXX_Unmarshal(b []byte) error {
+func (m *MsgLiquidFarm) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgFarm) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgLiquidFarm) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgFarm.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgLiquidFarm.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -58,34 +58,34 @@ func (m *MsgFarm) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *MsgFarm) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgFarm.Merge(m, src)
+func (m *MsgLiquidFarm) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgLiquidFarm.Merge(m, src)
 }
-func (m *MsgFarm) XXX_Size() int {
+func (m *MsgLiquidFarm) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgFarm) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgFarm.DiscardUnknown(m)
+func (m *MsgLiquidFarm) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgLiquidFarm.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgFarm proto.InternalMessageInfo
+var xxx_messageInfo_MsgLiquidFarm proto.InternalMessageInfo
 
-// MsgFarmResponse defines the MsgFarmResponse response type.
-type MsgFarmResponse struct {
+// MsgLiquidFarmResponse defines the MsgLiquidFarmResponse response type.
+type MsgLiquidFarmResponse struct {
 }
 
-func (m *MsgFarmResponse) Reset()         { *m = MsgFarmResponse{} }
-func (m *MsgFarmResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgFarmResponse) ProtoMessage()    {}
-func (*MsgFarmResponse) Descriptor() ([]byte, []int) {
+func (m *MsgLiquidFarmResponse) Reset()         { *m = MsgLiquidFarmResponse{} }
+func (m *MsgLiquidFarmResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgLiquidFarmResponse) ProtoMessage()    {}
+func (*MsgLiquidFarmResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_db3f4cd082b3b711, []int{1}
 }
-func (m *MsgFarmResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgLiquidFarmResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgFarmResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgLiquidFarmResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgFarmResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgLiquidFarmResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -95,37 +95,37 @@ func (m *MsgFarmResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *MsgFarmResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgFarmResponse.Merge(m, src)
+func (m *MsgLiquidFarmResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgLiquidFarmResponse.Merge(m, src)
 }
-func (m *MsgFarmResponse) XXX_Size() int {
+func (m *MsgLiquidFarmResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgFarmResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgFarmResponse.DiscardUnknown(m)
+func (m *MsgLiquidFarmResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgLiquidFarmResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgFarmResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgLiquidFarmResponse proto.InternalMessageInfo
 
-// MsgUnfarm defines a SDK message for unfarming LFCoin.
-type MsgUnfarm struct {
+// MsgLiquidUnfarm defines a SDK message for unfarming LFCoin.
+type MsgLiquidUnfarm struct {
 	PoolId      uint64     `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 	Farmer      string     `protobuf:"bytes,2,opt,name=farmer,proto3" json:"farmer,omitempty"`
 	BurningCoin types.Coin `protobuf:"bytes,3,opt,name=burning_coin,json=burningCoin,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coin" json:"burning_coin"`
 }
 
-func (m *MsgUnfarm) Reset()         { *m = MsgUnfarm{} }
-func (m *MsgUnfarm) String() string { return proto.CompactTextString(m) }
-func (*MsgUnfarm) ProtoMessage()    {}
-func (*MsgUnfarm) Descriptor() ([]byte, []int) {
+func (m *MsgLiquidUnfarm) Reset()         { *m = MsgLiquidUnfarm{} }
+func (m *MsgLiquidUnfarm) String() string { return proto.CompactTextString(m) }
+func (*MsgLiquidUnfarm) ProtoMessage()    {}
+func (*MsgLiquidUnfarm) Descriptor() ([]byte, []int) {
 	return fileDescriptor_db3f4cd082b3b711, []int{2}
 }
-func (m *MsgUnfarm) XXX_Unmarshal(b []byte) error {
+func (m *MsgLiquidUnfarm) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUnfarm) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgLiquidUnfarm) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUnfarm.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgLiquidUnfarm.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -135,34 +135,34 @@ func (m *MsgUnfarm) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *MsgUnfarm) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUnfarm.Merge(m, src)
+func (m *MsgLiquidUnfarm) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgLiquidUnfarm.Merge(m, src)
 }
-func (m *MsgUnfarm) XXX_Size() int {
+func (m *MsgLiquidUnfarm) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUnfarm) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUnfarm.DiscardUnknown(m)
+func (m *MsgLiquidUnfarm) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgLiquidUnfarm.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUnfarm proto.InternalMessageInfo
+var xxx_messageInfo_MsgLiquidUnfarm proto.InternalMessageInfo
 
-// MsgUnfarmResponse defines the MsgUnfarmResponse response type.
-type MsgUnfarmResponse struct {
+// MsgLiquidUnfarmResponse defines the MsgLiquidUnfarmResponse response type.
+type MsgLiquidUnfarmResponse struct {
 }
 
-func (m *MsgUnfarmResponse) Reset()         { *m = MsgUnfarmResponse{} }
-func (m *MsgUnfarmResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgUnfarmResponse) ProtoMessage()    {}
-func (*MsgUnfarmResponse) Descriptor() ([]byte, []int) {
+func (m *MsgLiquidUnfarmResponse) Reset()         { *m = MsgLiquidUnfarmResponse{} }
+func (m *MsgLiquidUnfarmResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgLiquidUnfarmResponse) ProtoMessage()    {}
+func (*MsgLiquidUnfarmResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_db3f4cd082b3b711, []int{3}
 }
-func (m *MsgUnfarmResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgLiquidUnfarmResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUnfarmResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgLiquidUnfarmResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUnfarmResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgLiquidUnfarmResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -172,37 +172,37 @@ func (m *MsgUnfarmResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return b[:n], nil
 	}
 }
-func (m *MsgUnfarmResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUnfarmResponse.Merge(m, src)
+func (m *MsgLiquidUnfarmResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgLiquidUnfarmResponse.Merge(m, src)
 }
-func (m *MsgUnfarmResponse) XXX_Size() int {
+func (m *MsgLiquidUnfarmResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUnfarmResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUnfarmResponse.DiscardUnknown(m)
+func (m *MsgLiquidUnfarmResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgLiquidUnfarmResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUnfarmResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgLiquidUnfarmResponse proto.InternalMessageInfo
 
-// MsgUnfarmAndWithdraw defines a SDK message for unfarming LFCoin.
-type MsgUnfarmAndWithdraw struct {
+// MsgLiquidUnfarmAndWithdraw defines a SDK message for unfarming LFCoin.
+type MsgLiquidUnfarmAndWithdraw struct {
 	PoolId        uint64     `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 	Farmer        string     `protobuf:"bytes,2,opt,name=farmer,proto3" json:"farmer,omitempty"`
 	UnfarmingCoin types.Coin `protobuf:"bytes,3,opt,name=unfarming_coin,json=unfarmingCoin,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coin" json:"unfarming_coin"`
 }
 
-func (m *MsgUnfarmAndWithdraw) Reset()         { *m = MsgUnfarmAndWithdraw{} }
-func (m *MsgUnfarmAndWithdraw) String() string { return proto.CompactTextString(m) }
-func (*MsgUnfarmAndWithdraw) ProtoMessage()    {}
-func (*MsgUnfarmAndWithdraw) Descriptor() ([]byte, []int) {
+func (m *MsgLiquidUnfarmAndWithdraw) Reset()         { *m = MsgLiquidUnfarmAndWithdraw{} }
+func (m *MsgLiquidUnfarmAndWithdraw) String() string { return proto.CompactTextString(m) }
+func (*MsgLiquidUnfarmAndWithdraw) ProtoMessage()    {}
+func (*MsgLiquidUnfarmAndWithdraw) Descriptor() ([]byte, []int) {
 	return fileDescriptor_db3f4cd082b3b711, []int{4}
 }
-func (m *MsgUnfarmAndWithdraw) XXX_Unmarshal(b []byte) error {
+func (m *MsgLiquidUnfarmAndWithdraw) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUnfarmAndWithdraw) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgLiquidUnfarmAndWithdraw) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUnfarmAndWithdraw.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgLiquidUnfarmAndWithdraw.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -212,34 +212,34 @@ func (m *MsgUnfarmAndWithdraw) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *MsgUnfarmAndWithdraw) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUnfarmAndWithdraw.Merge(m, src)
+func (m *MsgLiquidUnfarmAndWithdraw) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgLiquidUnfarmAndWithdraw.Merge(m, src)
 }
-func (m *MsgUnfarmAndWithdraw) XXX_Size() int {
+func (m *MsgLiquidUnfarmAndWithdraw) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUnfarmAndWithdraw) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUnfarmAndWithdraw.DiscardUnknown(m)
+func (m *MsgLiquidUnfarmAndWithdraw) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgLiquidUnfarmAndWithdraw.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUnfarmAndWithdraw proto.InternalMessageInfo
+var xxx_messageInfo_MsgLiquidUnfarmAndWithdraw proto.InternalMessageInfo
 
-// MsgUnfarmAndWithdrawResponse defines the MsgUnfarmAndWithdrawResponse response type.
-type MsgUnfarmAndWithdrawResponse struct {
+// MsgLiquidUnfarmAndWithdrawResponse defines the MsgLiquidUnfarmAndWithdrawResponse response type.
+type MsgLiquidUnfarmAndWithdrawResponse struct {
 }
 
-func (m *MsgUnfarmAndWithdrawResponse) Reset()         { *m = MsgUnfarmAndWithdrawResponse{} }
-func (m *MsgUnfarmAndWithdrawResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgUnfarmAndWithdrawResponse) ProtoMessage()    {}
-func (*MsgUnfarmAndWithdrawResponse) Descriptor() ([]byte, []int) {
+func (m *MsgLiquidUnfarmAndWithdrawResponse) Reset()         { *m = MsgLiquidUnfarmAndWithdrawResponse{} }
+func (m *MsgLiquidUnfarmAndWithdrawResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgLiquidUnfarmAndWithdrawResponse) ProtoMessage()    {}
+func (*MsgLiquidUnfarmAndWithdrawResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_db3f4cd082b3b711, []int{5}
 }
-func (m *MsgUnfarmAndWithdrawResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgLiquidUnfarmAndWithdrawResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUnfarmAndWithdrawResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgLiquidUnfarmAndWithdrawResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUnfarmAndWithdrawResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgLiquidUnfarmAndWithdrawResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -249,17 +249,17 @@ func (m *MsgUnfarmAndWithdrawResponse) XXX_Marshal(b []byte, deterministic bool)
 		return b[:n], nil
 	}
 }
-func (m *MsgUnfarmAndWithdrawResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUnfarmAndWithdrawResponse.Merge(m, src)
+func (m *MsgLiquidUnfarmAndWithdrawResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgLiquidUnfarmAndWithdrawResponse.Merge(m, src)
 }
-func (m *MsgUnfarmAndWithdrawResponse) XXX_Size() int {
+func (m *MsgLiquidUnfarmAndWithdrawResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUnfarmAndWithdrawResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUnfarmAndWithdrawResponse.DiscardUnknown(m)
+func (m *MsgLiquidUnfarmAndWithdrawResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgLiquidUnfarmAndWithdrawResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUnfarmAndWithdrawResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgLiquidUnfarmAndWithdrawResponse proto.InternalMessageInfo
 
 // MsgPlaceBid defines a SDK message for placing a bid for a rewards auction.
 type MsgPlaceBid struct {
@@ -415,12 +415,12 @@ func (m *MsgRefundBidResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgRefundBidResponse proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*MsgFarm)(nil), "squad.liquidfarming.v1beta1.MsgFarm")
-	proto.RegisterType((*MsgFarmResponse)(nil), "squad.liquidfarming.v1beta1.MsgFarmResponse")
-	proto.RegisterType((*MsgUnfarm)(nil), "squad.liquidfarming.v1beta1.MsgUnfarm")
-	proto.RegisterType((*MsgUnfarmResponse)(nil), "squad.liquidfarming.v1beta1.MsgUnfarmResponse")
-	proto.RegisterType((*MsgUnfarmAndWithdraw)(nil), "squad.liquidfarming.v1beta1.MsgUnfarmAndWithdraw")
-	proto.RegisterType((*MsgUnfarmAndWithdrawResponse)(nil), "squad.liquidfarming.v1beta1.MsgUnfarmAndWithdrawResponse")
+	proto.RegisterType((*MsgLiquidFarm)(nil), "squad.liquidfarming.v1beta1.MsgLiquidFarm")
+	proto.RegisterType((*MsgLiquidFarmResponse)(nil), "squad.liquidfarming.v1beta1.MsgLiquidFarmResponse")
+	proto.RegisterType((*MsgLiquidUnfarm)(nil), "squad.liquidfarming.v1beta1.MsgLiquidUnfarm")
+	proto.RegisterType((*MsgLiquidUnfarmResponse)(nil), "squad.liquidfarming.v1beta1.MsgLiquidUnfarmResponse")
+	proto.RegisterType((*MsgLiquidUnfarmAndWithdraw)(nil), "squad.liquidfarming.v1beta1.MsgLiquidUnfarmAndWithdraw")
+	proto.RegisterType((*MsgLiquidUnfarmAndWithdrawResponse)(nil), "squad.liquidfarming.v1beta1.MsgLiquidUnfarmAndWithdrawResponse")
 	proto.RegisterType((*MsgPlaceBid)(nil), "squad.liquidfarming.v1beta1.MsgPlaceBid")
 	proto.RegisterType((*MsgPlaceBidResponse)(nil), "squad.liquidfarming.v1beta1.MsgPlaceBidResponse")
 	proto.RegisterType((*MsgRefundBid)(nil), "squad.liquidfarming.v1beta1.MsgRefundBid")
@@ -432,43 +432,43 @@ func init() {
 }
 
 var fileDescriptor_db3f4cd082b3b711 = []byte{
-	// 561 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x55, 0xcf, 0x6f, 0x12, 0x4f,
-	0x14, 0x67, 0xbe, 0x25, 0xf4, 0xcb, 0xa3, 0x6a, 0xd8, 0xd6, 0x8a, 0xab, 0x59, 0x08, 0x69, 0x14,
-	0x8d, 0x9d, 0x95, 0x9a, 0x98, 0xe8, 0x4d, 0x8c, 0x26, 0x1e, 0x48, 0x1a, 0x12, 0x63, 0xd2, 0x4b,
-	0x9d, 0x65, 0x96, 0xe9, 0x44, 0x98, 0x81, 0x9d, 0x5d, 0x6d, 0x8f, 0xde, 0x3c, 0x7a, 0xf6, 0xe4,
-	0xd9, 0x8b, 0x31, 0xfe, 0x03, 0x1e, 0x7b, 0xec, 0xd1, 0x93, 0x1a, 0xf8, 0x47, 0xcc, 0xee, 0x0e,
-	0xd3, 0xd5, 0x9a, 0x42, 0x9b, 0x70, 0x82, 0xc7, 0x7c, 0xde, 0xe7, 0x47, 0xde, 0x1b, 0x06, 0x36,
-	0xd4, 0x28, 0x22, 0xd4, 0xed, 0xf3, 0x51, 0xc4, 0x69, 0x8f, 0x04, 0x03, 0x2e, 0x98, 0xfb, 0xba,
-	0xe9, 0xf9, 0x21, 0x69, 0xba, 0xe1, 0x3e, 0x1e, 0x06, 0x32, 0x94, 0xd6, 0xb5, 0x04, 0x85, 0xff,
-	0x40, 0x61, 0x8d, 0xb2, 0xd7, 0x98, 0x64, 0x32, 0xc1, 0xb9, 0xf1, 0xb7, 0xb4, 0xc5, 0x76, 0xba,
-	0x52, 0x0d, 0xa4, 0x72, 0x3d, 0xa2, 0x7c, 0x43, 0xd8, 0x95, 0x5c, 0xe8, 0xf3, 0xdb, 0xd9, 0xf3,
-	0x51, 0xe4, 0x07, 0x07, 0x06, 0x35, 0x24, 0x8c, 0x0b, 0x12, 0x72, 0xa9, 0xb1, 0xf5, 0xcf, 0x08,
-	0x96, 0xdb, 0x8a, 0x3d, 0x25, 0xc1, 0xc0, 0xba, 0x02, 0xcb, 0x43, 0x29, 0xfb, 0xbb, 0x9c, 0x56,
-	0x50, 0x0d, 0x35, 0xf2, 0x9d, 0x42, 0x5c, 0x3e, 0xa3, 0xd6, 0x3a, 0x14, 0x62, 0x67, 0x7e, 0x50,
-	0xf9, 0xaf, 0x86, 0x1a, 0xc5, 0x8e, 0xae, 0xac, 0x01, 0xac, 0x68, 0xc7, 0xbb, 0xb1, 0x7c, 0x65,
-	0xa9, 0x86, 0x1a, 0xa5, 0xad, 0xab, 0x38, 0xd5, 0xc7, 0xb1, 0xfe, 0x34, 0x0a, 0x7e, 0x2c, 0xb9,
-	0x68, 0xb9, 0x87, 0x3f, 0xaa, 0xb9, 0x4f, 0x3f, 0xab, 0x37, 0x19, 0x0f, 0xf7, 0x22, 0x0f, 0x77,
-	0xe5, 0xc0, 0xd5, 0x66, 0xd3, 0x8f, 0x4d, 0x45, 0x5f, 0xb9, 0xe1, 0xc1, 0xd0, 0x57, 0x49, 0x43,
-	0xa7, 0xa4, 0xf9, 0xe3, 0xe2, 0x61, 0xfe, 0xdd, 0xc7, 0x6a, 0xae, 0x5e, 0x86, 0x4b, 0xda, 0x70,
-	0xc7, 0x57, 0x43, 0x29, 0x94, 0x5f, 0xff, 0x82, 0xa0, 0xd8, 0x56, 0xec, 0xb9, 0xe8, 0x9d, 0x37,
-	0x86, 0x17, 0x05, 0x62, 0x91, 0x31, 0x34, 0x7f, 0x26, 0xc6, 0x2a, 0x94, 0x8d, 0x65, 0x13, 0xe4,
-	0x1b, 0x82, 0x35, 0xf3, 0xeb, 0x23, 0x41, 0x5f, 0xf0, 0x70, 0x8f, 0x06, 0xe4, 0xcd, 0xd9, 0x33,
-	0x8d, 0xe0, 0x62, 0x24, 0x16, 0x3c, 0x9c, 0x0b, 0x46, 0x21, 0x93, 0xcb, 0x81, 0xeb, 0xff, 0x4a,
-	0x60, 0x22, 0x7e, 0x45, 0x50, 0x6a, 0x2b, 0xb6, 0xdd, 0x27, 0x5d, 0xbf, 0xc5, 0xe9, 0xa9, 0xc9,
-	0x3c, 0x4e, 0xe9, 0x71, 0xb2, 0xb4, 0x4a, 0xa6, 0xc5, 0x29, 0x5d, 0xe8, 0xb4, 0x52, 0xfe, 0x4c,
-	0xaa, 0xcb, 0xb0, 0x9a, 0x31, 0x6d, 0xc2, 0x3c, 0x81, 0x95, 0xb6, 0x62, 0x1d, 0xbf, 0x17, 0x09,
-	0x7a, 0x9e, 0x30, 0x9a, 0x7d, 0x3d, 0x99, 0xba, 0xa1, 0x99, 0xd2, 0x6f, 0x7d, 0xc8, 0xc3, 0x52,
-	0x5b, 0x31, 0x6b, 0x07, 0xf2, 0xc9, 0x05, 0xdd, 0xc0, 0xa7, 0xfc, 0x59, 0x60, 0x7d, 0x2b, 0xec,
-	0x3b, 0xf3, 0xa0, 0xa6, 0x1a, 0xd6, 0x4b, 0x28, 0xe8, 0x7b, 0x73, 0x63, 0x56, 0x5f, 0x8a, 0xb3,
-	0xf1, 0x7c, 0x38, 0xa3, 0xf0, 0x16, 0x41, 0xf9, 0xe4, 0x46, 0x37, 0xe7, 0x63, 0xc9, 0xb4, 0xd8,
-	0x0f, 0xce, 0xdc, 0x62, 0x3c, 0xf4, 0xe0, 0x7f, 0xb3, 0x71, 0x8d, 0x59, 0x34, 0x53, 0xa4, 0x7d,
-	0x77, 0x5e, 0xa4, 0xd1, 0xe1, 0x50, 0x3c, 0xde, 0x86, 0x5b, 0xb3, 0xda, 0x0d, 0xd4, 0x6e, 0xce,
-	0x0d, 0x9d, 0x4a, 0xb5, 0xb6, 0x0f, 0xc7, 0x0e, 0x3a, 0x1a, 0x3b, 0xe8, 0xd7, 0xd8, 0x41, 0xef,
-	0x27, 0x4e, 0xee, 0x68, 0xe2, 0xe4, 0xbe, 0x4f, 0x9c, 0xdc, 0xce, 0xfd, 0x13, 0x8b, 0x1e, 0x73,
-	0x6f, 0xf6, 0x89, 0xa7, 0xdc, 0xf4, 0x4d, 0xda, 0xff, 0xeb, 0x55, 0x4a, 0x96, 0xdf, 0x2b, 0x24,
-	0x4f, 0xc2, 0xbd, 0xdf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x12, 0x2e, 0xa8, 0xaf, 0xb9, 0x06, 0x00,
-	0x00,
+	// 564 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x95, 0x4f, 0x6b, 0x13, 0x41,
+	0x18, 0xc6, 0x33, 0x36, 0x44, 0xfb, 0x26, 0x55, 0x58, 0xdb, 0x26, 0x5d, 0x61, 0x13, 0x42, 0xc1,
+	0x58, 0xec, 0xae, 0x89, 0xa2, 0xe0, 0x45, 0x8c, 0x28, 0x08, 0x06, 0x4a, 0x40, 0x04, 0x2f, 0x65,
+	0x36, 0xb3, 0xd9, 0x0e, 0x66, 0x67, 0x36, 0x3b, 0xbb, 0xda, 0x7e, 0x03, 0x8f, 0x82, 0x5f, 0xc0,
+	0xb3, 0x57, 0x11, 0xbf, 0x81, 0xf4, 0x98, 0xa3, 0x27, 0x95, 0xe4, 0x8b, 0xc8, 0xfe, 0x9b, 0x6e,
+	0x22, 0x6d, 0x93, 0x40, 0x4e, 0xc9, 0x30, 0xcf, 0xfb, 0xbc, 0xcf, 0x8f, 0x99, 0x77, 0x07, 0x76,
+	0xc5, 0x30, 0xc0, 0xc4, 0x18, 0xd0, 0x61, 0x40, 0x49, 0x1f, 0x7b, 0x0e, 0x65, 0xb6, 0xf1, 0xbe,
+	0x69, 0x5a, 0x3e, 0x6e, 0x1a, 0xfe, 0xb1, 0xee, 0x7a, 0xdc, 0xe7, 0xca, 0xad, 0x48, 0xa5, 0x4f,
+	0xa9, 0xf4, 0x44, 0xa5, 0x6e, 0xda, 0xdc, 0xe6, 0x91, 0xce, 0x08, 0xff, 0xc5, 0x25, 0xaa, 0xd6,
+	0xe3, 0xc2, 0xe1, 0xc2, 0x30, 0xb1, 0xb0, 0xa4, 0x61, 0x8f, 0x53, 0x96, 0xec, 0xef, 0x65, 0xf7,
+	0x87, 0x81, 0xe5, 0x9d, 0x48, 0x95, 0x8b, 0x6d, 0xca, 0xb0, 0x4f, 0x79, 0xa2, 0xad, 0x7f, 0x47,
+	0xb0, 0xd1, 0x11, 0xf6, 0xab, 0xa8, 0xfd, 0x0b, 0xec, 0x39, 0x4a, 0x19, 0xae, 0xba, 0x9c, 0x0f,
+	0x0e, 0x29, 0xa9, 0xa0, 0x1a, 0x6a, 0xe4, 0xbb, 0x85, 0x70, 0xf9, 0x92, 0x28, 0xdb, 0x50, 0x08,
+	0xf3, 0x59, 0x5e, 0xe5, 0x4a, 0x0d, 0x35, 0xd6, 0xbb, 0xc9, 0x4a, 0x71, 0xa0, 0x94, 0xe4, 0x3e,
+	0x0c, 0x43, 0x54, 0xd6, 0x6a, 0xa8, 0x51, 0x6c, 0xed, 0xe8, 0x71, 0x0a, 0x3d, 0x4c, 0x91, 0x02,
+	0xe9, 0xcf, 0x38, 0x65, 0x6d, 0xe3, 0xf4, 0x77, 0x35, 0xf7, 0xf5, 0x4f, 0xf5, 0xb6, 0x4d, 0xfd,
+	0xa3, 0xc0, 0xd4, 0x7b, 0xdc, 0x31, 0x92, 0xc8, 0xf1, 0xcf, 0xbe, 0x20, 0xef, 0x0c, 0xff, 0xc4,
+	0xb5, 0x44, 0x54, 0xd0, 0x2d, 0x26, 0xfe, 0xe1, 0xe2, 0x71, 0xfe, 0xe3, 0x97, 0x6a, 0xae, 0x5e,
+	0x86, 0xad, 0xa9, 0xd8, 0x5d, 0x4b, 0xb8, 0x9c, 0x09, 0xab, 0xfe, 0x03, 0xc1, 0x0d, 0xb9, 0xf3,
+	0x9a, 0xf5, 0x97, 0x45, 0x32, 0x03, 0x8f, 0xad, 0x12, 0x29, 0xf1, 0xcf, 0x20, 0xed, 0x40, 0x79,
+	0x26, 0xb8, 0x84, 0xfa, 0x89, 0x40, 0x9d, 0xd9, 0x7b, 0xca, 0xc8, 0x1b, 0xea, 0x1f, 0x11, 0x0f,
+	0x7f, 0x58, 0x9c, 0x6f, 0x08, 0xd7, 0x03, 0xb6, 0xe2, 0x43, 0xdb, 0x90, 0x1d, 0x32, 0x8c, 0xbb,
+	0x50, 0x3f, 0x9f, 0x43, 0xe2, 0x7e, 0x43, 0x50, 0xec, 0x08, 0xfb, 0x60, 0x80, 0x7b, 0x56, 0x9b,
+	0x92, 0x0b, 0xf9, 0x4c, 0x4a, 0xc8, 0x19, 0x5f, 0xbc, 0x8a, 0xce, 0x8f, 0x12, 0xb2, 0xd2, 0xf3,
+	0x8b, 0xfd, 0x33, 0x6c, 0x5b, 0x70, 0x33, 0x13, 0x5a, 0xc2, 0x3c, 0x87, 0x52, 0x47, 0xd8, 0x5d,
+	0xab, 0x1f, 0x30, 0xb2, 0x0c, 0x4c, 0xe2, 0xbe, 0x0d, 0x9b, 0x59, 0x9b, 0xd4, 0xbe, 0x35, 0xca,
+	0xc3, 0x5a, 0x47, 0xd8, 0xca, 0x00, 0x20, 0x33, 0xc4, 0x7b, 0xfa, 0x05, 0x9f, 0x15, 0x7d, 0x6a,
+	0x72, 0xd4, 0xd6, 0xfc, 0xda, 0xb4, 0xab, 0xe2, 0x41, 0x69, 0x6a, 0xc2, 0xee, 0xce, 0xe7, 0x11,
+	0xab, 0xd5, 0x07, 0x8b, 0xa8, 0x65, 0xcf, 0xcf, 0x08, 0xca, 0xe7, 0x4d, 0xc0, 0xa3, 0x45, 0x1c,
+	0x33, 0x85, 0xea, 0x93, 0x25, 0x0b, 0x65, 0xaa, 0x3e, 0x5c, 0x93, 0xf7, 0xb4, 0x71, 0x99, 0x59,
+	0xaa, 0x54, 0xef, 0xcd, 0xab, 0x94, 0x7d, 0x28, 0xac, 0x9f, 0xdd, 0xa1, 0x3b, 0x97, 0x95, 0x4b,
+	0xa9, 0xda, 0x9c, 0x5b, 0x9a, 0xb6, 0x6a, 0x1f, 0x9c, 0x8e, 0x35, 0x34, 0x1a, 0x6b, 0xe8, 0xef,
+	0x58, 0x43, 0x9f, 0x26, 0x5a, 0x6e, 0x34, 0xd1, 0x72, 0xbf, 0x26, 0x5a, 0xee, 0xed, 0xc3, 0xff,
+	0xc6, 0x23, 0xf4, 0xde, 0x1f, 0x60, 0x53, 0x18, 0xf1, 0x6b, 0x77, 0x3c, 0xf3, 0xde, 0x45, 0x23,
+	0x63, 0x16, 0xa2, 0xc7, 0xe6, 0xfe, 0xbf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x69, 0xd1, 0x53, 0x70,
+	0x13, 0x07, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -483,12 +483,12 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// Farm defines a method for farming pool coin for a liquid farm
-	Farm(ctx context.Context, in *MsgFarm, opts ...grpc.CallOption) (*MsgFarmResponse, error)
-	// Unfarm defines a method for unfarming amount of LFCoin
-	Unfarm(ctx context.Context, in *MsgUnfarm, opts ...grpc.CallOption) (*MsgUnfarmResponse, error)
-	// UnfarmAndWithdraw defines a method for unfarming amount of LFCoin and withdraw pool coin from the pool
-	UnfarmAndWithdraw(ctx context.Context, in *MsgUnfarmAndWithdraw, opts ...grpc.CallOption) (*MsgUnfarmAndWithdrawResponse, error)
+	// LiquidFarm defines a method for farming pool coin for a liquid farm
+	LiquidFarm(ctx context.Context, in *MsgLiquidFarm, opts ...grpc.CallOption) (*MsgLiquidFarmResponse, error)
+	// LiquidUnfarm defines a method for unfarming amount of LFCoin
+	LiquidUnfarm(ctx context.Context, in *MsgLiquidUnfarm, opts ...grpc.CallOption) (*MsgLiquidUnfarmResponse, error)
+	// LiquidUnfarmAndWithdraw defines a method for unfarming amount of LFCoin and withdraw pool coin from the pool
+	LiquidUnfarmAndWithdraw(ctx context.Context, in *MsgLiquidUnfarmAndWithdraw, opts ...grpc.CallOption) (*MsgLiquidUnfarmAndWithdrawResponse, error)
 	// PlaceBid defines a method for placing a bid for a rewards auction
 	PlaceBid(ctx context.Context, in *MsgPlaceBid, opts ...grpc.CallOption) (*MsgPlaceBidResponse, error)
 	// RefundBid defines a method for refunding the bid that is not winning for the auction
@@ -503,27 +503,27 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
 }
 
-func (c *msgClient) Farm(ctx context.Context, in *MsgFarm, opts ...grpc.CallOption) (*MsgFarmResponse, error) {
-	out := new(MsgFarmResponse)
-	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Msg/Farm", in, out, opts...)
+func (c *msgClient) LiquidFarm(ctx context.Context, in *MsgLiquidFarm, opts ...grpc.CallOption) (*MsgLiquidFarmResponse, error) {
+	out := new(MsgLiquidFarmResponse)
+	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Msg/LiquidFarm", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *msgClient) Unfarm(ctx context.Context, in *MsgUnfarm, opts ...grpc.CallOption) (*MsgUnfarmResponse, error) {
-	out := new(MsgUnfarmResponse)
-	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Msg/Unfarm", in, out, opts...)
+func (c *msgClient) LiquidUnfarm(ctx context.Context, in *MsgLiquidUnfarm, opts ...grpc.CallOption) (*MsgLiquidUnfarmResponse, error) {
+	out := new(MsgLiquidUnfarmResponse)
+	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Msg/LiquidUnfarm", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *msgClient) UnfarmAndWithdraw(ctx context.Context, in *MsgUnfarmAndWithdraw, opts ...grpc.CallOption) (*MsgUnfarmAndWithdrawResponse, error) {
-	out := new(MsgUnfarmAndWithdrawResponse)
-	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Msg/UnfarmAndWithdraw", in, out, opts...)
+func (c *msgClient) LiquidUnfarmAndWithdraw(ctx context.Context, in *MsgLiquidUnfarmAndWithdraw, opts ...grpc.CallOption) (*MsgLiquidUnfarmAndWithdrawResponse, error) {
+	out := new(MsgLiquidUnfarmAndWithdrawResponse)
+	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Msg/LiquidUnfarmAndWithdraw", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -550,12 +550,12 @@ func (c *msgClient) RefundBid(ctx context.Context, in *MsgRefundBid, opts ...grp
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// Farm defines a method for farming pool coin for a liquid farm
-	Farm(context.Context, *MsgFarm) (*MsgFarmResponse, error)
-	// Unfarm defines a method for unfarming amount of LFCoin
-	Unfarm(context.Context, *MsgUnfarm) (*MsgUnfarmResponse, error)
-	// UnfarmAndWithdraw defines a method for unfarming amount of LFCoin and withdraw pool coin from the pool
-	UnfarmAndWithdraw(context.Context, *MsgUnfarmAndWithdraw) (*MsgUnfarmAndWithdrawResponse, error)
+	// LiquidFarm defines a method for farming pool coin for a liquid farm
+	LiquidFarm(context.Context, *MsgLiquidFarm) (*MsgLiquidFarmResponse, error)
+	// LiquidUnfarm defines a method for unfarming amount of LFCoin
+	LiquidUnfarm(context.Context, *MsgLiquidUnfarm) (*MsgLiquidUnfarmResponse, error)
+	// LiquidUnfarmAndWithdraw defines a method for unfarming amount of LFCoin and withdraw pool coin from the pool
+	LiquidUnfarmAndWithdraw(context.Context, *MsgLiquidUnfarmAndWithdraw) (*MsgLiquidUnfarmAndWithdrawResponse, error)
 	// PlaceBid defines a method for placing a bid for a rewards auction
 	PlaceBid(context.Context, *MsgPlaceBid) (*MsgPlaceBidResponse, error)
 	// RefundBid defines a method for refunding the bid that is not winning for the auction
@@ -566,14 +566,14 @@ type MsgServer interface {
 type UnimplementedMsgServer struct {
 }
 
-func (*UnimplementedMsgServer) Farm(ctx context.Context, req *MsgFarm) (*MsgFarmResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Farm not implemented")
+func (*UnimplementedMsgServer) LiquidFarm(ctx context.Context, req *MsgLiquidFarm) (*MsgLiquidFarmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LiquidFarm not implemented")
 }
-func (*UnimplementedMsgServer) Unfarm(ctx context.Context, req *MsgUnfarm) (*MsgUnfarmResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Unfarm not implemented")
+func (*UnimplementedMsgServer) LiquidUnfarm(ctx context.Context, req *MsgLiquidUnfarm) (*MsgLiquidUnfarmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LiquidUnfarm not implemented")
 }
-func (*UnimplementedMsgServer) UnfarmAndWithdraw(ctx context.Context, req *MsgUnfarmAndWithdraw) (*MsgUnfarmAndWithdrawResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UnfarmAndWithdraw not implemented")
+func (*UnimplementedMsgServer) LiquidUnfarmAndWithdraw(ctx context.Context, req *MsgLiquidUnfarmAndWithdraw) (*MsgLiquidUnfarmAndWithdrawResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LiquidUnfarmAndWithdraw not implemented")
 }
 func (*UnimplementedMsgServer) PlaceBid(ctx context.Context, req *MsgPlaceBid) (*MsgPlaceBidResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PlaceBid not implemented")
@@ -586,56 +586,56 @@ func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
 }
 
-func _Msg_Farm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgFarm)
+func _Msg_LiquidFarm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgLiquidFarm)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).Farm(ctx, in)
+		return srv.(MsgServer).LiquidFarm(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/squad.liquidfarming.v1beta1.Msg/Farm",
+		FullMethod: "/squad.liquidfarming.v1beta1.Msg/LiquidFarm",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).Farm(ctx, req.(*MsgFarm))
+		return srv.(MsgServer).LiquidFarm(ctx, req.(*MsgLiquidFarm))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_Unfarm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgUnfarm)
+func _Msg_LiquidUnfarm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgLiquidUnfarm)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).Unfarm(ctx, in)
+		return srv.(MsgServer).LiquidUnfarm(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/squad.liquidfarming.v1beta1.Msg/Unfarm",
+		FullMethod: "/squad.liquidfarming.v1beta1.Msg/LiquidUnfarm",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).Unfarm(ctx, req.(*MsgUnfarm))
+		return srv.(MsgServer).LiquidUnfarm(ctx, req.(*MsgLiquidUnfarm))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_UnfarmAndWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgUnfarmAndWithdraw)
+func _Msg_LiquidUnfarmAndWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgLiquidUnfarmAndWithdraw)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).UnfarmAndWithdraw(ctx, in)
+		return srv.(MsgServer).LiquidUnfarmAndWithdraw(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/squad.liquidfarming.v1beta1.Msg/UnfarmAndWithdraw",
+		FullMethod: "/squad.liquidfarming.v1beta1.Msg/LiquidUnfarmAndWithdraw",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).UnfarmAndWithdraw(ctx, req.(*MsgUnfarmAndWithdraw))
+		return srv.(MsgServer).LiquidUnfarmAndWithdraw(ctx, req.(*MsgLiquidUnfarmAndWithdraw))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -681,16 +681,16 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Farm",
-			Handler:    _Msg_Farm_Handler,
+			MethodName: "LiquidFarm",
+			Handler:    _Msg_LiquidFarm_Handler,
 		},
 		{
-			MethodName: "Unfarm",
-			Handler:    _Msg_Unfarm_Handler,
+			MethodName: "LiquidUnfarm",
+			Handler:    _Msg_LiquidUnfarm_Handler,
 		},
 		{
-			MethodName: "UnfarmAndWithdraw",
-			Handler:    _Msg_UnfarmAndWithdraw_Handler,
+			MethodName: "LiquidUnfarmAndWithdraw",
+			Handler:    _Msg_LiquidUnfarmAndWithdraw_Handler,
 		},
 		{
 			MethodName: "PlaceBid",
@@ -705,7 +705,7 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	Metadata: "squad/liquidfarming/v1beta1/tx.proto",
 }
 
-func (m *MsgFarm) Marshal() (dAtA []byte, err error) {
+func (m *MsgLiquidFarm) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -715,12 +715,12 @@ func (m *MsgFarm) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgFarm) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgLiquidFarm) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgFarm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgLiquidFarm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -750,7 +750,7 @@ func (m *MsgFarm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgFarmResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgLiquidFarmResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -760,12 +760,12 @@ func (m *MsgFarmResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgFarmResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgLiquidFarmResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgFarmResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgLiquidFarmResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -773,7 +773,7 @@ func (m *MsgFarmResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUnfarm) Marshal() (dAtA []byte, err error) {
+func (m *MsgLiquidUnfarm) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -783,12 +783,12 @@ func (m *MsgUnfarm) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUnfarm) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgLiquidUnfarm) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUnfarm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgLiquidUnfarm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -818,7 +818,7 @@ func (m *MsgUnfarm) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUnfarmResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgLiquidUnfarmResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -828,12 +828,12 @@ func (m *MsgUnfarmResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUnfarmResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgLiquidUnfarmResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUnfarmResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgLiquidUnfarmResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -841,7 +841,7 @@ func (m *MsgUnfarmResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUnfarmAndWithdraw) Marshal() (dAtA []byte, err error) {
+func (m *MsgLiquidUnfarmAndWithdraw) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -851,12 +851,12 @@ func (m *MsgUnfarmAndWithdraw) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUnfarmAndWithdraw) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgLiquidUnfarmAndWithdraw) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUnfarmAndWithdraw) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgLiquidUnfarmAndWithdraw) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -886,7 +886,7 @@ func (m *MsgUnfarmAndWithdraw) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUnfarmAndWithdrawResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgLiquidUnfarmAndWithdrawResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -896,12 +896,12 @@ func (m *MsgUnfarmAndWithdrawResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUnfarmAndWithdrawResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgLiquidUnfarmAndWithdrawResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUnfarmAndWithdrawResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgLiquidUnfarmAndWithdrawResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1046,7 +1046,7 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *MsgFarm) Size() (n int) {
+func (m *MsgLiquidFarm) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1064,7 +1064,7 @@ func (m *MsgFarm) Size() (n int) {
 	return n
 }
 
-func (m *MsgFarmResponse) Size() (n int) {
+func (m *MsgLiquidFarmResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1073,7 +1073,7 @@ func (m *MsgFarmResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgUnfarm) Size() (n int) {
+func (m *MsgLiquidUnfarm) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1091,7 +1091,7 @@ func (m *MsgUnfarm) Size() (n int) {
 	return n
 }
 
-func (m *MsgUnfarmResponse) Size() (n int) {
+func (m *MsgLiquidUnfarmResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1100,7 +1100,7 @@ func (m *MsgUnfarmResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgUnfarmAndWithdraw) Size() (n int) {
+func (m *MsgLiquidUnfarmAndWithdraw) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1118,7 +1118,7 @@ func (m *MsgUnfarmAndWithdraw) Size() (n int) {
 	return n
 }
 
-func (m *MsgUnfarmAndWithdrawResponse) Size() (n int) {
+func (m *MsgLiquidUnfarmAndWithdrawResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1185,7 +1185,7 @@ func sovTx(x uint64) (n int) {
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *MsgFarm) Unmarshal(dAtA []byte) error {
+func (m *MsgLiquidFarm) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1208,10 +1208,10 @@ func (m *MsgFarm) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgFarm: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgLiquidFarm: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgFarm: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgLiquidFarm: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1319,7 +1319,7 @@ func (m *MsgFarm) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgFarmResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgLiquidFarmResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1342,10 +1342,10 @@ func (m *MsgFarmResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgFarmResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgLiquidFarmResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgFarmResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgLiquidFarmResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -1369,7 +1369,7 @@ func (m *MsgFarmResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUnfarm) Unmarshal(dAtA []byte) error {
+func (m *MsgLiquidUnfarm) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1392,10 +1392,10 @@ func (m *MsgUnfarm) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUnfarm: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgLiquidUnfarm: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUnfarm: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgLiquidUnfarm: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1503,7 +1503,7 @@ func (m *MsgUnfarm) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUnfarmResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgLiquidUnfarmResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1526,10 +1526,10 @@ func (m *MsgUnfarmResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUnfarmResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgLiquidUnfarmResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUnfarmResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgLiquidUnfarmResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -1553,7 +1553,7 @@ func (m *MsgUnfarmResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUnfarmAndWithdraw) Unmarshal(dAtA []byte) error {
+func (m *MsgLiquidUnfarmAndWithdraw) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1576,10 +1576,10 @@ func (m *MsgUnfarmAndWithdraw) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUnfarmAndWithdraw: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgLiquidUnfarmAndWithdraw: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUnfarmAndWithdraw: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgLiquidUnfarmAndWithdraw: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1687,7 +1687,7 @@ func (m *MsgUnfarmAndWithdraw) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUnfarmAndWithdrawResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgLiquidUnfarmAndWithdrawResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1710,10 +1710,10 @@ func (m *MsgUnfarmAndWithdrawResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUnfarmAndWithdrawResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgLiquidUnfarmAndWithdrawResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUnfarmAndWithdrawResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgLiquidUnfarmAndWithdrawResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

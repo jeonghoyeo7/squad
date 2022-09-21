@@ -3,9 +3,9 @@ package keeper_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	utils "github.com/cosmosquad-labs/squad/v2/types"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	utils "github.com/cosmosquad-labs/squad/v3/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 
 	_ "github.com/stretchr/testify/suite"
 )
@@ -49,12 +49,13 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarms() {
 						s.Require().Equal(minFarmAmt2, liquidFarm.MinFarmAmount)
 						s.Require().Equal(minBidAmt2, liquidFarm.MinBidAmount)
 					}
-					reserveAddr, _ := sdk.AccAddressFromBech32(liquidFarm.LiquidFarmReserveAddress)
 					poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
-					queuedAmt := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, poolCoinDenom)
-					stakedAmt := s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr).AmountOf(poolCoinDenom)
-					s.Require().Equal(queuedAmt, liquidFarm.QueuedCoin.Amount)
-					s.Require().Equal(stakedAmt, liquidFarm.StakedCoin.Amount)
+					lpCoinTotalFarmingAmt := sdk.ZeroInt()
+					farm, found := s.app.FarmKeeper.GetFarm(s.ctx, poolCoinDenom)
+					if found {
+						lpCoinTotalFarmingAmt = farm.TotalFarmingAmount
+					}
+					s.Require().Equal(lpCoinTotalFarmingAmt, liquidFarm.TotalFarmingAmount)
 				}
 			},
 		},
@@ -96,12 +97,13 @@ func (s *KeeperTestSuite) TestGRPCLiquidFarm() {
 			},
 			false,
 			func(resp *types.QueryLiquidFarmResponse) {
-				reserveAddr, _ := sdk.AccAddressFromBech32(resp.LiquidFarm.LiquidFarmReserveAddress)
 				poolCoinDenom := liquiditytypes.PoolCoinDenom(resp.LiquidFarm.PoolId)
-				queuedAmt := s.app.FarmingKeeper.GetAllQueuedStakingAmountByFarmerAndDenom(s.ctx, reserveAddr, poolCoinDenom)
-				stakedAmt := s.app.FarmingKeeper.GetAllStakedCoinsByFarmer(s.ctx, reserveAddr).AmountOf(poolCoinDenom)
-				s.Require().Equal(queuedAmt, resp.LiquidFarm.QueuedCoin.Amount)
-				s.Require().Equal(stakedAmt, resp.LiquidFarm.StakedCoin.Amount)
+				lpCoinTotalFarmingAmt := sdk.ZeroInt()
+				farm, found := s.app.FarmKeeper.GetFarm(s.ctx, poolCoinDenom)
+				if found {
+					lpCoinTotalFarmingAmt = farm.TotalFarmingAmount
+				}
+				s.Require().Equal(lpCoinTotalFarmingAmt, resp.LiquidFarm.TotalFarmingAmount)
 				s.Require().Equal(types.LiquidFarmCoinDenom(pool.Id), resp.LiquidFarm.LFCoinDenom)
 				s.Require().Equal(types.LiquidFarmReserveAddress(pool.Id).String(), resp.LiquidFarm.LiquidFarmReserveAddress)
 				s.Require().Equal(minFarmAmt, resp.LiquidFarm.MinFarmAmount)

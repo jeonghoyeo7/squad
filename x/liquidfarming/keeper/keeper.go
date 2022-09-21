@@ -8,7 +8,7 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
 )
 
 type Keeper struct {
@@ -17,7 +17,7 @@ type Keeper struct {
 	paramSpace      paramtypes.Subspace
 	accountKeeper   types.AccountKeeper
 	bankKeeper      types.BankKeeper
-	farmingKeeper   types.FarmingKeeper
+	farmKeeper      types.FarmKeeper
 	liquidityKeeper types.LiquidityKeeper
 }
 
@@ -27,7 +27,7 @@ func NewKeeper(
 	paramSpace paramtypes.Subspace,
 	accountKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
-	farmingKeeper types.FarmingKeeper,
+	farmKeeper types.FarmKeeper,
 	liquidityKeeper types.LiquidityKeeper,
 ) Keeper {
 	// Ensure the module account is set
@@ -46,7 +46,7 @@ func NewKeeper(
 		paramSpace:      paramSpace,
 		accountKeeper:   accountKeeper,
 		bankKeeper:      bankKeeper,
-		farmingKeeper:   farmingKeeper,
+		farmKeeper:      farmKeeper,
 		liquidityKeeper: liquidityKeeper,
 	}
 }

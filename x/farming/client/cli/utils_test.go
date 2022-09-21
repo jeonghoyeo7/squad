@@ -8,8 +8,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 
-	"github.com/cosmosquad-labs/squad/v2/app/params"
-	"github.com/cosmosquad-labs/squad/v2/x/farming/client/cli"
+	"github.com/cosmosquad-labs/squad/v3/app/params"
+	"github.com/cosmosquad-labs/squad/v3/x/farming/client/cli"
 )
 
 func TestParsePrivateFixedPlan(t *testing.T) {

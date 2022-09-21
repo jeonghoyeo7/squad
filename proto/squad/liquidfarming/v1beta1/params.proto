@@ -11,6 +11,8 @@ message Params {
   option (gogoproto.goproto_getters)  = false;
 
   repeated LiquidFarm liquid_farms = 1 [(gogoproto.nullable) = false];
+
+  uint32 auction_period_hours = 2;
 }
 
 // LiquidFarm defines liquid farm object that provides auto compounding functionality

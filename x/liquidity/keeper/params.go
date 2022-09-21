@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 // GetBatchSize returns the current batch size parameter.
@@ -72,6 +72,13 @@ func (k Keeper) GetMinInitialDepositAmount(ctx sdk.Context) (amt sdk.Int) {
 // parameter.
 func (k Keeper) GetMaxPriceLimitRatio(ctx sdk.Context) (ratio sdk.Dec) {
 	k.paramSpace.Get(ctx, types.KeyMaxPriceLimitRatio, &ratio)
+	return
+}
+
+// GetMaxNumMarketMakingOrderTicks returns the current maximum number of
+// market making order ticks.
+func (k Keeper) GetMaxNumMarketMakingOrderTicks(ctx sdk.Context) (i uint32) {
+	k.paramSpace.Get(ctx, types.KeyMaxNumMarketMakingOrderTicks, &i)
 	return
 }
 

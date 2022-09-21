@@ -20,14 +20,14 @@ import (
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	dbm "github.com/tendermint/tm-db"
 
-	chain "github.com/cosmosquad-labs/squad/v2/app"
-	"github.com/cosmosquad-labs/squad/v2/app/params"
-	farmingtestutil "github.com/cosmosquad-labs/squad/v2/x/farming/client/testutil"
-	farmingkeeper "github.com/cosmosquad-labs/squad/v2/x/farming/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/client/cli"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
-	liquiditytestutil "github.com/cosmosquad-labs/squad/v2/x/liquidity/client/testutil"
-	liquiditytypes "github.com/cosmosquad-labs/squad/v2/x/liquidity/types"
+	chain "github.com/cosmosquad-labs/squad/v3/app"
+	"github.com/cosmosquad-labs/squad/v3/app/params"
+	farmingtestutil "github.com/cosmosquad-labs/squad/v3/x/farming/client/testutil"
+	farmingkeeper "github.com/cosmosquad-labs/squad/v3/x/farming/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/client/cli"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
+	liquiditytestutil "github.com/cosmosquad-labs/squad/v3/x/liquidity/client/testutil"
+	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
 type IntegrationTestSuite struct {
@@ -400,7 +400,7 @@ func (s *IntegrationTestSuite) TestNewQueryRewardsAuctionCmd() {
 // Transaction CLI Integration Tests
 //
 
-func (s *IntegrationTestSuite) TestNewFarmCmd() {
+func (s *IntegrationTestSuite) TestNewLiquidFarmCmd() {
 	val := s.network.Validators[0]
 
 	testCases := []struct {
@@ -464,7 +464,7 @@ func (s *IntegrationTestSuite) TestNewFarmCmd() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewFarmCmd()
+			cmd := cli.NewLiquidFarmCmd()
 			clientCtx := val.ClientCtx
 
 			out, err := utilcli.ExecTestCLICmd(clientCtx, cmd, tc.args)
@@ -485,7 +485,7 @@ func (s *IntegrationTestSuite) TestNewFarmCmd() {
 func (s *IntegrationTestSuite) TestNewUnfarmCmd() {
 	val := s.network.Validators[0]
 
-	_, err := MsgFarmExec(
+	_, err := MsgLiquidFarmExec(
 		val.ClientCtx,
 		val.Address.String(),
 		strconv.Itoa(1),
@@ -542,7 +542,7 @@ func (s *IntegrationTestSuite) TestNewUnfarmCmd() {
 		tc := tc
 
 		s.Run(tc.name, func() {
-			cmd := cli.NewUnfarmCmd()
+			cmd := cli.NewLiquidUnfarmCmd()
 			clientCtx := val.ClientCtx
 
 			out, err := utilcli.ExecTestCLICmd(clientCtx, cmd, tc.args)

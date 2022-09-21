@@ -6,8 +6,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/keeper"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming/types"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/keeper"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
 )
 
 // NewHandler returns a new msg handler.
@@ -18,16 +18,16 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		ctx = ctx.WithEventManager(sdk.NewEventManager())
 
 		switch msg := msg.(type) {
-		case *types.MsgFarm:
-			res, err := msgServer.Farm(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgLiquidFarm:
+			res, err := msgServer.LiquidFarm(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
-		case *types.MsgUnfarm:
-			res, err := msgServer.Unfarm(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgLiquidUnfarm:
+			res, err := msgServer.LiquidUnfarm(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
-		case *types.MsgUnfarmAndWithdraw:
-			res, err := msgServer.UnfarmAndWithdraw(sdk.WrapSDKContext(ctx), msg)
+		case *types.MsgLiquidUnfarmAndWithdraw:
+			res, err := msgServer.LiquidUnfarmAndWithdraw(sdk.WrapSDKContext(ctx), msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 
 		case *types.MsgPlaceBid:

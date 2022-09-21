@@ -35,12 +35,14 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	dbm "github.com/tendermint/tm-db"
 
-	"github.com/cosmosquad-labs/squad/v2/x/claim"
-	"github.com/cosmosquad-labs/squad/v2/x/farming"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidfarming"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidity"
-	"github.com/cosmosquad-labs/squad/v2/x/liquidstaking"
-	"github.com/cosmosquad-labs/squad/v2/x/mint"
+	"github.com/cosmosquad-labs/squad/v3/x/claim"
+	"github.com/cosmosquad-labs/squad/v3/x/farm"
+	"github.com/cosmosquad-labs/squad/v3/x/farming"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidity"
+	"github.com/cosmosquad-labs/squad/v3/x/liquidstaking"
+	"github.com/cosmosquad-labs/squad/v3/x/marketmaker"
+	"github.com/cosmosquad-labs/squad/v3/x/mint"
 )
 
 func TestSimAppExportAndBlockedAddrs(t *testing.T) {
@@ -190,9 +192,12 @@ func TestRunMigrations(t *testing.T) {
 					"capability":    capability.AppModule{}.ConsensusVersion(),
 					"budget":        budget.AppModule{}.ConsensusVersion(),
 					"farming":       farming.AppModule{}.ConsensusVersion(),
+					"farm":          farm.AppModule{}.ConsensusVersion(),
 					"liquidity":     liquidity.AppModule{}.ConsensusVersion(),
 					"liquidstaking": liquidstaking.AppModule{}.ConsensusVersion(),
 					"liquidfarming": liquidfarming.AppModule{}.ConsensusVersion(),
+					"claim":         claim.AppModule{}.ConsensusVersion(),
+					"marketmaker":   marketmaker.AppModule{}.ConsensusVersion(),
 					"ibc":           ibc.AppModule{}.ConsensusVersion(),
 					"transfer":      transfer.AppModule{}.ConsensusVersion(),
 				},
@@ -249,9 +254,12 @@ func TestInitGenesisOnMigration(t *testing.T) {
 			"capability":    capability.AppModule{}.ConsensusVersion(),
 			"budget":        budget.AppModule{}.ConsensusVersion(),
 			"farming":       farming.AppModule{}.ConsensusVersion(),
+			"farm":          farm.AppModule{}.ConsensusVersion(),
 			"liquidity":     liquidity.AppModule{}.ConsensusVersion(),
 			"liquidstaking": liquidstaking.AppModule{}.ConsensusVersion(),
+			"liquidfarming": liquidfarming.AppModule{}.ConsensusVersion(),
 			"claim":         claim.AppModule{}.ConsensusVersion(),
+			"marketmaker":   marketmaker.AppModule{}.ConsensusVersion(),
 			"ibc":           ibc.AppModule{}.ConsensusVersion(),
 			"transfer":      transfer.AppModule{}.ConsensusVersion(),
 		},
