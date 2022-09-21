@@ -5,7 +5,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	farmtypes "github.com/cosmosquad-labs/squad/v3/x/farm/types"
-	farmingtypes "github.com/cosmosquad-labs/squad/v3/x/farming/types"
 	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 )
 
@@ -34,20 +33,9 @@ type FarmKeeper interface {
 	Unfarm(ctx sdk.Context, farmerAddr sdk.AccAddress, coin sdk.Coin) (withdrawnRewards sdk.Coins, err error)
 	Harvest(ctx sdk.Context, farmerAddr sdk.AccAddress, denom string) (withdrawnRewards sdk.Coins, err error)
 	Rewards(ctx sdk.Context, position farmtypes.Position, endPeriod uint64) sdk.DecCoins
+	IncrementFarmPeriod(ctx sdk.Context, denom string) (prevPeriod uint64)
 	GetFarm(ctx sdk.Context, denom string) (farm farmtypes.Farm, found bool)
 	GetPosition(ctx sdk.Context, farmerAddr sdk.AccAddress, denom string) (position farmtypes.Position, found bool)
-}
-
-// FarmingKeeper defines the expected interface needed for the module.
-// [DEPRECATED]
-type FarmingKeeper interface {
-	Stake(ctx sdk.Context, farmerAcc sdk.AccAddress, amount sdk.Coins) error
-	Unstake(ctx sdk.Context, farmerAcc sdk.AccAddress, amount sdk.Coins) error
-	Harvest(ctx sdk.Context, farmerAcc sdk.AccAddress, stakingCoinDenoms []string) error
-	Rewards(ctx sdk.Context, farmerAcc sdk.AccAddress, stakingCoinDenom string) sdk.Coins
-	GetCurrentEpochDays(ctx sdk.Context) uint32
-	GetStaking(ctx sdk.Context, stakingCoinDenom string, farmerAcc sdk.AccAddress) (staking farmingtypes.Staking, found bool)
-	GetAllQueuedStakingAmountByFarmerAndDenom(ctx sdk.Context, farmerAcc sdk.AccAddress, stakingCoinDenom string) sdk.Int
 }
 
 // LiquidityKeeper defines the expected interface needed for the module.

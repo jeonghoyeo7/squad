@@ -191,12 +191,12 @@ func (k Keeper) LiquidUnfarmAndWithdraw(ctx sdk.Context, poolId uint64, farmer s
 func (k Keeper) HandleRemovedLiquidFarm(ctx sdk.Context, liquidFarm types.LiquidFarm) {
 	reserveAddr := types.LiquidFarmReserveAddress(liquidFarm.PoolId)
 	poolCoinDenom := liquiditytypes.PoolCoinDenom(liquidFarm.PoolId)
-	stakedAmt := sdk.ZeroInt()
-	position, found := k.farmKeeper.GetPosition(ctx, reserveAddr, poolCoinDenom) // TODO: used to use GetStaking. Double check with this function.
+	farmingAmt := sdk.ZeroInt()
+	position, found := k.farmKeeper.GetPosition(ctx, reserveAddr, poolCoinDenom)
 	if found {
-		stakedAmt = position.FarmingAmount
+		farmingAmt = position.FarmingAmount
 	}
-	stakedCoin := sdk.NewCoin(poolCoinDenom, stakedAmt)
+	stakedCoin := sdk.NewCoin(poolCoinDenom, farmingAmt)
 	if !stakedCoin.IsZero() {
 		// Unstake all staked coins so that there will be no rewards accumulating
 		if _, err := k.farmKeeper.Unfarm(ctx, reserveAddr, stakedCoin); err != nil {
@@ -208,7 +208,7 @@ func (k Keeper) HandleRemovedLiquidFarm(ctx sdk.Context, liquidFarm types.Liquid
 	auctionId := k.GetLastRewardsAuctionId(ctx, liquidFarm.PoolId)
 	auction, found := k.GetRewardsAuction(ctx, liquidFarm.PoolId, auctionId)
 	if found {
-		if err := k.RefundAllBids(ctx, auction, types.Bid{}); err != nil {
+		if err := k.RefundAllBids(ctx, auction); err != nil {
 			panic(err)
 		}
 		k.DeleteWinningBid(ctx, liquidFarm.PoolId, auctionId)

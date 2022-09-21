@@ -116,9 +116,10 @@ func CalculateUnfarmingAmount(
 	unfarmingAmt sdk.Int,
 	compoundingRewards sdk.Int,
 ) sdk.Int {
-	if lfCoinTotalSupplyAmt.Equal(unfarmingAmt) { // last one to unfarm
-		return lpCoinTotalFarmingAmt.Mul(unfarmingAmt).Quo(lfCoinTotalSupplyAmt)
-	}
+	// TODO: TBD
+	// if lfCoinTotalSupplyAmt.Equal(unfarmingAmt) { // last one to unfarm
+	// 	return lpCoinTotalFarmingAmt.Mul(unfarmingAmt).Quo(lfCoinTotalSupplyAmt)
+	// }
 	totalFarmingAmt := lpCoinTotalFarmingAmt.Sub(compoundingRewards)
 	return totalFarmingAmt.Mul(unfarmingAmt).Quo(lfCoinTotalSupplyAmt)
 }

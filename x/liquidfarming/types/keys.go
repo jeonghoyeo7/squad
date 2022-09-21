@@ -23,7 +23,8 @@ const (
 
 // keys for the store prefixes
 var (
-	LastRewardsAuctionIdKey = []byte{0xe1} // key to retrieve the latest rewards auction id
+	LastRewardsAuctionIdKey = []byte{0xe1} // key to retrieve the last rewards auction id
+	AuctionTimeKey          = []byte{0xe2} // key to retrieve the last auction time
 
 	LiquidFarmKeyPrefix = []byte{0xe3}
 

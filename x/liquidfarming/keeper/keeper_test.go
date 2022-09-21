@@ -139,7 +139,8 @@ func (s *KeeperTestSuite) createLiquidFarm(poolId uint64, minFarmAmt, minBidAmt 
 
 func (s *KeeperTestSuite) createRewardsAuction(poolId uint64) {
 	s.T().Helper()
-	s.keeper.CreateRewardsAuction(s.ctx, poolId)
+	nextAuctionTime := s.ctx.BlockTime().Add(time.Duration(types.DefaultAuctionPeriodHours) * time.Hour)
+	s.keeper.CreateRewardsAuction(s.ctx, poolId, nextAuctionTime)
 }
 
 func (s *KeeperTestSuite) farm(poolId uint64, farmer sdk.AccAddress, farmingCoin sdk.Coin, fund bool) {

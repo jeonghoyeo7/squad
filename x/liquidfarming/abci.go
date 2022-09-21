@@ -16,35 +16,25 @@ import (
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 
-	// TODO: create RewardsAuction
-	for _, liquidFarm := range k.GetAllLiquidFarms(ctx) {
-		auctionId := k.GetLastRewardsAuctionId(ctx, liquidFarm.PoolId)
-		auction, found := k.GetRewardsAuction(ctx, liquidFarm.PoolId, auctionId)
-		if found {
-			if err := k.FinishRewardsAuction(ctx, auction, liquidFarm.FeeRate); err != nil {
-				panic(err)
-			}
-		}
-		k.CreateRewardsAuction(ctx, liquidFarm.PoolId)
-	}
-
-	///////////////////////////////
+	params := k.GetParams(ctx)
+	liquidFarmsInStore := k.GetAllLiquidFarms(ctx)
+	liquidFarmsInParams := params.LiquidFarms
 
 	liquidFarmByPoolId := map[uint64]types.LiquidFarm{} // PoolId => LiquidFarm
-	for _, liquidFarm := range k.GetAllLiquidFarms(ctx) {
+	for _, liquidFarm := range liquidFarmsInStore {
 		liquidFarmByPoolId[liquidFarm.PoolId] = liquidFarm
 	}
 
 	// Compare all liquid farms stored in KVStore with the ones registered in params
 	// If new liquid farm is added through governance proposal, store it in KVStore.
 	// Otherwise, delete from the liquidFarmByPoolId
-	for _, liquidFarm := range k.GetParams(ctx).LiquidFarms {
+	for _, liquidFarm := range liquidFarmsInParams {
 		_, found := liquidFarmByPoolId[liquidFarm.PoolId]
 		if !found { // new LiquidFarm is added
 			k.SetLiquidFarm(ctx, liquidFarm)
-		} else {
-			delete(liquidFarmByPoolId, liquidFarm.PoolId)
+			continue
 		}
+		delete(liquidFarmByPoolId, liquidFarm.PoolId)
 	}
 
 	// Sort map keys for deterministic execution
@@ -57,5 +47,25 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	})
 	for _, poolId := range poolIds {
 		k.HandleRemovedLiquidFarm(ctx, liquidFarmByPoolId[poolId])
+	}
+
+	auctionTime := k.GetAuctionTime(ctx)
+	if auctionTime == nil {
+		nextAuctionTime := time.Duration(params.AuctionPeriodHours) * time.Hour // current block time + auction period hours
+		k.SetAuctionTime(ctx, ctx.BlockTime().Add(nextAuctionTime))
+		return
+	}
+
+	if !ctx.BlockTime().Before(*auctionTime) { // AuctionTime <= Current BlockTime
+		for _, liquidFarm := range liquidFarmsInStore {
+			auctionId := k.GetLastRewardsAuctionId(ctx, liquidFarm.PoolId)
+			auction, found := k.GetRewardsAuction(ctx, liquidFarm.PoolId, auctionId)
+			if found {
+				if err := k.FinishRewardsAuction(ctx, auction, liquidFarm.FeeRate); err != nil {
+					panic(err)
+				}
+			}
+			k.CreateRewardsAuction(ctx, liquidFarm.PoolId, *auctionTime)
+		}
 	}
 }
