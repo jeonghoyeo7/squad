@@ -37,6 +37,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	claimtypes "github.com/cosmosquad-labs/squad/v3/x/claim/types"
+	farmtypes "github.com/cosmosquad-labs/squad/v3/x/farm/types"
 	farmingtypes "github.com/cosmosquad-labs/squad/v3/x/farming/types"
 	liquiditytypes "github.com/cosmosquad-labs/squad/v3/x/liquidity/types"
 	liquidstakingtypes "github.com/cosmosquad-labs/squad/v3/x/liquidstaking/types"
@@ -194,6 +195,7 @@ func TestAppImportExport(t *testing.T) {
 		{app.keys[liquiditytypes.StoreKey], newApp.keys[liquiditytypes.StoreKey], [][]byte{}},
 		{app.keys[claimtypes.StoreKey], newApp.keys[claimtypes.StoreKey], [][]byte{}},
 		{app.keys[marketmakertypes.StoreKey], newApp.keys[marketmakertypes.StoreKey], [][]byte{}},
+		{app.keys[farmtypes.StoreKey], newApp.keys[farmtypes.StoreKey], [][]byte{}},
 		{app.keys[ibchost.StoreKey], newApp.keys[ibchost.StoreKey], [][]byte{}},
 		{app.keys[ibctransfertypes.StoreKey], newApp.keys[ibctransfertypes.StoreKey], [][]byte{}},
 	}

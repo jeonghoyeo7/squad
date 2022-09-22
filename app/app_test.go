@@ -36,6 +36,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 
 	"github.com/cosmosquad-labs/squad/v3/x/claim"
+	"github.com/cosmosquad-labs/squad/v3/x/farm"
 	"github.com/cosmosquad-labs/squad/v3/x/farming"
 	"github.com/cosmosquad-labs/squad/v3/x/liquidity"
 	"github.com/cosmosquad-labs/squad/v3/x/liquidstaking"
@@ -194,6 +195,7 @@ func TestRunMigrations(t *testing.T) {
 					"liquidstaking": liquidstaking.AppModule{}.ConsensusVersion(),
 					"claim":         claim.AppModule{}.ConsensusVersion(),
 					"marketmaker":   marketmaker.AppModule{}.ConsensusVersion(),
+					"farm":          farm.AppModule{}.ConsensusVersion(),
 					"ibc":           ibc.AppModule{}.ConsensusVersion(),
 					"transfer":      transfer.AppModule{}.ConsensusVersion(),
 				},
@@ -254,6 +256,7 @@ func TestInitGenesisOnMigration(t *testing.T) {
 			"liquidstaking": liquidstaking.AppModule{}.ConsensusVersion(),
 			"claim":         claim.AppModule{}.ConsensusVersion(),
 			"marketmaker":   marketmaker.AppModule{}.ConsensusVersion(),
+			"farm":          farm.AppModule{}.ConsensusVersion(),
 			"ibc":           ibc.AppModule{}.ConsensusVersion(),
 			"transfer":      transfer.AppModule{}.ConsensusVersion(),
 		},
