@@ -185,7 +185,7 @@ $$
             
             $P_{B1} = min \lbrack{ {75}\over{0.0025..^2} }+ {{75}\over{0.0035..^2} } + {{75}\over{0.0045..^2} }, {{80}\over{0.0025..^2} }+ {{80}\over{0.0035..^2} } + {{80}\over{0.0045..^2}}\rbrack$
             
-            $P_{B1} = min \lbrack 21586725, 2302580\rbrack = 21,586,725$
+            $P_{B1} = min \lbrack 21586725, 23025840\rbrack = 21,586,725$
             
     - Block 2
         - Only Market maker B meet the condition,
