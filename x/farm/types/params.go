@@ -27,9 +27,9 @@ const (
 
 var (
 	DefaultPrivatePlanCreationFee = sdk.NewCoins(sdk.NewInt64Coin(sdk.DefaultBondDenom, 100_000000))
-	DefaultFeeCollector           = sdk.AccAddress(address.Module(ModuleName, []byte("FeeCollector"))).String()
+	DefaultFeeCollectorAddress    = sdk.AccAddress(address.Module(ModuleName, []byte("FeeCollector")))
 
-	RewardsPoolAddress = address.Module(ModuleName, []byte("RewardsPool"))
+	RewardsPoolAddress = sdk.AccAddress(address.Module(ModuleName, []byte("RewardsPool")))
 )
 
 func ParamKeyTable() paramstypes.KeyTable {
@@ -40,7 +40,7 @@ func ParamKeyTable() paramstypes.KeyTable {
 func DefaultParams() Params {
 	return Params{
 		PrivatePlanCreationFee: DefaultPrivatePlanCreationFee,
-		FeeCollector:           DefaultFeeCollector,
+		FeeCollector:           DefaultFeeCollectorAddress.String(),
 		MaxNumPrivatePlans:     DefaultMaxNumPrivatePlans,
 		MaxBlockDuration:       DefaultMaxBlockDuration,
 	}
