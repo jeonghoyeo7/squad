@@ -6,6 +6,8 @@
   - x/liquidity/**/*
 "x/liquidstaking":
   - x/liquidstaking/**/*
+"x/liquidfarming":
+  - x/liquidfarming/**/*
 "x/mint":
   - x/mint/**/*
 "x/marketmaker":
@@ -19,6 +21,8 @@
   - x/liquidstaking/**/*
   - x/mint/**/*
   - x/marketmaker/**/*
+  - x/farm/**/*
+  - x/liquidfarming/**/*
   - docs/**/*
   - Makefile
 "documentation":
