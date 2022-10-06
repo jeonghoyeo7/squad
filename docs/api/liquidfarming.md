@@ -15,15 +15,13 @@ This document provides a high-level overview of what gRPC-gateway REST routes ar
 
 ++https://github.com/cosmosquad-labs/squad/blob/main/proto/squad/liquidfarming/v1beta1/query.proto
 
-- [Liquidfarming Module](#liquidfarming-module)
-  - [Synopsis](#synopsis)
-  - [gRPC-gateway REST Routes](#grpc-gateway-rest-routes)
-  - [Params](#params)
-  - [LiquidFarms](#liquidfarms)
-  - [LiquidFarm](#liquidfarm)
-  - [RewardsAuctions](#rewardsauctions)
-  - [RewardsAuction](#rewardsauction)
-  - [Bids](#bids)
+
+- [Params](#params)
+- [LiquidFarms](#liquidfarms)
+- [LiquidFarm](#liquidfarm)
+- [RewardsAuctions](#rewardsauctions)
+- [RewardsAuction](#rewardsauction)
+- [Bids](#bids)
 
 ## Params
 
