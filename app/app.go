@@ -102,6 +102,7 @@ import (
 	claimkeeper "github.com/cosmosquad-labs/squad/v3/x/claim/keeper"
 	claimtypes "github.com/cosmosquad-labs/squad/v3/x/claim/types"
 	"github.com/cosmosquad-labs/squad/v3/x/farm"
+	farmclient "github.com/cosmosquad-labs/squad/v3/x/farm/client"
 	farmkeeper "github.com/cosmosquad-labs/squad/v3/x/farm/keeper"
 	farmtypes "github.com/cosmosquad-labs/squad/v3/x/farm/types"
 	"github.com/cosmosquad-labs/squad/v3/x/farming"
@@ -153,6 +154,7 @@ var (
 			ibcclientclient.UpgradeProposalHandler,
 			farmingclient.ProposalHandler,
 			marketmakerclient.ProposalHandler,
+			farmclient.ProposalHandler,
 		),
 		params.AppModuleBasic{},
 		crisis.AppModuleBasic{},
