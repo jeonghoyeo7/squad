@@ -4,23 +4,30 @@ import (
 	"fmt"
 	time "time"
 
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
 // Parameter store keys
 var (
 	KeyLiquidFarms            = []byte("LiquidFarms")
 	KeyRewardsAuctionDuration = []byte("RewardsAuctionDuration")
-
-	DefaultLiquidFarms                          = []LiquidFarm{}
-	DefaultRewardsAuctionDuration time.Duration = time.Hour * 12
+	KeyFeeCollector           = []byte("FeeCollector")
 )
 
-var _ paramtypes.ParamSet = (*Params)(nil)
+// Default parameters
+var (
+	DefaultLiquidFarms                          = []LiquidFarm{}
+	DefaultRewardsAuctionDuration time.Duration = time.Hour * 12
+	DefaultFeeCollector                         = sdk.AccAddress(address.Module(ModuleName, []byte("FeeCollector")))
+)
+
+var _ paramstypes.ParamSet = (*Params)(nil)
 
 // ParamKeyTable the param key table for launch module
-func ParamKeyTable() paramtypes.KeyTable {
-	return paramtypes.NewKeyTable().RegisterParamSet(&Params{})
+func ParamKeyTable() paramstypes.KeyTable {
+	return paramstypes.NewKeyTable().RegisterParamSet(&Params{})
 }
 
 // DefaultParams returns a default set of parameters
@@ -28,14 +35,16 @@ func DefaultParams() Params {
 	return Params{
 		LiquidFarms:            DefaultLiquidFarms,
 		RewardsAuctionDuration: DefaultRewardsAuctionDuration,
+		FeeCollector:           DefaultFeeCollector.String(),
 	}
 }
 
 // ParamSetPairs get the params.ParamSet
-func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
-	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(KeyLiquidFarms, &p.LiquidFarms, validateLiquidFarms),
-		paramtypes.NewParamSetPair(KeyRewardsAuctionDuration, &p.RewardsAuctionDuration, validateRewardsAuctionDuration),
+func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
+	return paramstypes.ParamSetPairs{
+		paramstypes.NewParamSetPair(KeyLiquidFarms, &p.LiquidFarms, validateLiquidFarms),
+		paramstypes.NewParamSetPair(KeyRewardsAuctionDuration, &p.RewardsAuctionDuration, validateRewardsAuctionDuration),
+		paramstypes.NewParamSetPair(KeyFeeCollector, &p.FeeCollector, validateFeeCollector),
 	}
 }
 
@@ -47,6 +56,7 @@ func (p Params) Validate() error {
 	}{
 		{p.LiquidFarms, validateLiquidFarms},
 		{p.RewardsAuctionDuration, validateRewardsAuctionDuration},
+		{p.FeeCollector, validateFeeCollector},
 	} {
 		if err := v.validator(v.value); err != nil {
 			return err
@@ -60,13 +70,11 @@ func validateLiquidFarms(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
-	for _, liquidFarm := range liquidFarms {
-		if err := liquidFarm.Validate(); err != nil {
-			return err
+	for _, l := range liquidFarms {
+		if err := l.Validate(); err != nil {
+			return fmt.Errorf("invalid liquid farm: %v", err)
 		}
 	}
-
 	return nil
 }
 
@@ -75,9 +83,20 @@ func validateRewardsAuctionDuration(i interface{}) error {
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
 	if v <= 0 {
-		return fmt.Errorf("auction period hours must be positive: %d", v)
+		return fmt.Errorf("invalid rewards auction duration: %d must be positive value", v)
+	}
+	return nil
+}
+
+func validateFeeCollector(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	_, err := sdk.AccAddressFromBech32(v)
+	if err != nil {
+		return fmt.Errorf("invalid fee collector address: %v", v)
 	}
 	return nil
 }
