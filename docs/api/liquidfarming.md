@@ -48,7 +48,8 @@ Example Response
         "fee_rate": "0.000000000000000000"
       }
     ],
-    "rewards_auction_duration": "120s"
+    "rewards_auction_duration": "120s",
+    "fee_collector": "cosmos1lsvtflq2gau8ha7zvlethfy85qus59eserphyhc3tumua7upx6eq59trlz"
   }
 }
 ```

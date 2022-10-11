@@ -8,6 +8,7 @@ The `liquidfarming` module contains the following parameters:
 | ---------------------- | ---------------- | ------------------------- |
 | LiquidFarms            | []LiquidFarm     | []LiquidFarm{}            |
 | RewardsAuctionDuration | string (time ns) | 43200000000000 (12 hours) |
+| FeeCollector           | string           | "cosmos1..."              |
 
 ## LiquidFarms
 
@@ -16,10 +17,10 @@ A single `LiquidFarm` can exist for a given pool.
 
 ```go
 type LiquidFarm struct {
-	PoolId           uint64        // the pool id
-	MinDepositAmount sdk.Int       // the minimum deposit amount; it allows zero value
-	MinBidAmount     sdk.Int       // the minimum bid amount; it allows zero value
-	AuctionPeriod    time.Duration // default value is 12 hours
+	PoolId           uint64  // the pool id
+	MinDepositAmount sdk.Int // the minimum deposit amount; it allows zero value
+	MinBidAmount     sdk.Int // the minimum bid amount; it allows zero value
+	FeeRate          sdk.Dec // the fee rate that deducts from auction winner's rewards;
 }
 ```
 
@@ -27,3 +28,8 @@ type LiquidFarm struct {
 
 `RewardsAuctionDuration` is the duration that triggers the module to create new `RewardsAuction`.
 If there is an ongoing `RewardsAuction`, then it finishes it and it creates next one.
+
+
+## FeeCollector
+
+A fee collector is a module account address that collects fees generated in the module.
