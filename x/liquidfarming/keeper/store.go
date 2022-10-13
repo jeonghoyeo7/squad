@@ -240,10 +240,3 @@ func (k Keeper) IterateBidsByPoolId(ctx sdk.Context, poolId uint64, cb func(bid 
 		}
 	}
 }
-
-type LiquidFarm struct {
-	PoolId           uint64  // the pool id
-	MinDepositAmount sdk.Int // the minimum deposit amount; it allows zero value
-	MinBidAmount     sdk.Int // the minimum bid amount; it allows zero value
-	FeeRate          sdk.Dec // the fee rate for the liquid farm
-}
