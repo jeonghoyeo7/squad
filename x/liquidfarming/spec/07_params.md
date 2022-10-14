@@ -8,6 +8,7 @@ The `liquidfarming` module contains the following parameters:
 | ---------------------- | ---------------- | ------------------------- |
 | LiquidFarms            | []LiquidFarm     | []LiquidFarm{}            |
 | RewardsAuctionDuration | string (time ns) | 43200000000000 (12 hours) |
+| FeeCollector           | string           | "cosmos1..."              |
 
 ## LiquidFarms
 
@@ -26,3 +27,8 @@ type LiquidFarm struct {
 
 `RewardsAuctionDuration` is the duration that triggers the module to create new `RewardsAuction`.
 If there is an ongoing `RewardsAuction`, then it finishes it and it creates next one.
+
+
+## FeeCollector
+
+A fee collector is a module account address that collects fees generated in the module.

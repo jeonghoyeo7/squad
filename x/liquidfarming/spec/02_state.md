@@ -14,10 +14,10 @@ type LiquidFarms struct {
 
 // LiquidFarm defines liquid farm.
 type LiquidFarm struct {
-	PoolId           uint64        // the pool id
-	MinDepositAmount sdk.Int       // the minimum deposit amount; it allows zero value
-	MinBidAmount     sdk.Int       // the minimum bid amount; it allows zero value
-	AuctionPeriod    time.Duration // default value is 12 hours
+	PoolId           uint64  // the pool id
+	MinDepositAmount sdk.Int // the minimum deposit amount; it allows zero value
+	MinBidAmount     sdk.Int // the minimum bid amount; it allows zero value
+	FeeRate          sdk.Dec // the fee rate that deducts from auction winner's rewards;
 }
 ```
 
