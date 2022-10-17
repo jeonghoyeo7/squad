@@ -38,6 +38,10 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 ## [Unreleased]
 
+## v2.1.2
+
+* [\#377](https://github.com/cosmosquad-labs/squad/pull/377) build!: bump cosmos-sdk to v0.45.9, tendermint v0.34.21, go 1.18
+
 ## v2.1.1
 
 ### Improvements
