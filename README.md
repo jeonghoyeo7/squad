@@ -19,12 +19,12 @@ The Squad contains the following Cosmos SDK modules
 
 If you haven't already, install Golang by following the [official docs](https://golang.org/doc/install). Make sure that your `GOPATH` and `GOBIN` environment variables are properly set up.
 
-This project uses customized cosmos-sdk, Please check the difference on [here](https://github.com/cosmosquad-labs/cosmos-sdk/compare/v0.45.3...v1.1.0-sdk-0.45.3).
+This project uses customized cosmos-sdk, Please check the difference on [here](https://github.com/cosmosquad-labs/cosmos-sdk/compare/v0.45.9...v1.1.1-sdk-0.45.9).
 
 | Requirement           | Notes             |
 |-----------------------|-------------------|
-| Go version            | Go1.17 or higher  |
-| Cosmos SDK (custom)   | v1.1.0-sdk-0.45.3 |
+| Go version            | Go1.18 or higher  |
+| Cosmos SDK (custom)   | v1.1.1-sdk-0.45.9 |
 
 ## Installation
 

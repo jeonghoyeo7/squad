@@ -60,7 +60,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 - (x/mint) [\#361](https://github.com/cosmosquad-labs/squad/pull/361) feat: add last block time endpoint
 
-## v2.1.1
+## [v2.1.2](https://github.com/cosmosquad-labs/squad/releases/tag/v2.1.2) - 2022-10-16
+
+### Improvements
+
+* [\#377](https://github.com/cosmosquad-labs/squad/pull/377) build!: bump cosmos-sdk to v0.45.9, tendermint v0.34.21, go 1.18
+
+## [v2.1.1](https://github.com/cosmosquad-labs/squad/releases/tag/v2.1.1) - 2022.08.11
 
 ### Improvements
 
