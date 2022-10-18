@@ -72,11 +72,7 @@ type MsgStake struct {
 
 A farmer must have some staking coins to trigger this message.
 
-<<<<<<< HEAD
-In contrast to the Cosmos SDK [staking](https://github.com/cosmos/cosmos-sdk/blob/v0.45.3/x/staking/spec/01_state.md) module, there is no concept of an unbonding period where some time is required to unstake coins.
-=======
 In contrast to the Cosmos SDK [staking](https://github.com/cosmos/cosmos-sdk/blob/v0.45.9/x/staking/spec/01_state.md) module, there is no concept of an unbonding period where some time is required to unstake coins. 
->>>>>>> 043c8f9d (chore: bump SDK to v0.45.9 and remove its own ics23 package and use c… (#377))
 
 All of the accumulated farming rewards are automatically withdrawn to the farmer after an unstaking event is triggered.
 
