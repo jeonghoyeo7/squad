@@ -14,13 +14,10 @@ This document provides a high-level overview of what gRPC-gateway REST routes ar
 <!-- markdown-link-check-disable -->
 ++https://github.com/cosmosquad-labs/squad/blob/main/proto/squad/liquidstaking/v1beta1/query.proto 
 
-- [Liquidstaking Module](#liquidstaking-module)
-  - [Synopsis](#synopsis)
-  - [gRPC-gateway REST Routes](#grpc-gateway-rest-routes)
-  - [Params](#params)
-  - [Validators](#validators)
-  - [VotingPower](#votingpower)
-  - [States](#states)
+- [Params](#params)
+- [Validators](#validators)
+- [VotingPower](#votingpower)
+- [States](#states)
 
 ## Params
 

@@ -15,6 +15,8 @@ message Params {
   repeated LiquidFarm liquid_farms = 1 [(gogoproto.nullable) = false];
 
   google.protobuf.Duration rewards_auction_duration = 2 [(gogoproto.nullable) = false, (gogoproto.stdduration) = true];
+
+  string                   fee_collector         = 3;
 }
 
 // LiquidFarm defines liquid farm object that provides auto compounding functionality

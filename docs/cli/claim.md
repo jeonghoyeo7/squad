@@ -14,11 +14,11 @@ Note that [jq](https://stedolan.github.io/jq/) is recommended to be installed as
 ## Command Line Interfaces
 
 - [Transaction](#Transaction)
-    * [Claim](#Claim)
+  - [Claim](#Claim)
 - [Query](#Query)
-    * [Airdrops](#Airdrops)
-    * [Airdrop](#Airdrop)
-    * [ClaimRecord](#ClaimRecord)
+  - [Airdrops](#Airdrops)
+  - [Airdrop](#Airdrop)
+  - [ClaimRecord](#ClaimRecord)
 
 # Transaction
 
@@ -28,16 +28,16 @@ Claim your claimable amount with a condition type.
 
 Before claiming your claimable amount with certain condition, that condition must be met in previous.
 
-Usage 
+Usage
 
 ```bash
 squad tx claim claim [airdrop-id] [condition-type]
 ```
 
-| **Argument**      |  **Description**                                            |
-| :---------------- | :---------------------------------------------------------- |
-| airdrop-id        | airdrop id                                                  | 
-| condition-type    | condition (task) type; deposit, swap, liquidstake, and vote |
+| **Argument**   | **Description**                                             |
+| :------------- | :---------------------------------------------------------- |
+| airdrop-id     | airdrop id                                                  |
+| condition-type | condition (task) type; deposit, swap, liquidstake, and vote |
 
 Example
 
@@ -83,9 +83,9 @@ squad tx claim claim 1 vote \
 
 ## Airdrops
 
-Query for all airdrops 
+Query for all airdrops
 
-Usage 
+Usage
 
 ```bash
 squad query claim airdrops
@@ -101,7 +101,7 @@ squad query claim airdrops -o json | jq
 
 Query details for the particular airdrop
 
-Usage 
+Usage
 
 ```bash
 squad query claim airdrop [airdrop-id]
@@ -117,7 +117,7 @@ squad query claim airdrop 1 -o json | jq
 
 Query the claim record for an account
 
-Usage 
+Usage
 
 ```bash
 squad query claim claim-record [airdrop-id] [address]
