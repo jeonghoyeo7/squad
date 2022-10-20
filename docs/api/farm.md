@@ -84,7 +84,7 @@ Example Response
           ]
         },
         {
-          "pair_id": "2",
+          "denom": "pool2",
           "rewards_per_day": [
             {
               "denom": "stake",
@@ -136,7 +136,7 @@ Example Response
         ]
       },
       {
-        "pair_id": "2",
+        "denom": "pool2",
         "rewards_per_day": [
           {
             "denom": "stake",
