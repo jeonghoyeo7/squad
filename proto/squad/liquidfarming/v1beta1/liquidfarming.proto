@@ -9,7 +9,7 @@ import "google/protobuf/timestamp.proto";
 option go_package                      = "github.com/cosmosquad-labs/squad/x/liquidfarming/types";
 option (gogoproto.goproto_getters_all) = false;
 
-// RewardsAuction defines rewards auction that is created by the module 
+// RewardsAuction defines rewards auction that is created by the module
 // for every rewards_auction_duration in params.
 message RewardsAuction {
   // id specifies the unique auction id
@@ -23,14 +23,12 @@ message RewardsAuction {
 
   // paying_reserve_address specfies the account that reserves bidding amounts placed by bidders
   string paying_reserve_address = 4;
-  
+
   // start_time specifies the start time of an auction
-  google.protobuf.Timestamp start_time = 5
-      [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  google.protobuf.Timestamp start_time = 5 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
 
   // end_time specifies the end time of an auction
-  google.protobuf.Timestamp end_time = 6
-      [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  google.protobuf.Timestamp end_time = 6 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
 
   // status specifies the status of an auction
   AuctionStatus status = 7;
@@ -40,17 +38,13 @@ message RewardsAuction {
   string winner = 8;
 
   // winning_amount specifies the winning amount for the uaction
-  cosmos.base.v1beta1.Coin winning_amount = 9 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
-  ];
+  cosmos.base.v1beta1.Coin winning_amount = 9
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"];
 
   // rewards specifies the farming rewards for are accumulated in the farm module
   // the value is determined when an auction is finished
-  repeated cosmos.base.v1beta1.Coin rewards = 10 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
-    (gogoproto.nullable)     = false
-  ];
+  repeated cosmos.base.v1beta1.Coin rewards = 10
+      [(gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins", (gogoproto.nullable) = false];
 }
 
 // CompoundingRewards records the amount of pool coin that is used for a bidder to place a bid
@@ -72,10 +66,8 @@ message Bid {
   string bidder = 2;
 
   // amount specifies the amount to place a bid
-  cosmos.base.v1beta1.Coin amount = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
-  ];
+  cosmos.base.v1beta1.Coin amount = 3
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"];
 }
 
 // AuctionStatus enumerates the valid status of an auction.
@@ -83,19 +75,14 @@ enum AuctionStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
   // AUCTION_STATUS_UNSPECIFIED defines the default auction status
-  AUCTION_STATUS_UNSPECIFIED = 0
-      [ (gogoproto.enumvalue_customname) = "AuctionStatusNil" ];
-  
-      // AUCTION_STATUS_STARTED defines the started auction status
-  AUCTION_STATUS_STARTED = 1
-      [ (gogoproto.enumvalue_customname) = "AuctionStatusStarted" ];
+  AUCTION_STATUS_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "AuctionStatusNil"];
+
+  // AUCTION_STATUS_STARTED defines the started auction status
+  AUCTION_STATUS_STARTED = 1 [(gogoproto.enumvalue_customname) = "AuctionStatusStarted"];
 
   // AUCTION_STATUS_FINISHED defines the finished auction status
-  AUCTION_STATUS_FINISHED = 2
-      [ (gogoproto.enumvalue_customname) = "AuctionStatusFinished" ];
+  AUCTION_STATUS_FINISHED = 2 [(gogoproto.enumvalue_customname) = "AuctionStatusFinished"];
 
   // AUCTION_STATUS_SKIPPED defines the skipped auction status
-  AUCTION_STATUS_SKIPPED = 3
-      [ (gogoproto.enumvalue_customname) = "AuctionStatusSkipped" ];
+  AUCTION_STATUS_SKIPPED = 3 [(gogoproto.enumvalue_customname) = "AuctionStatusSkipped"];
 }
-

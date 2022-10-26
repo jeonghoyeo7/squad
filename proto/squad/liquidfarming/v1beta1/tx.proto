@@ -17,7 +17,7 @@ service Msg {
 
   // LiquidUnfarmAndWithdraw defines a method for unfarming amount of LFCoin and withdraw pool coin from the pool
   rpc LiquidUnfarmAndWithdraw(MsgLiquidUnfarmAndWithdraw) returns (MsgLiquidUnfarmAndWithdrawResponse);
-  
+
   // PlaceBid defines a method for placing a bid for a rewards auction
   rpc PlaceBid(MsgPlaceBid) returns (MsgPlaceBidResponse);
 
@@ -33,10 +33,8 @@ message MsgLiquidFarm {
 
   string farmer = 2;
 
-  cosmos.base.v1beta1.Coin farming_coin = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
-  ];
+  cosmos.base.v1beta1.Coin farming_coin = 3
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"];
 }
 
 // MsgLiquidFarmResponse defines the MsgLiquidFarmResponse response type.
@@ -50,10 +48,8 @@ message MsgLiquidUnfarm {
 
   string farmer = 2;
 
-  cosmos.base.v1beta1.Coin unfarming_coin = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
-  ];
+  cosmos.base.v1beta1.Coin unfarming_coin = 3
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"];
 }
 
 // MsgLiquidUnfarmResponse defines the MsgLiquidUnfarmResponse response type.
@@ -67,10 +63,8 @@ message MsgLiquidUnfarmAndWithdraw {
 
   string farmer = 2;
 
-  cosmos.base.v1beta1.Coin unfarming_coin = 3 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
-  ];
+  cosmos.base.v1beta1.Coin unfarming_coin = 3
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"];
 }
 
 // MsgLiquidUnfarmAndWithdrawResponse defines the MsgLiquidUnfarmAndWithdrawResponse response type.
@@ -86,10 +80,8 @@ message MsgPlaceBid {
 
   string bidder = 3;
 
-  cosmos.base.v1beta1.Coin bidding_coin = 4 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"
-  ];
+  cosmos.base.v1beta1.Coin bidding_coin = 4
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin"];
 }
 
 // MsgPlaceBidResponse defines the MsgPlaceBidResponse response type.

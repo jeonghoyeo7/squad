@@ -60,7 +60,7 @@ message QueryLiquidFarmsRequest {
 
 // QueryLiquidFarmsResponse is response type for the Query/LiquidFarms RPC method.
 message QueryLiquidFarmsResponse {
-  repeated LiquidFarmResponse liquid_farms = 1 [ (gogoproto.nullable) = false ];
+  repeated LiquidFarmResponse liquid_farms = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryLiquidFarmRequest is the request type for the Query/LiquidFarm RPC method.
@@ -70,7 +70,7 @@ message QueryLiquidFarmRequest {
 
 // QueryLiquidFarmResponse is response type for the Query/LiquidFarm RPC method.
 message QueryLiquidFarmResponse {
-  LiquidFarmResponse liquid_farm = 1 [ (gogoproto.nullable) = false ];
+  LiquidFarmResponse liquid_farm = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
@@ -83,37 +83,36 @@ message QueryParamsResponse {
 
 // QueryRewardsAuctionsRequest is request type for the Query/RewardsAuctions RPC method.
 message QueryRewardsAuctionsRequest {
-  uint64 pool_id = 1;
+  uint64                                pool_id    = 1;
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryRewardsAuctionsResponse is response type for the Query/RewardsAuctions RPC method.
 message QueryRewardsAuctionsResponse {
-  repeated RewardsAuction reward_auctions = 1 [ (gogoproto.nullable) = false ];
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+  repeated RewardsAuction                reward_auctions = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination      = 2;
 }
-
 
 // QueryRewardsAuctionRequest is request type for the Query/RewardsAuction RPC method.
 message QueryRewardsAuctionRequest {
   uint64 auction_id = 1;
-  uint64 pool_id = 2;
+  uint64 pool_id    = 2;
 }
 
 // QueryRewardsAuctionResponse is response type for the Query/RewardsAuction RPC method.
 message QueryRewardsAuctionResponse {
-  RewardsAuction reward_auction = 1 [ (gogoproto.nullable) = false ];
+  RewardsAuction reward_auction = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryBidsRequest is request type for the Query/Bids RPC method.
 message QueryBidsRequest {
-  uint64 pool_id = 1;
+  uint64                                pool_id    = 1;
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryBidsResponse is response type for the Query/Bids RPC method.
 message QueryBidsResponse {
-  repeated Bid bids = 1 [ (gogoproto.nullable) = false ];
+  repeated Bid                           bids       = 1 [(gogoproto.nullable) = false];
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
@@ -125,7 +124,7 @@ message QueryMintRateRequest {
 // QueryMintRateResponse is response type for the Query/MintRate RPC method.
 message QueryMintRateResponse {
   string mint_rate = 1
-    [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
 }
 
 // QueryBurnRateRequest is request type for the Query/BurnRate RPC method.
@@ -136,7 +135,7 @@ message QueryBurnRateRequest {
 // QueryBurnRateResponse is response type for the Query/BurnRate RPC method.
 message QueryBurnRateResponse {
   string burn_rate = 1
-    [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec", (gogoproto.nullable) = false];
 }
 
 //
@@ -145,12 +144,12 @@ message QueryBurnRateResponse {
 
 // LiquidFarmResponse is response type for the Query/LiquidFarm RPC method.
 message LiquidFarmResponse {
-	uint64 pool_id = 1;
-	
+  uint64 pool_id = 1;
+
   string liquid_farm_reserve_address = 2;
 
   string lf_coin_denom = 3 [(gogoproto.customname) = "LFCoinDenom"];
-  
+
   string min_farm_amount = 4
       [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
 
@@ -158,5 +157,5 @@ message LiquidFarmResponse {
       [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
 
   string total_farming_amount = 6
-    [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
+      [(gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int", (gogoproto.nullable) = false];
 }
