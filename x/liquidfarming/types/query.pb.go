@@ -6,8 +6,8 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	_ "github.com/cosmos/cosmos-sdk/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
@@ -297,7 +297,8 @@ func (m *QueryParamsResponse) GetParams() Params {
 // QueryRewardsAuctionsRequest is request type for the Query/RewardsAuctions RPC method.
 type QueryRewardsAuctionsRequest struct {
 	PoolId     uint64             `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
-	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	Status     string             `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	Pagination *query.PageRequest `protobuf:"bytes,3,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
 func (m *QueryRewardsAuctionsRequest) Reset()         { *m = QueryRewardsAuctionsRequest{} }
@@ -338,6 +339,13 @@ func (m *QueryRewardsAuctionsRequest) GetPoolId() uint64 {
 		return m.PoolId
 	}
 	return 0
+}
+
+func (m *QueryRewardsAuctionsRequest) GetStatus() string {
+	if m != nil {
+		return m.Status
+	}
+	return ""
 }
 
 func (m *QueryRewardsAuctionsRequest) GetPagination() *query.PageRequest {
@@ -604,23 +612,23 @@ func (m *QueryBidsResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
-// QueryMintRateRequest is request type for the Query/MintRate RPC method.
-type QueryMintRateRequest struct {
+// QueryRewardsRequest is request type for the Query/Rewards RPC method.
+type QueryRewardsRequest struct {
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 }
 
-func (m *QueryMintRateRequest) Reset()         { *m = QueryMintRateRequest{} }
-func (m *QueryMintRateRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryMintRateRequest) ProtoMessage()    {}
-func (*QueryMintRateRequest) Descriptor() ([]byte, []int) {
+func (m *QueryRewardsRequest) Reset()         { *m = QueryRewardsRequest{} }
+func (m *QueryRewardsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryRewardsRequest) ProtoMessage()    {}
+func (*QueryRewardsRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_9d6573e06fd69a92, []int{12}
 }
-func (m *QueryMintRateRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryRewardsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryMintRateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryRewardsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryMintRateRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryRewardsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -630,42 +638,42 @@ func (m *QueryMintRateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryMintRateRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryMintRateRequest.Merge(m, src)
+func (m *QueryRewardsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryRewardsRequest.Merge(m, src)
 }
-func (m *QueryMintRateRequest) XXX_Size() int {
+func (m *QueryRewardsRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryMintRateRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryMintRateRequest.DiscardUnknown(m)
+func (m *QueryRewardsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryRewardsRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryMintRateRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryRewardsRequest proto.InternalMessageInfo
 
-func (m *QueryMintRateRequest) GetPoolId() uint64 {
+func (m *QueryRewardsRequest) GetPoolId() uint64 {
 	if m != nil {
 		return m.PoolId
 	}
 	return 0
 }
 
-// QueryMintRateResponse is response type for the Query/MintRate RPC method.
-type QueryMintRateResponse struct {
-	MintRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=mint_rate,json=mintRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"mint_rate"`
+// QueryRewardsResponse is response type for the Query/Rewards RPC method.
+type QueryRewardsResponse struct {
+	Rewards github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=rewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"rewards"`
 }
 
-func (m *QueryMintRateResponse) Reset()         { *m = QueryMintRateResponse{} }
-func (m *QueryMintRateResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryMintRateResponse) ProtoMessage()    {}
-func (*QueryMintRateResponse) Descriptor() ([]byte, []int) {
+func (m *QueryRewardsResponse) Reset()         { *m = QueryRewardsResponse{} }
+func (m *QueryRewardsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryRewardsResponse) ProtoMessage()    {}
+func (*QueryRewardsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_9d6573e06fd69a92, []int{13}
 }
-func (m *QueryMintRateResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryRewardsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryMintRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryRewardsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryMintRateResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryRewardsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -675,35 +683,42 @@ func (m *QueryMintRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *QueryMintRateResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryMintRateResponse.Merge(m, src)
+func (m *QueryRewardsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryRewardsResponse.Merge(m, src)
 }
-func (m *QueryMintRateResponse) XXX_Size() int {
+func (m *QueryRewardsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryMintRateResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryMintRateResponse.DiscardUnknown(m)
+func (m *QueryRewardsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryRewardsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryMintRateResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryRewardsResponse proto.InternalMessageInfo
 
-// QueryBurnRateRequest is request type for the Query/BurnRate RPC method.
-type QueryBurnRateRequest struct {
+func (m *QueryRewardsResponse) GetRewards() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.Rewards
+	}
+	return nil
+}
+
+// QueryExchangeRateRequest is request type for the Query/ExchangeRate RPC method.
+type QueryExchangeRateRequest struct {
 	PoolId uint64 `protobuf:"varint,1,opt,name=pool_id,json=poolId,proto3" json:"pool_id,omitempty"`
 }
 
-func (m *QueryBurnRateRequest) Reset()         { *m = QueryBurnRateRequest{} }
-func (m *QueryBurnRateRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryBurnRateRequest) ProtoMessage()    {}
-func (*QueryBurnRateRequest) Descriptor() ([]byte, []int) {
+func (m *QueryExchangeRateRequest) Reset()         { *m = QueryExchangeRateRequest{} }
+func (m *QueryExchangeRateRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryExchangeRateRequest) ProtoMessage()    {}
+func (*QueryExchangeRateRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_9d6573e06fd69a92, []int{14}
 }
-func (m *QueryBurnRateRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryExchangeRateRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryBurnRateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryExchangeRateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryBurnRateRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryExchangeRateRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -713,42 +728,42 @@ func (m *QueryBurnRateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryBurnRateRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryBurnRateRequest.Merge(m, src)
+func (m *QueryExchangeRateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryExchangeRateRequest.Merge(m, src)
 }
-func (m *QueryBurnRateRequest) XXX_Size() int {
+func (m *QueryExchangeRateRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryBurnRateRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryBurnRateRequest.DiscardUnknown(m)
+func (m *QueryExchangeRateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryExchangeRateRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryBurnRateRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryExchangeRateRequest proto.InternalMessageInfo
 
-func (m *QueryBurnRateRequest) GetPoolId() uint64 {
+func (m *QueryExchangeRateRequest) GetPoolId() uint64 {
 	if m != nil {
 		return m.PoolId
 	}
 	return 0
 }
 
-// QueryBurnRateResponse is response type for the Query/BurnRate RPC method.
-type QueryBurnRateResponse struct {
-	BurnRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=burn_rate,json=burnRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"burn_rate"`
+// QueryExchangeRateResponse is response type for the Query/ExchangeRate RPC method.
+type QueryExchangeRateResponse struct {
+	ExchangeRate ExchangeRateResponse `protobuf:"bytes,1,opt,name=exchange_rate,json=exchangeRate,proto3" json:"exchange_rate"`
 }
 
-func (m *QueryBurnRateResponse) Reset()         { *m = QueryBurnRateResponse{} }
-func (m *QueryBurnRateResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryBurnRateResponse) ProtoMessage()    {}
-func (*QueryBurnRateResponse) Descriptor() ([]byte, []int) {
+func (m *QueryExchangeRateResponse) Reset()         { *m = QueryExchangeRateResponse{} }
+func (m *QueryExchangeRateResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryExchangeRateResponse) ProtoMessage()    {}
+func (*QueryExchangeRateResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_9d6573e06fd69a92, []int{15}
 }
-func (m *QueryBurnRateResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryExchangeRateResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryBurnRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryExchangeRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryBurnRateResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryExchangeRateResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -758,17 +773,24 @@ func (m *QueryBurnRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *QueryBurnRateResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryBurnRateResponse.Merge(m, src)
+func (m *QueryExchangeRateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryExchangeRateResponse.Merge(m, src)
 }
-func (m *QueryBurnRateResponse) XXX_Size() int {
+func (m *QueryExchangeRateResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryBurnRateResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryBurnRateResponse.DiscardUnknown(m)
+func (m *QueryExchangeRateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryExchangeRateResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryBurnRateResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryExchangeRateResponse proto.InternalMessageInfo
+
+func (m *QueryExchangeRateResponse) GetExchangeRate() ExchangeRateResponse {
+	if m != nil {
+		return m.ExchangeRate
+	}
+	return ExchangeRateResponse{}
+}
 
 // LiquidFarmResponse is response type for the Query/LiquidFarm RPC method.
 type LiquidFarmResponse struct {
@@ -834,6 +856,44 @@ func (m *LiquidFarmResponse) GetLFCoinDenom() string {
 	return ""
 }
 
+type ExchangeRateResponse struct {
+	MintRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,1,opt,name=mint_rate,json=mintRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"mint_rate"`
+	BurnRate github_com_cosmos_cosmos_sdk_types.Dec `protobuf:"bytes,2,opt,name=burn_rate,json=burnRate,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Dec" json:"burn_rate"`
+}
+
+func (m *ExchangeRateResponse) Reset()         { *m = ExchangeRateResponse{} }
+func (m *ExchangeRateResponse) String() string { return proto.CompactTextString(m) }
+func (*ExchangeRateResponse) ProtoMessage()    {}
+func (*ExchangeRateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9d6573e06fd69a92, []int{17}
+}
+func (m *ExchangeRateResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ExchangeRateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ExchangeRateResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ExchangeRateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExchangeRateResponse.Merge(m, src)
+}
+func (m *ExchangeRateResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *ExchangeRateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ExchangeRateResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ExchangeRateResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*QueryLiquidFarmsRequest)(nil), "squad.liquidfarming.v1beta1.QueryLiquidFarmsRequest")
 	proto.RegisterType((*QueryLiquidFarmsResponse)(nil), "squad.liquidfarming.v1beta1.QueryLiquidFarmsResponse")
@@ -847,11 +907,12 @@ func init() {
 	proto.RegisterType((*QueryRewardsAuctionResponse)(nil), "squad.liquidfarming.v1beta1.QueryRewardsAuctionResponse")
 	proto.RegisterType((*QueryBidsRequest)(nil), "squad.liquidfarming.v1beta1.QueryBidsRequest")
 	proto.RegisterType((*QueryBidsResponse)(nil), "squad.liquidfarming.v1beta1.QueryBidsResponse")
-	proto.RegisterType((*QueryMintRateRequest)(nil), "squad.liquidfarming.v1beta1.QueryMintRateRequest")
-	proto.RegisterType((*QueryMintRateResponse)(nil), "squad.liquidfarming.v1beta1.QueryMintRateResponse")
-	proto.RegisterType((*QueryBurnRateRequest)(nil), "squad.liquidfarming.v1beta1.QueryBurnRateRequest")
-	proto.RegisterType((*QueryBurnRateResponse)(nil), "squad.liquidfarming.v1beta1.QueryBurnRateResponse")
+	proto.RegisterType((*QueryRewardsRequest)(nil), "squad.liquidfarming.v1beta1.QueryRewardsRequest")
+	proto.RegisterType((*QueryRewardsResponse)(nil), "squad.liquidfarming.v1beta1.QueryRewardsResponse")
+	proto.RegisterType((*QueryExchangeRateRequest)(nil), "squad.liquidfarming.v1beta1.QueryExchangeRateRequest")
+	proto.RegisterType((*QueryExchangeRateResponse)(nil), "squad.liquidfarming.v1beta1.QueryExchangeRateResponse")
 	proto.RegisterType((*LiquidFarmResponse)(nil), "squad.liquidfarming.v1beta1.LiquidFarmResponse")
+	proto.RegisterType((*ExchangeRateResponse)(nil), "squad.liquidfarming.v1beta1.ExchangeRateResponse")
 }
 
 func init() {
@@ -859,73 +920,79 @@ func init() {
 }
 
 var fileDescriptor_9d6573e06fd69a92 = []byte{
-	// 1055 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x97, 0x41, 0x6f, 0x1b, 0x45,
-	0x14, 0xc7, 0xb3, 0x49, 0x6a, 0x9a, 0xe7, 0x26, 0x81, 0x21, 0x50, 0xcb, 0x29, 0x4e, 0xb4, 0x15,
-	0x6d, 0xd4, 0x2a, 0xbb, 0xb5, 0x13, 0x4a, 0x5a, 0xa9, 0xa0, 0x98, 0x12, 0x14, 0x08, 0x52, 0x58,
-	0x55, 0x55, 0xd5, 0x8b, 0x19, 0x7b, 0x27, 0x66, 0xc4, 0xee, 0x8e, 0xbd, 0xb3, 0xdb, 0x52, 0x55,
-	0xe5, 0xc0, 0x27, 0x40, 0xe2, 0xd2, 0x23, 0x1f, 0x80, 0x4b, 0xc5, 0x95, 0x1b, 0x97, 0x5e, 0x90,
-	0x2a, 0x71, 0x00, 0x71, 0x88, 0x50, 0xc2, 0x07, 0x41, 0x3b, 0x33, 0xeb, 0xdd, 0xb5, 0x8d, 0xed,
-	0x75, 0x51, 0x4f, 0xb1, 0x77, 0xe6, 0xfd, 0xdf, 0xef, 0xff, 0xe6, 0x79, 0xdf, 0x04, 0x2e, 0xf3,
-	0x6e, 0x88, 0x6d, 0xd3, 0xa1, 0xdd, 0x90, 0xda, 0x47, 0xd8, 0x77, 0xa9, 0xd7, 0x36, 0x1f, 0x54,
-	0x9b, 0x24, 0xc0, 0x55, 0xb3, 0x1b, 0x12, 0xff, 0x91, 0xd1, 0xf1, 0x59, 0xc0, 0xd0, 0xaa, 0xd8,
-	0x68, 0x64, 0x36, 0x1a, 0x6a, 0x63, 0xf9, 0x4a, 0x8b, 0x71, 0x97, 0x71, 0xb3, 0x89, 0x39, 0x91,
-	0x51, 0x3d, 0x8d, 0x0e, 0x6e, 0x53, 0x0f, 0x07, 0x94, 0x79, 0x52, 0xa8, 0x5c, 0x49, 0xef, 0x8d,
-	0x77, 0xb5, 0x18, 0x8d, 0xd7, 0x57, 0xda, 0xac, 0xcd, 0xc4, 0x47, 0x33, 0xfa, 0xa4, 0x9e, 0x5e,
-	0x68, 0x33, 0xd6, 0x76, 0x88, 0x89, 0x3b, 0xd4, 0xc4, 0x9e, 0xc7, 0x02, 0x21, 0xc9, 0xd5, 0xaa,
-	0x39, 0xca, 0x45, 0x16, 0x59, 0x06, 0x6c, 0x8c, 0x0a, 0xe8, 0x60, 0x1f, 0xbb, 0x4a, 0x5a, 0xc7,
-	0x70, 0xfe, 0x8b, 0xc8, 0xd0, 0x81, 0xd8, 0xba, 0x87, 0x7d, 0x97, 0x5b, 0xa4, 0x1b, 0x12, 0x1e,
-	0xa0, 0x3d, 0x80, 0xc4, 0x5d, 0x49, 0x5b, 0xd7, 0x36, 0x8a, 0xb5, 0x4b, 0x86, 0xb4, 0x67, 0x44,
-	0xf6, 0x0c, 0x59, 0x40, 0xa5, 0x6b, 0x1c, 0xe2, 0x36, 0x51, 0xb1, 0x56, 0x2a, 0x52, 0x0f, 0xa0,
-	0x34, 0x98, 0x82, 0x77, 0x98, 0xc7, 0x09, 0xba, 0x07, 0xe7, 0x24, 0x64, 0x23, 0xa2, 0xe4, 0x25,
-	0x6d, 0x7d, 0x6e, 0xa3, 0x58, 0x33, 0x8d, 0x11, 0xa7, 0x61, 0x24, 0x3a, 0xb1, 0x4c, 0x7d, 0xfe,
-	0xf9, 0xf1, 0xda, 0x8c, 0x55, 0x74, 0x92, 0x0c, 0x7a, 0x15, 0xde, 0xee, 0xcb, 0x1a, 0xfb, 0x3a,
-	0x0f, 0xaf, 0x75, 0x18, 0x73, 0x1a, 0xd4, 0x16, 0xa6, 0xe6, 0xad, 0x42, 0xf4, 0x75, 0xdf, 0xd6,
-	0xbb, 0x03, 0xb5, 0xe8, 0x71, 0xde, 0x85, 0x62, 0x8a, 0x53, 0x15, 0x63, 0x4a, 0x4c, 0x48, 0x30,
-	0xf5, 0x15, 0x40, 0x22, 0xe5, 0xa1, 0x38, 0x13, 0x45, 0xa8, 0xdf, 0x83, 0x37, 0x33, 0x4f, 0x15,
-	0xc4, 0x2e, 0x14, 0xe4, 0xd9, 0xa9, 0xfc, 0x17, 0x47, 0xe6, 0x97, 0xc1, 0x2a, 0xa7, 0x0a, 0xd4,
-	0xbf, 0x85, 0x55, 0xa1, 0x6c, 0x91, 0x87, 0xd8, 0xb7, 0xf9, 0x6e, 0xd8, 0x12, 0x7d, 0x36, 0xae,
-	0x34, 0x7d, 0xbd, 0x30, 0x3b, 0x75, 0x2f, 0xfc, 0xaa, 0xc1, 0x85, 0xe1, 0x00, 0xca, 0xe3, 0x7d,
-	0x58, 0xf6, 0xc5, 0x52, 0x03, 0xab, 0x25, 0xd5, 0x13, 0x57, 0x47, 0x9a, 0xcd, 0xca, 0x29, 0xd3,
-	0x4b, 0x52, 0x29, 0xce, 0x81, 0x3e, 0x19, 0x62, 0xe2, 0xf2, 0x58, 0x13, 0x12, 0x2c, 0xe3, 0xe2,
-	0x0e, 0x94, 0x87, 0x98, 0x88, 0x8b, 0xf8, 0x0e, 0x80, 0x62, 0x4f, 0xea, 0xb8, 0xa0, 0x9e, 0xec,
-	0xdb, 0xe9, 0x1a, 0xcf, 0x66, 0xda, 0xef, 0xe1, 0xd0, 0xb3, 0x49, 0xfd, 0x54, 0x96, 0xb2, 0x95,
-	0x51, 0x5d, 0x30, 0x45, 0x61, 0x16, 0x33, 0x85, 0xd1, 0x39, 0xbc, 0x2e, 0x12, 0xd7, 0xa9, 0xfd,
-	0xea, 0x3a, 0xe1, 0xa9, 0x06, 0x6f, 0xa4, 0xb2, 0x2a, 0x93, 0x37, 0x61, 0xbe, 0x49, 0xed, 0xf8,
-	0xcc, 0xd7, 0x47, 0x5a, 0xab, 0x53, 0x5b, 0xf9, 0x11, 0x31, 0xff, 0xdf, 0xf1, 0x9a, 0xb0, 0x22,
-	0xc8, 0x3e, 0xa7, 0x5e, 0x60, 0xe1, 0x80, 0x8c, 0x7d, 0x71, 0xd8, 0xf0, 0x56, 0x5f, 0x80, 0xb2,
-	0xf3, 0x19, 0x2c, 0xb8, 0xd4, 0x0b, 0x1a, 0x3e, 0x0e, 0x88, 0x88, 0x59, 0xa8, 0x1b, 0x11, 0xf1,
-	0x5f, 0xc7, 0x6b, 0x97, 0xda, 0x34, 0xf8, 0x2a, 0x6c, 0x1a, 0x2d, 0xe6, 0x9a, 0x6a, 0x64, 0xc8,
-	0x3f, 0x9b, 0xdc, 0xfe, 0xda, 0x0c, 0x1e, 0x75, 0x08, 0x37, 0x6e, 0x93, 0x96, 0x75, 0xd6, 0x55,
-	0xa2, 0x3d, 0xac, 0x7a, 0xe8, 0x7b, 0xb9, 0xb0, 0x92, 0x80, 0x04, 0xab, 0x19, 0xfa, 0xde, 0x4b,
-	0x61, 0x35, 0x95, 0xa8, 0xfe, 0x6c, 0x0e, 0xd0, 0x90, 0x37, 0xe6, 0x7f, 0x36, 0xd0, 0x2d, 0x58,
-	0x4d, 0xbd, 0x4a, 0x1b, 0x3e, 0xe1, 0xc4, 0x7f, 0x40, 0x1a, 0xd8, 0xb6, 0x7d, 0xc2, 0xb9, 0x38,
-	0xb7, 0x05, 0xab, 0xe4, 0xa4, 0x15, 0xa3, 0x0d, 0xbb, 0x72, 0x1d, 0x6d, 0xc1, 0xa2, 0x73, 0xd4,
-	0x88, 0x06, 0x6a, 0xc3, 0x26, 0x1e, 0x73, 0x4b, 0x73, 0x82, 0x7f, 0xf9, 0xe4, 0x78, 0xad, 0x78,
-	0xb0, 0xf7, 0x11, 0xa3, 0xde, 0xed, 0xe8, 0xb1, 0x55, 0x74, 0x8e, 0x7a, 0x5f, 0xd0, 0x5d, 0x58,
-	0x76, 0xa9, 0x27, 0x13, 0x62, 0x97, 0x85, 0x5e, 0x50, 0x9a, 0xcf, 0x6d, 0x7b, 0xdf, 0x0b, 0xac,
-	0x45, 0x97, 0x7a, 0x11, 0xd4, 0xae, 0x10, 0x41, 0x77, 0x60, 0x29, 0xd2, 0x6d, 0x52, 0x3b, 0x96,
-	0x3d, 0x33, 0x95, 0xec, 0x39, 0x97, 0x7a, 0x75, 0x6a, 0x2b, 0xd5, 0x2f, 0x61, 0x25, 0x60, 0x01,
-	0x76, 0x1a, 0xaa, 0xe3, 0x63, 0xed, 0xc2, 0x54, 0xda, 0x48, 0x68, 0xed, 0x49, 0x29, 0x99, 0xa1,
-	0xf6, 0x4b, 0x11, 0xce, 0x88, 0xd6, 0x40, 0x4f, 0x35, 0x28, 0xc8, 0x49, 0x81, 0x46, 0x8f, 0xb3,
-	0xc1, 0x31, 0x55, 0xbe, 0x36, 0x79, 0x80, 0x6c, 0x0a, 0xfd, 0xea, 0x77, 0xbf, 0xff, 0xf3, 0xc3,
-	0xec, 0xbb, 0xe8, 0xa2, 0x39, 0xfe, 0x82, 0x82, 0x7e, 0xd2, 0xa0, 0x98, 0xba, 0x33, 0xa0, 0xed,
-	0xf1, 0xe9, 0x06, 0x6f, 0x31, 0xe5, 0xf7, 0x72, 0x46, 0x29, 0xd2, 0x6b, 0x82, 0xf4, 0x0a, 0xda,
-	0x98, 0xf0, 0xee, 0xc5, 0xd1, 0xcf, 0x1a, 0x40, 0xa2, 0x84, 0xb6, 0xf2, 0xe4, 0x8d, 0x61, 0xb7,
-	0xf3, 0x05, 0x29, 0xd6, 0x9b, 0x82, 0x75, 0x1b, 0xd5, 0x26, 0x65, 0x35, 0x1f, 0xab, 0x9f, 0xe6,
-	0x13, 0xf4, 0x9b, 0x06, 0xcb, 0x7d, 0xb3, 0x18, 0xed, 0x8c, 0xa7, 0x18, 0x7e, 0x7f, 0x28, 0xdf,
-	0x98, 0x22, 0x52, 0x99, 0xf8, 0x58, 0x98, 0xf8, 0x10, 0xdd, 0x1a, 0xdd, 0x1a, 0x8c, 0x39, 0x29,
-	0x7c, 0x53, 0x0e, 0x32, 0xde, 0xbb, 0x2c, 0xa0, 0x3f, 0x34, 0x58, 0xca, 0xa6, 0x40, 0xef, 0xe7,
-	0x85, 0x8a, 0xdd, 0xec, 0xe4, 0x0f, 0x54, 0x66, 0x2c, 0x61, 0xe6, 0x00, 0x7d, 0xfa, 0x52, 0x66,
-	0xcc, 0xc7, 0xc9, 0x3d, 0xe2, 0x09, 0xfa, 0x51, 0x83, 0xf9, 0x68, 0x56, 0xa2, 0xcd, 0xf1, 0x58,
-	0xa9, 0x49, 0x5e, 0x36, 0x26, 0xdd, 0xae, 0xd8, 0x6f, 0x08, 0xf6, 0x2d, 0x54, 0xcd, 0xc5, 0x2e,
-	0x26, 0xf0, 0x33, 0x0d, 0xce, 0xc6, 0x33, 0x10, 0x55, 0xc7, 0xe7, 0xed, 0x1b, 0xb0, 0xe5, 0x5a,
-	0x9e, 0x10, 0x85, 0xfb, 0x81, 0xc0, 0xdd, 0x41, 0xd7, 0x73, 0xe1, 0xf6, 0xa6, 0xb2, 0x60, 0x8e,
-	0x07, 0xe4, 0x24, 0xcc, 0x7d, 0xd3, 0x77, 0x12, 0xe6, 0xfe, 0xf9, 0x3b, 0x25, 0x73, 0x6f, 0x64,
-	0xd7, 0x0f, 0x9f, 0x9f, 0x54, 0xb4, 0x17, 0x27, 0x15, 0xed, 0xef, 0x93, 0x8a, 0xf6, 0xfd, 0x69,
-	0x65, 0xe6, 0xc5, 0x69, 0x65, 0xe6, 0xcf, 0xd3, 0xca, 0xcc, 0xfd, 0xeb, 0x03, 0x43, 0x21, 0x4a,
-	0xb0, 0xe9, 0xe0, 0x26, 0x57, 0xb9, 0xbe, 0xe9, 0xcb, 0x26, 0x06, 0x45, 0xb3, 0x20, 0xfe, 0x1b,
-	0xdc, 0xfa, 0x37, 0x00, 0x00, 0xff, 0xff, 0xc2, 0x20, 0x1a, 0xaa, 0x30, 0x0f, 0x00, 0x00,
+	// 1147 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x57, 0xdd, 0x6e, 0x1b, 0x45,
+	0x14, 0xce, 0x26, 0xa9, 0x43, 0x8e, 0xf3, 0x03, 0x43, 0xd4, 0xba, 0x4e, 0x71, 0xa2, 0xad, 0x68,
+	0xad, 0x56, 0xd9, 0x8d, 0x93, 0xd0, 0x9f, 0x08, 0x04, 0x71, 0x5b, 0x43, 0xd4, 0x5e, 0x84, 0x55,
+	0x55, 0x45, 0x15, 0x92, 0x19, 0x7b, 0x27, 0xee, 0x0a, 0xef, 0xae, 0xbd, 0xb3, 0x6e, 0x1b, 0x55,
+	0xb9, 0xe1, 0x09, 0x90, 0x90, 0x50, 0x9f, 0x80, 0x0b, 0xc4, 0x05, 0x3f, 0x8f, 0xc0, 0x05, 0xbd,
+	0xac, 0xd4, 0x1b, 0x84, 0x44, 0x40, 0x09, 0xbc, 0x07, 0x9a, 0xd9, 0xb3, 0xf1, 0x6e, 0xbc, 0xf5,
+	0xcf, 0xaa, 0x57, 0xb1, 0x67, 0xe6, 0x7c, 0xe7, 0xfb, 0xbe, 0x39, 0x3e, 0x73, 0x02, 0x97, 0x79,
+	0xbb, 0x43, 0x4d, 0xbd, 0x69, 0xb5, 0x3b, 0x96, 0xb9, 0x47, 0x3d, 0xdb, 0x72, 0x1a, 0xfa, 0xe3,
+	0x52, 0x8d, 0xf9, 0xb4, 0xa4, 0xb7, 0x3b, 0xcc, 0xdb, 0xd7, 0x5a, 0x9e, 0xeb, 0xbb, 0x64, 0x51,
+	0x1e, 0xd4, 0x62, 0x07, 0x35, 0x3c, 0x98, 0xbf, 0x52, 0x77, 0xb9, 0xed, 0x72, 0xbd, 0x46, 0x39,
+	0x0b, 0xa2, 0x4e, 0x30, 0x5a, 0xb4, 0x61, 0x39, 0xd4, 0xb7, 0x5c, 0x27, 0x00, 0xca, 0x17, 0xa2,
+	0x67, 0xc3, 0x53, 0x75, 0xd7, 0x0a, 0xf7, 0x17, 0x1a, 0x6e, 0xc3, 0x95, 0x1f, 0x75, 0xf1, 0x09,
+	0x57, 0x2f, 0x34, 0x5c, 0xb7, 0xd1, 0x64, 0x3a, 0x6d, 0x59, 0x3a, 0x75, 0x1c, 0xd7, 0x97, 0x90,
+	0x1c, 0x77, 0xf5, 0x7e, 0x2a, 0xe2, 0x94, 0x83, 0x80, 0x62, 0xbf, 0x80, 0x16, 0xf5, 0xa8, 0x8d,
+	0xd0, 0x2a, 0x85, 0x73, 0x9f, 0x0b, 0x41, 0xf7, 0xe4, 0xd1, 0x0a, 0xf5, 0x6c, 0x6e, 0xb0, 0x76,
+	0x87, 0x71, 0x9f, 0x54, 0x00, 0xba, 0xea, 0x72, 0xca, 0xb2, 0x52, 0xcc, 0xae, 0x5d, 0xd2, 0x02,
+	0x79, 0x9a, 0x90, 0xa7, 0x05, 0x06, 0x22, 0xae, 0xb6, 0x43, 0x1b, 0x0c, 0x63, 0x8d, 0x48, 0xa4,
+	0xea, 0x43, 0xae, 0x37, 0x05, 0x6f, 0xb9, 0x0e, 0x67, 0x64, 0x17, 0x66, 0x02, 0x92, 0x55, 0xc1,
+	0x92, 0xe7, 0x94, 0xe5, 0x89, 0x62, 0x76, 0x4d, 0xd7, 0xfa, 0xdc, 0x86, 0xd6, 0xc5, 0x09, 0x61,
+	0xca, 0x93, 0x2f, 0x0e, 0x97, 0xc6, 0x8c, 0x6c, 0xb3, 0x9b, 0x41, 0x2d, 0xc1, 0xd9, 0x53, 0x59,
+	0x43, 0x5d, 0xe7, 0x60, 0xaa, 0xe5, 0xba, 0xcd, 0xaa, 0x65, 0x4a, 0x51, 0x93, 0x46, 0x46, 0x7c,
+	0xdd, 0x36, 0xd5, 0x76, 0x8f, 0x17, 0x27, 0x3c, 0x1f, 0x40, 0x36, 0xc2, 0x13, 0xcd, 0x48, 0x49,
+	0x13, 0xba, 0x34, 0xd5, 0x05, 0x20, 0x32, 0xe5, 0x8e, 0xbc, 0x13, 0x64, 0xa8, 0xee, 0xc2, 0xbb,
+	0xb1, 0x55, 0x24, 0xb1, 0x05, 0x99, 0xe0, 0xee, 0x30, 0xff, 0xc5, 0xbe, 0xf9, 0x83, 0x60, 0xcc,
+	0x89, 0x81, 0xea, 0x77, 0x0a, 0x2c, 0x4a, 0x68, 0x83, 0x3d, 0xa1, 0x9e, 0xc9, 0xb7, 0x3a, 0x75,
+	0x59, 0x68, 0x83, 0xbc, 0x21, 0x67, 0x21, 0xc3, 0x7d, 0xea, 0x77, 0x78, 0x6e, 0x7c, 0x59, 0x29,
+	0x4e, 0x1b, 0xf8, 0xed, 0x54, 0x91, 0x4c, 0xa4, 0x2e, 0x92, 0xdf, 0x14, 0xb8, 0x90, 0x4c, 0x0c,
+	0xc5, 0x3f, 0x84, 0x79, 0x4f, 0x6e, 0x55, 0x29, 0x6e, 0x61, 0xb1, 0x5c, 0xed, 0xeb, 0x42, 0x1c,
+	0x0e, 0xdd, 0x98, 0x0b, 0x90, 0xc2, 0x1c, 0xe4, 0xd3, 0x98, 0x88, 0x71, 0x29, 0xe2, 0xf2, 0x40,
+	0x11, 0x01, 0xb1, 0x98, 0x8a, 0xfb, 0x90, 0x4f, 0x10, 0x11, 0x9a, 0xfb, 0x1e, 0x00, 0x72, 0xef,
+	0xfa, 0x3b, 0x8d, 0x2b, 0xdb, 0x66, 0xd4, 0xfb, 0xf1, 0x58, 0x5d, 0x3e, 0x49, 0xbc, 0xb3, 0xc8,
+	0x6f, 0x68, 0x2e, 0xee, 0x0c, 0x96, 0x47, 0x0a, 0x63, 0x66, 0x63, 0xc6, 0xa8, 0x1c, 0xde, 0x96,
+	0x89, 0xcb, 0x96, 0x39, 0xb8, 0x42, 0x2a, 0x09, 0x26, 0xa6, 0xa9, 0x84, 0xe7, 0x0a, 0xbc, 0x13,
+	0xc9, 0x8a, 0x22, 0x37, 0x61, 0xb2, 0x66, 0x99, 0xe1, 0x9d, 0x2f, 0xf7, 0x95, 0x56, 0xb6, 0x4c,
+	0xd4, 0x23, 0x63, 0xde, 0xdc, 0xf5, 0x6a, 0xf8, 0xbb, 0x44, 0xef, 0x06, 0x36, 0x94, 0x03, 0x58,
+	0x88, 0x9f, 0x47, 0x31, 0x0c, 0xa6, 0x02, 0xa3, 0x43, 0x3d, 0xe7, 0x63, 0x6c, 0x42, 0x1e, 0xb7,
+	0x5c, 0xcb, 0x29, 0xaf, 0x0a, 0x21, 0x3f, 0xfc, 0xbd, 0x54, 0x6c, 0x58, 0xfe, 0xa3, 0x4e, 0x4d,
+	0xab, 0xbb, 0xb6, 0x8e, 0x4f, 0x4c, 0xf0, 0x67, 0x85, 0x9b, 0x5f, 0xe9, 0xfe, 0x7e, 0x8b, 0x71,
+	0x19, 0xc0, 0x8d, 0x10, 0x5b, 0x5d, 0xc7, 0xc6, 0x7b, 0xe7, 0x69, 0xfd, 0x11, 0x75, 0x1a, 0xcc,
+	0xa0, 0x3e, 0x1b, 0xc8, 0x79, 0x1f, 0xce, 0x27, 0x04, 0x21, 0xf1, 0x2f, 0x60, 0x96, 0xe1, 0x7a,
+	0xd5, 0xa3, 0x3e, 0xc3, 0x4a, 0x2b, 0xf5, 0xbd, 0x8e, 0x24, 0x24, 0xbc, 0x9f, 0x19, 0x16, 0xd9,
+	0x53, 0x7f, 0x9e, 0x00, 0x92, 0xd0, 0x7b, 0x5f, 0x5b, 0x71, 0x1f, 0xc1, 0x62, 0xa4, 0x29, 0x57,
+	0x3d, 0xc6, 0x99, 0xf7, 0x98, 0x55, 0xa9, 0x69, 0x7a, 0x8c, 0x87, 0x8d, 0x2a, 0xd7, 0x8c, 0x22,
+	0x8a, 0x03, 0x5b, 0xc1, 0x3e, 0x59, 0x87, 0xd9, 0xe6, 0x5e, 0x55, 0x3c, 0xcd, 0x55, 0x93, 0x39,
+	0xae, 0x2d, 0xbb, 0xd7, 0x74, 0x79, 0xfe, 0xe8, 0x70, 0x29, 0x7b, 0xaf, 0x22, 0xbc, 0xbc, 0x2d,
+	0x96, 0x8d, 0x6c, 0x73, 0xef, 0xe4, 0x0b, 0x79, 0x00, 0xf3, 0xb6, 0xe5, 0x04, 0x09, 0xa9, 0xed,
+	0x76, 0x1c, 0x3f, 0x37, 0x29, 0xc3, 0x34, 0x21, 0xe8, 0xcf, 0xc3, 0xa5, 0x4b, 0x43, 0xdc, 0xd3,
+	0xb6, 0xe3, 0x1b, 0xb3, 0xb6, 0xe5, 0x08, 0x52, 0x5b, 0x12, 0x84, 0xdc, 0x87, 0x39, 0x81, 0x5b,
+	0xb3, 0xcc, 0x10, 0xf6, 0x4c, 0x2a, 0xd8, 0x19, 0xdb, 0x72, 0xca, 0x96, 0x89, 0xa8, 0x5f, 0xc2,
+	0x82, 0xef, 0xfa, 0xb4, 0x59, 0xc5, 0x3b, 0x09, 0xb1, 0x33, 0xa9, 0xb0, 0x89, 0xc4, 0xaa, 0x04,
+	0x50, 0x41, 0x06, 0xf5, 0x27, 0x05, 0x16, 0x12, 0x4b, 0xe5, 0x2e, 0x4c, 0xdb, 0x96, 0xe3, 0x77,
+	0xcb, 0x64, 0xb4, 0x7c, 0xb7, 0x59, 0xdd, 0x78, 0x4b, 0x00, 0x08, 0x50, 0x01, 0x56, 0xeb, 0x78,
+	0x4e, 0x00, 0x36, 0x9e, 0x0e, 0x4c, 0x00, 0x08, 0xb0, 0xb5, 0xff, 0xb2, 0x70, 0x46, 0x96, 0x38,
+	0x79, 0xae, 0x40, 0x26, 0x78, 0x26, 0x49, 0xff, 0xb7, 0xbc, 0xf7, 0x8d, 0xce, 0xaf, 0x0e, 0x1f,
+	0x10, 0x38, 0xa2, 0x5e, 0xfd, 0xfa, 0xd5, 0xbf, 0xdf, 0x8e, 0xbf, 0x4f, 0x2e, 0xea, 0x83, 0xa7,
+	0x33, 0xf2, 0xa3, 0x02, 0xd9, 0xc8, 0xc0, 0x44, 0x36, 0x06, 0xa7, 0xeb, 0x1d, 0xe1, 0xf2, 0x1f,
+	0x8c, 0x18, 0x85, 0x4c, 0x57, 0x25, 0xd3, 0x2b, 0xa4, 0x38, 0xe4, 0xe0, 0xc9, 0xc9, 0xaf, 0x0a,
+	0x40, 0x17, 0x89, 0xac, 0x8f, 0x92, 0x37, 0x24, 0xbb, 0x31, 0x5a, 0x10, 0x72, 0xdd, 0x94, 0x5c,
+	0x37, 0xc8, 0xda, 0xb0, 0x5c, 0xf5, 0x67, 0xd8, 0x4d, 0x0e, 0xc8, 0x2b, 0x05, 0xe6, 0x4f, 0xcd,
+	0x1b, 0xe4, 0xc6, 0x60, 0x16, 0xc9, 0xb3, 0x53, 0xfe, 0x66, 0x8a, 0x48, 0x14, 0x71, 0x57, 0x8a,
+	0xb8, 0x43, 0x6e, 0x8d, 0x2e, 0x42, 0xc7, 0x6e, 0x7f, 0x32, 0x16, 0x91, 0xbf, 0x14, 0x98, 0x8b,
+	0x27, 0x22, 0xd7, 0x47, 0xa5, 0x16, 0x6a, 0xba, 0x31, 0x7a, 0x20, 0x4a, 0xda, 0x95, 0x92, 0x0c,
+	0xb2, 0xf3, 0x06, 0x24, 0xe9, 0xcf, 0xba, 0x73, 0xd3, 0x01, 0xf9, 0x5e, 0x81, 0x49, 0x31, 0x1b,
+	0x90, 0x95, 0xc1, 0xe4, 0x22, 0x93, 0x4b, 0x5e, 0x1b, 0xf6, 0x38, 0x2a, 0xf8, 0x58, 0x2a, 0xb8,
+	0x49, 0xae, 0xa7, 0x50, 0x20, 0xe7, 0x8e, 0x5f, 0x14, 0x98, 0x42, 0x77, 0xc8, 0xea, 0xd0, 0x46,
+	0x86, 0x74, 0x4b, 0x23, 0x44, 0x20, 0xe3, 0xb2, 0x64, 0xfc, 0x21, 0xd9, 0x4c, 0xef, 0x39, 0xf9,
+	0x5d, 0x81, 0x99, 0x68, 0x43, 0x27, 0x43, 0xf4, 0x90, 0x84, 0x01, 0x23, 0x7f, 0x6d, 0xd4, 0x30,
+	0xd4, 0xf0, 0x99, 0xd4, 0x50, 0x26, 0x9f, 0xa4, 0xd0, 0x10, 0x9b, 0x4d, 0xca, 0x3b, 0x2f, 0x8e,
+	0x0a, 0xca, 0xcb, 0xa3, 0x82, 0xf2, 0xcf, 0x51, 0x41, 0xf9, 0xe6, 0xb8, 0x30, 0xf6, 0xf2, 0xb8,
+	0x30, 0xf6, 0xc7, 0x71, 0x61, 0xec, 0xe1, 0xb5, 0x9e, 0x37, 0x43, 0xa4, 0x5a, 0x69, 0xd2, 0x1a,
+	0xc7, 0xac, 0x4f, 0x4f, 0xe5, 0x95, 0xef, 0x48, 0x2d, 0x23, 0xff, 0x67, 0x5e, 0xff, 0x3f, 0x00,
+	0x00, 0xff, 0xff, 0x00, 0xd4, 0xb0, 0xf5, 0x56, 0x10, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -946,16 +1013,16 @@ type QueryClient interface {
 	LiquidFarms(ctx context.Context, in *QueryLiquidFarmsRequest, opts ...grpc.CallOption) (*QueryLiquidFarmsResponse, error)
 	// LiquidFarm returns the specific liquid farm
 	LiquidFarm(ctx context.Context, in *QueryLiquidFarmRequest, opts ...grpc.CallOption) (*QueryLiquidFarmResponse, error)
-	// RewardsAuctions returns all rewards auctions
+	// RewardsAuctions returns all rewards auctions that correspond to the given pool id
 	RewardsAuctions(ctx context.Context, in *QueryRewardsAuctionsRequest, opts ...grpc.CallOption) (*QueryRewardsAuctionsResponse, error)
 	// RewardsAuction returns the specific rewards auction
 	RewardsAuction(ctx context.Context, in *QueryRewardsAuctionRequest, opts ...grpc.CallOption) (*QueryRewardsAuctionResponse, error)
 	// Bids returns all bids for the liquid farm
 	Bids(ctx context.Context, in *QueryBidsRequest, opts ...grpc.CallOption) (*QueryBidsResponse, error)
-	// MintRate returns the current mint rate.
-	MintRate(ctx context.Context, in *QueryMintRateRequest, opts ...grpc.CallOption) (*QueryMintRateResponse, error)
-	// BurnRate returns the current burn rate.
-	BurnRate(ctx context.Context, in *QueryBurnRateRequest, opts ...grpc.CallOption) (*QueryBurnRateResponse, error)
+	// Rewards returns all accumulated farming rewards for the liquid farm
+	Rewards(ctx context.Context, in *QueryRewardsRequest, opts ...grpc.CallOption) (*QueryRewardsResponse, error)
+	// ExchangeRate returns exchange rates (mint rate and burn rate) for the liquid farm
+	ExchangeRate(ctx context.Context, in *QueryExchangeRateRequest, opts ...grpc.CallOption) (*QueryExchangeRateResponse, error)
 }
 
 type queryClient struct {
@@ -1020,18 +1087,18 @@ func (c *queryClient) Bids(ctx context.Context, in *QueryBidsRequest, opts ...gr
 	return out, nil
 }
 
-func (c *queryClient) MintRate(ctx context.Context, in *QueryMintRateRequest, opts ...grpc.CallOption) (*QueryMintRateResponse, error) {
-	out := new(QueryMintRateResponse)
-	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Query/MintRate", in, out, opts...)
+func (c *queryClient) Rewards(ctx context.Context, in *QueryRewardsRequest, opts ...grpc.CallOption) (*QueryRewardsResponse, error) {
+	out := new(QueryRewardsResponse)
+	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Query/Rewards", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) BurnRate(ctx context.Context, in *QueryBurnRateRequest, opts ...grpc.CallOption) (*QueryBurnRateResponse, error) {
-	out := new(QueryBurnRateResponse)
-	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Query/BurnRate", in, out, opts...)
+func (c *queryClient) ExchangeRate(ctx context.Context, in *QueryExchangeRateRequest, opts ...grpc.CallOption) (*QueryExchangeRateResponse, error) {
+	out := new(QueryExchangeRateResponse)
+	err := c.cc.Invoke(ctx, "/squad.liquidfarming.v1beta1.Query/ExchangeRate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1046,16 +1113,16 @@ type QueryServer interface {
 	LiquidFarms(context.Context, *QueryLiquidFarmsRequest) (*QueryLiquidFarmsResponse, error)
 	// LiquidFarm returns the specific liquid farm
 	LiquidFarm(context.Context, *QueryLiquidFarmRequest) (*QueryLiquidFarmResponse, error)
-	// RewardsAuctions returns all rewards auctions
+	// RewardsAuctions returns all rewards auctions that correspond to the given pool id
 	RewardsAuctions(context.Context, *QueryRewardsAuctionsRequest) (*QueryRewardsAuctionsResponse, error)
 	// RewardsAuction returns the specific rewards auction
 	RewardsAuction(context.Context, *QueryRewardsAuctionRequest) (*QueryRewardsAuctionResponse, error)
 	// Bids returns all bids for the liquid farm
 	Bids(context.Context, *QueryBidsRequest) (*QueryBidsResponse, error)
-	// MintRate returns the current mint rate.
-	MintRate(context.Context, *QueryMintRateRequest) (*QueryMintRateResponse, error)
-	// BurnRate returns the current burn rate.
-	BurnRate(context.Context, *QueryBurnRateRequest) (*QueryBurnRateResponse, error)
+	// Rewards returns all accumulated farming rewards for the liquid farm
+	Rewards(context.Context, *QueryRewardsRequest) (*QueryRewardsResponse, error)
+	// ExchangeRate returns exchange rates (mint rate and burn rate) for the liquid farm
+	ExchangeRate(context.Context, *QueryExchangeRateRequest) (*QueryExchangeRateResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -1080,11 +1147,11 @@ func (*UnimplementedQueryServer) RewardsAuction(ctx context.Context, req *QueryR
 func (*UnimplementedQueryServer) Bids(ctx context.Context, req *QueryBidsRequest) (*QueryBidsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Bids not implemented")
 }
-func (*UnimplementedQueryServer) MintRate(ctx context.Context, req *QueryMintRateRequest) (*QueryMintRateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method MintRate not implemented")
+func (*UnimplementedQueryServer) Rewards(ctx context.Context, req *QueryRewardsRequest) (*QueryRewardsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Rewards not implemented")
 }
-func (*UnimplementedQueryServer) BurnRate(ctx context.Context, req *QueryBurnRateRequest) (*QueryBurnRateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method BurnRate not implemented")
+func (*UnimplementedQueryServer) ExchangeRate(ctx context.Context, req *QueryExchangeRateRequest) (*QueryExchangeRateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExchangeRate not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -1199,38 +1266,38 @@ func _Query_Bids_Handler(srv interface{}, ctx context.Context, dec func(interfac
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_MintRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryMintRateRequest)
+func _Query_Rewards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryRewardsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).MintRate(ctx, in)
+		return srv.(QueryServer).Rewards(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/squad.liquidfarming.v1beta1.Query/MintRate",
+		FullMethod: "/squad.liquidfarming.v1beta1.Query/Rewards",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).MintRate(ctx, req.(*QueryMintRateRequest))
+		return srv.(QueryServer).Rewards(ctx, req.(*QueryRewardsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_BurnRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryBurnRateRequest)
+func _Query_ExchangeRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryExchangeRateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).BurnRate(ctx, in)
+		return srv.(QueryServer).ExchangeRate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/squad.liquidfarming.v1beta1.Query/BurnRate",
+		FullMethod: "/squad.liquidfarming.v1beta1.Query/ExchangeRate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).BurnRate(ctx, req.(*QueryBurnRateRequest))
+		return srv.(QueryServer).ExchangeRate(ctx, req.(*QueryExchangeRateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1264,12 +1331,12 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_Bids_Handler,
 		},
 		{
-			MethodName: "MintRate",
-			Handler:    _Query_MintRate_Handler,
+			MethodName: "Rewards",
+			Handler:    _Query_Rewards_Handler,
 		},
 		{
-			MethodName: "BurnRate",
-			Handler:    _Query_BurnRate_Handler,
+			MethodName: "ExchangeRate",
+			Handler:    _Query_ExchangeRate_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1495,6 +1562,13 @@ func (m *QueryRewardsAuctionsRequest) MarshalToSizedBuffer(dAtA []byte) (int, er
 			i = encodeVarintQuery(dAtA, i, uint64(size))
 		}
 		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Status) > 0 {
+		i -= len(m.Status)
+		copy(dAtA[i:], m.Status)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Status)))
+		i--
 		dAtA[i] = 0x12
 	}
 	if m.PoolId != 0 {
@@ -1709,7 +1783,7 @@ func (m *QueryBidsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryMintRateRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryRewardsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1719,12 +1793,12 @@ func (m *QueryMintRateRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryMintRateRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryRewardsRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryMintRateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryRewardsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1737,7 +1811,7 @@ func (m *QueryMintRateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryMintRateResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryRewardsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1747,30 +1821,34 @@ func (m *QueryMintRateResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryMintRateResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryRewardsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryMintRateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryRewardsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	{
-		size := m.MintRate.Size()
-		i -= size
-		if _, err := m.MintRate.MarshalTo(dAtA[i:]); err != nil {
-			return 0, err
+	if len(m.Rewards) > 0 {
+		for iNdEx := len(m.Rewards) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Rewards[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
 		}
-		i = encodeVarintQuery(dAtA, i, uint64(size))
 	}
-	i--
-	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryBurnRateRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryExchangeRateRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1780,12 +1858,12 @@ func (m *QueryBurnRateRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryBurnRateRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryExchangeRateRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryBurnRateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryExchangeRateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1798,7 +1876,7 @@ func (m *QueryBurnRateRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryBurnRateResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryExchangeRateResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1808,22 +1886,22 @@ func (m *QueryBurnRateResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryBurnRateResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryExchangeRateResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryBurnRateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryExchangeRateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	{
-		size := m.BurnRate.Size()
-		i -= size
-		if _, err := m.BurnRate.MarshalTo(dAtA[i:]); err != nil {
+		size, err := m.ExchangeRate.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
 			return 0, err
 		}
+		i -= size
 		i = encodeVarintQuery(dAtA, i, uint64(size))
 	}
 	i--
@@ -1900,6 +1978,49 @@ func (m *LiquidFarmResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x8
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ExchangeRateResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ExchangeRateResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ExchangeRateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size := m.BurnRate.Size()
+		i -= size
+		if _, err := m.BurnRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size := m.MintRate.Size()
+		i -= size
+		if _, err := m.MintRate.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -1994,6 +2115,10 @@ func (m *QueryRewardsAuctionsRequest) Size() (n int) {
 	if m.PoolId != 0 {
 		n += 1 + sovQuery(uint64(m.PoolId))
 	}
+	l = len(m.Status)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
 	if m.Pagination != nil {
 		l = m.Pagination.Size()
 		n += 1 + l + sovQuery(uint64(l))
@@ -2081,7 +2206,7 @@ func (m *QueryBidsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryMintRateRequest) Size() (n int) {
+func (m *QueryRewardsRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2093,18 +2218,22 @@ func (m *QueryMintRateRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryMintRateResponse) Size() (n int) {
+func (m *QueryRewardsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.MintRate.Size()
-	n += 1 + l + sovQuery(uint64(l))
+	if len(m.Rewards) > 0 {
+		for _, e := range m.Rewards {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
 	return n
 }
 
-func (m *QueryBurnRateRequest) Size() (n int) {
+func (m *QueryExchangeRateRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2116,13 +2245,13 @@ func (m *QueryBurnRateRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryBurnRateResponse) Size() (n int) {
+func (m *QueryExchangeRateResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.BurnRate.Size()
+	l = m.ExchangeRate.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
@@ -2149,6 +2278,19 @@ func (m *LiquidFarmResponse) Size() (n int) {
 	l = m.MinBidAmount.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	l = m.TotalFarmingAmount.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *ExchangeRateResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.MintRate.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	l = m.BurnRate.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
@@ -2663,6 +2805,38 @@ func (m *QueryRewardsAuctionsRequest) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Status = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
 			}
@@ -3235,7 +3409,7 @@ func (m *QueryBidsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryMintRateRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryRewardsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3258,10 +3432,10 @@ func (m *QueryMintRateRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryMintRateRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryRewardsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryMintRateRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryRewardsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -3304,7 +3478,7 @@ func (m *QueryMintRateRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryMintRateResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryRewardsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3327,17 +3501,17 @@ func (m *QueryMintRateResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryMintRateResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryRewardsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryMintRateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryRewardsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MintRate", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Rewards", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowQuery
@@ -3347,23 +3521,23 @@ func (m *QueryMintRateResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthQuery
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthQuery
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.MintRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Rewards = append(m.Rewards, types.Coin{})
+			if err := m.Rewards[len(m.Rewards)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -3388,7 +3562,7 @@ func (m *QueryMintRateResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryBurnRateRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryExchangeRateRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3411,10 +3585,10 @@ func (m *QueryBurnRateRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryBurnRateRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryExchangeRateRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryBurnRateRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryExchangeRateRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -3457,7 +3631,7 @@ func (m *QueryBurnRateRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryBurnRateResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryExchangeRateResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3480,17 +3654,17 @@ func (m *QueryBurnRateResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryBurnRateResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryExchangeRateResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryBurnRateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryExchangeRateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BurnRate", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ExchangeRate", wireType)
 			}
-			var stringLen uint64
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowQuery
@@ -3500,23 +3674,22 @@ func (m *QueryBurnRateResponse) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
+			if msglen < 0 {
 				return ErrInvalidLengthQuery
 			}
-			postIndex := iNdEx + intStringLen
+			postIndex := iNdEx + msglen
 			if postIndex < 0 {
 				return ErrInvalidLengthQuery
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.BurnRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.ExchangeRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -3752,6 +3925,124 @@ func (m *LiquidFarmResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.TotalFarmingAmount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ExchangeRateResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ExchangeRateResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ExchangeRateResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MintRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MintRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BurnRate", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.BurnRate.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

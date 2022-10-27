@@ -16,12 +16,14 @@ This document provides a high-level overview of what gRPC-gateway REST routes ar
 ++https://github.com/cosmosquad-labs/squad/blob/main/proto/squad/liquidfarming/v1beta1/query.proto
 
 
-- [Params](#params)
-- [LiquidFarms](#liquidfarms)
-- [LiquidFarm](#liquidfarm)
-- [RewardsAuctions](#rewardsauctions)
-- [RewardsAuction](#rewardsauction)
-- [Bids](#bids)
+- [Params](#Params)
+- [LiquidFarms](#Liquidfarms)
+- [LiquidFarm](#Liquidfarm)
+- [RewardsAuctions](#Rewardsauctions)
+- [RewardsAuction](#Rewardsauction)
+- [Bids](#Bids)
+- [Rewards](#Rewards)
+- [ExchangeRate](#ExchangeRate)
 
 ## Params
 
@@ -38,6 +40,8 @@ Example Response
 ```json
 {
   "params": {
+    "fee_collector": "cosmos1lsvtflq2gau8ha7zvlethfy85qus59eserphyhc3tumua7upx6eq59trlz",
+    "rewards_auction_duration": "120s",
     "liquid_farms": [
       {
         "pool_id": "1",
@@ -45,9 +49,7 @@ Example Response
         "min_bid_amount": "1",
         "fee_rate": "0.000000000000000000"
       }
-    ],
-    "rewards_auction_duration": "120s",
-    "fee_collector": "cosmos1lsvtflq2gau8ha7zvlethfy85qus59eserphyhc3tumua7upx6eq59trlz"
+    ]
   }
 }
 ```
@@ -111,7 +113,10 @@ Example Request
 <!-- markdown-link-check-disable -->
 
 ```bash
-http://localhost:1317/squad/liquidfarming/v1beta1/pools/1/rewards_auctions
+http://localhost:1317/squad/liquidfarming/v1beta1/liquidfarms/1/rewards_auctions
+http://localhost:1317/squad/liquidfarming/v1beta1/liquidfarms/1/rewards_auctions?status=AUCTION_STATUS_STARTED
+http://localhost:1317/squad/liquidfarming/v1beta1/liquidfarms/1/rewards_auctions?status=AUCTION_STATUS_FINISHED
+http://localhost:1317/squad/liquidfarming/v1beta1/liquidfarms/1/rewards_auctions?status=AUCTION_STATUS_SKIPPED
 ```
 
 Example Response
@@ -124,11 +129,16 @@ Example Response
       "pool_id": "1",
       "bidding_coin_denom": "pool1",
       "paying_reserve_address": "cosmos1h72q3pkvsz537kj08hyv20tun3apampxhpgad97t3ls47nukgtxqeq6eu2",
-      "start_time": "2022-09-27T06:06:52.627872Z",
-      "end_time": "2022-09-27T06:08:52.627872Z",
+      "start_time": "2022-10-27T00:00:00Z",
+      "end_time": "2022-10-27T00:02:00Z",
       "status": "AUCTION_STATUS_STARTED",
       "winner": "",
-      "rewards": []
+      "winning_amount": {
+        "denom": "",
+        "amount": "0"
+      },
+      "rewards": [
+      ]
     }
   ]
 }
@@ -141,7 +151,7 @@ Example Request
 <!-- markdown-link-check-disable -->
 
 ```bash
-http://localhost:1317/squad/liquidfarming/v1beta1/pools/1/rewards_auctions/1
+http://localhost:1317/squad/liquidfarming/v1beta1/liquidfarms/1/rewards_auctions/1
 ```
 
 Example Response
@@ -153,11 +163,20 @@ Example Response
     "pool_id": "1",
     "bidding_coin_denom": "pool1",
     "paying_reserve_address": "cosmos1h72q3pkvsz537kj08hyv20tun3apampxhpgad97t3ls47nukgtxqeq6eu2",
-    "start_time": "2022-08-05T08:56:22.237454Z",
-    "end_time": "2022-08-06T08:56:22.237454Z",
-    "status": "AUCTION_STATUS_FINISHED",
+    "start_time": "2022-10-27T00:00:00Z",
+    "end_time": "2022-10-27T00:02:00Z",
+    "status": "AUCTION_STATUS_SKIPPED",
     "winner": "",
-    "rewards": []
+    "winning_amount": {
+      "denom": "",
+      "amount": "0"
+    },
+    "rewards": [
+      {
+        "denom": "stake",
+        "amount": "25369"
+      }
+    ]
   }
 }
 ```
@@ -169,7 +188,7 @@ Example Request
 <!-- markdown-link-check-disable -->
 
 ```bash
-http://localhost:1317/squad/liquidfarming/v1beta1/pools/1/bids
+http://localhost:1317/squad/liquidfarming/v1beta1/liquidfarms/1/bids
 ```
 
 Example Response
@@ -186,5 +205,49 @@ Example Response
       }
     }
   ]
+}
+```
+
+## Rewards
+
+Example Request
+
+<!-- markdown-link-check-disable -->
+
+```bash
+http://localhost:1317/squad/liquidfarming/v1beta1/liquidfarms/1/rewards
+```
+
+Example Response
+
+```json
+{
+  "rewards": [
+    {
+      "denom": "stake",
+      "amount": "1903"
+    }
+  ]
+}
+```
+
+## ExchangeRate
+
+Example Request
+
+<!-- markdown-link-check-disable -->
+
+```bash
+http://localhost:1317/squad/liquidfarming/v1beta1/liquidfarms/1/exchange_rate
+```
+
+Example Response
+
+```json
+{
+  "exchange_rate": {
+    "mint_rate": "1.000000000000000000",
+    "burn_rate": "1.000000000000000000"
+  }
 }
 ```

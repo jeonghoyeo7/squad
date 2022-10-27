@@ -2,7 +2,6 @@ package types_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -24,6 +23,21 @@ func TestParams_Validate(t *testing.T) {
 			"default params",
 			func(params *types.Params) {},
 			"",
+		},
+
+		{
+			"invalid fee collector",
+			func(params *types.Params) {
+				params.FeeCollector = "invalidaddr"
+			},
+			"invalid fee collector address: invalidaddr",
+		},
+		{
+			"invalid rewards auction duration",
+			func(params *types.Params) {
+				params.RewardsAuctionDuration = 0
+			},
+			"rewards auction duration must be positive: 0",
 		},
 		{
 			"invalid pool id in liquid farm",
@@ -60,20 +74,6 @@ func TestParams_Validate(t *testing.T) {
 				}
 			},
 			"invalid liquid farm: fee rate must be 0 or positive value: -1.000000000000000000",
-		},
-		{
-			"invalid rewards auction duration",
-			func(params *types.Params) {
-				params.RewardsAuctionDuration = time.Duration(0)
-			},
-			"invalid rewards auction duration: 0 must be positive value",
-		},
-		{
-			"invalid fee collector",
-			func(params *types.Params) {
-				params.FeeCollector = "invalidaddr"
-			},
-			"invalid fee collector address: invalidaddr",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

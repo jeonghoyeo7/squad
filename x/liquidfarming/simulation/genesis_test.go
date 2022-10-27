@@ -41,6 +41,7 @@ func TestRandomizedGenState(t *testing.T) {
 	var genState types.GenesisState
 	simState.Cdc.MustUnmarshalJSON(simState.GenState[types.ModuleName], &genState)
 
+	expNextAuctionHour := 21 * time.Hour // 75600000000000
 	expLiquidFarms := []types.LiquidFarm{
 		{
 			PoolId:        1,
@@ -49,7 +50,7 @@ func TestRandomizedGenState(t *testing.T) {
 			FeeRate:       sdk.MustNewDecFromStr("0.004728509433899850"),
 		},
 	}
-	require.Equal(t, 21*time.Hour, genState.Params.RewardsAuctionDuration)
+	require.Equal(t, expNextAuctionHour, genState.Params.RewardsAuctionDuration)
 	require.Equal(t, expLiquidFarms, genState.Params.LiquidFarms)
 }
 
