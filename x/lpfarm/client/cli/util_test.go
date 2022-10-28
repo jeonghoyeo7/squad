@@ -19,7 +19,6 @@ func TestParseFarmingPlanProposal(t *testing.T) {
     {
       "description": "New Farming Plan",
       "farming_pool_address": "cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu",
-      "termination_address": "cosmos1mzgucqnfr2l8cj5apvdpllhzt4zeuh2cshz5xu",
       "reward_allocations": [
         {
           "pair_id": "1",

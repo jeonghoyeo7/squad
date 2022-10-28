@@ -500,7 +500,7 @@ func NewApp(
 		app.StakingKeeper,
 		app.DistrKeeper,
 		app.LiquidityKeeper,
-		app.FarmingKeeper,
+		app.LPFarmKeeper,
 		app.SlashingKeeper,
 	)
 
