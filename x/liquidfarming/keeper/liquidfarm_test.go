@@ -4,10 +4,11 @@ import (
 	_ "github.com/stretchr/testify/suite"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	utils "github.com/cosmosquad-labs/squad/v3/types"
 
-	farmtypes "github.com/cosmosquad-labs/squad/v3/x/farm/types"
 	"github.com/cosmosquad-labs/squad/v3/x/liquidfarming/types"
+	lpfarmtypes "github.com/cosmosquad-labs/squad/v3/x/lpfarm/types"
 )
 
 func (s *KeeperTestSuite) TestLiquidFarm_Validation() {
@@ -33,7 +34,7 @@ func (s *KeeperTestSuite) TestLiquidFarm_Validation() {
 			),
 			func(ctx sdk.Context, farmerAddr sdk.AccAddress) {
 				reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
-				position, found := s.app.FarmKeeper.GetPosition(ctx, reserveAddr, pool.PoolCoinDenom)
+				position, found := s.app.LPFarmKeeper.GetPosition(ctx, reserveAddr, pool.PoolCoinDenom)
 				s.Require().True(found)
 				s.Require().Equal(sdk.NewInt(1_000_000_000), position.FarmingAmount)
 			},
@@ -101,7 +102,7 @@ func (s *KeeperTestSuite) TestLiquidFarm() {
 
 	// Check if the reserve account farmed the coin in the farm module
 	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
-	position, found := s.app.FarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	position, found := s.app.LPFarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().Equal(amount1.Add(amount2).Add(amount3), position.FarmingAmount)
 }
@@ -109,7 +110,7 @@ func (s *KeeperTestSuite) TestLiquidFarm() {
 func (s *KeeperTestSuite) TestLiquidFarm_WithFarmPlan() {
 	pair := s.createPairWithLastPrice(helperAddr, "denom1", "denom2", sdk.NewDec(1))
 	pool := s.createPool(helperAddr, pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"))
-	plan := s.createPrivatePlan(helperAddr, []farmtypes.RewardAllocation{
+	plan := s.createPrivatePlan(helperAddr, []lpfarmtypes.RewardAllocation{
 		{
 			PairId:        pool.PairId,
 			RewardsPerDay: utils.ParseCoins("100_000_000stake"),
@@ -134,7 +135,7 @@ func (s *KeeperTestSuite) TestLiquidFarm_WithFarmPlan() {
 
 	// Check if the reserve account farmed the coin in the farm module
 	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
-	position, found := s.app.FarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	position, found := s.app.LPFarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().True(position.FarmingAmount.Equal(sdk.NewInt(600_000_000)))
 
@@ -214,7 +215,7 @@ func (s *KeeperTestSuite) TestLiquidUnfarm_All() {
 	s.nextBlock()
 
 	// Farm amount must be 100
-	position, found := s.app.FarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	position, found := s.app.LPFarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().Equal(amount1, position.FarmingAmount)
 
@@ -226,7 +227,7 @@ func (s *KeeperTestSuite) TestLiquidUnfarm_All() {
 	s.liquidUnfarm(pool.Id, farmerAddr, balance, false)
 
 	// Ensure that the position is deleted from the store
-	position, found = s.app.FarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	position, found = s.app.LPFarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	s.Require().False(found)
 
 	// Ensure the total supply
@@ -258,7 +259,7 @@ func (s *KeeperTestSuite) TestLiquidUnfarm_Partial() {
 	s.liquidFarm(pool.Id, farmerAddr2, sdk.NewCoin(pool.PoolCoinDenom, amount2), true)
 	s.nextBlock()
 
-	position, found := s.app.FarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	position, found := s.app.LPFarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().Equal(amount1.Add(amount2), position.FarmingAmount)
 
@@ -289,7 +290,7 @@ func (s *KeeperTestSuite) TestLiquidUnfarm_Partial() {
 	s.liquidUnfarm(pool.Id, farmerAddr3, s.getBalance(farmerAddr3, lfCoinDenom), false)
 
 	// Ensure the farming amount
-	position, found = s.app.FarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	position, found = s.app.LPFarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().Equal(amount1, position.FarmingAmount)
 
@@ -300,7 +301,7 @@ func (s *KeeperTestSuite) TestLiquidUnfarm_Partial() {
 func (s *KeeperTestSuite) TestLiquidUnfarm_RemoveLiquidFarm() {
 	pair := s.createPairWithLastPrice(helperAddr, "denom1", "denom2", sdk.NewDec(1))
 	pool := s.createPool(helperAddr, pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"))
-	plan := s.createPrivatePlan(helperAddr, []farmtypes.RewardAllocation{
+	plan := s.createPrivatePlan(helperAddr, []lpfarmtypes.RewardAllocation{
 		{
 			PairId:        pool.PairId,
 			RewardsPerDay: utils.ParseCoins("100_000_000stake"),
@@ -314,7 +315,7 @@ func (s *KeeperTestSuite) TestLiquidUnfarm_RemoveLiquidFarm() {
 func (s *KeeperTestSuite) TestLiquidUnfarm_Complex_WithRewards() {
 	pair := s.createPairWithLastPrice(helperAddr, "denom1", "denom2", sdk.NewDec(1))
 	pool := s.createPool(helperAddr, pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"))
-	plan := s.createPrivatePlan(helperAddr, []farmtypes.RewardAllocation{
+	plan := s.createPrivatePlan(helperAddr, []lpfarmtypes.RewardAllocation{
 		{
 			PairId:        pool.PairId,
 			RewardsPerDay: utils.ParseCoins("100_000_000stake"),
@@ -347,7 +348,7 @@ func (s *KeeperTestSuite) TestLiquidUnfarm_Complex_WithRewards() {
 	s.Require().Equal(amount2, s.getBalance(farmerAddr2, lfCoinDenom).Amount)
 
 	// Ensure the amount of farmed coin farmed by the reserve account
-	position, found := s.app.FarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	position, found := s.app.LPFarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().Equal(amount1.Add(amount2), position.FarmingAmount)
 
@@ -429,7 +430,7 @@ func (s *KeeperTestSuite) TestLiquidUnfarmAndWithdraw() {
 	s.nextAuction()
 
 	// Ensure that reserve account farms the coin and its amount
-	farm, found := s.app.FarmKeeper.GetFarm(s.ctx, pool.PoolCoinDenom)
+	farm, found := s.app.LPFarmKeeper.GetFarm(s.ctx, pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().Equal(poolAmt, farm.TotalFarmingAmount)
 
@@ -525,7 +526,7 @@ func (s *KeeperTestSuite) TestDeleteLiquidFarmInParam() {
 func (s *KeeperTestSuite) TestDeleteLiquidFarm_EdgeCase1() {
 	pair := s.createPairWithLastPrice(helperAddr, "denom1", "denom2", sdk.NewDec(1))
 	pool := s.createPool(helperAddr, pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"))
-	plan := s.createPrivatePlan(helperAddr, []farmtypes.RewardAllocation{
+	plan := s.createPrivatePlan(helperAddr, []lpfarmtypes.RewardAllocation{
 		{
 			PairId:        pool.PairId,
 			RewardsPerDay: utils.ParseCoins("100_000_000stake"),
@@ -546,14 +547,14 @@ func (s *KeeperTestSuite) TestDeleteLiquidFarm_EdgeCase1() {
 	s.nextBlock()
 
 	// Ensure that the reserve account farmed the pool coin
-	farm, found := s.app.FarmKeeper.GetPosition(s.ctx, types.LiquidFarmReserveAddress(pool.Id), pool.PoolCoinDenom)
+	farm, found := s.app.LPFarmKeeper.GetPosition(s.ctx, types.LiquidFarmReserveAddress(pool.Id), pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().Equal(farmCoin.Amount, farm.FarmingAmount)
 
 	s.nextAuction()
 
 	// Ensure that the total farming amount is increased
-	farm, found = s.app.FarmKeeper.GetPosition(s.ctx, types.LiquidFarmReserveAddress(pool.Id), pool.PoolCoinDenom)
+	farm, found = s.app.LPFarmKeeper.GetPosition(s.ctx, types.LiquidFarmReserveAddress(pool.Id), pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().True(farm.FarmingAmount.GT(farmCoin.Amount))
 
@@ -595,7 +596,7 @@ func (s *KeeperTestSuite) TestDeleteLiquidFarm_EdgeCase1() {
 func (s *KeeperTestSuite) TestMintRate() {
 	pair := s.createPairWithLastPrice(helperAddr, "denom1", "denom2", sdk.NewDec(1))
 	pool := s.createPool(helperAddr, pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"))
-	plan := s.createPrivatePlan(helperAddr, []farmtypes.RewardAllocation{
+	plan := s.createPrivatePlan(helperAddr, []lpfarmtypes.RewardAllocation{
 		{
 			PairId:        pool.PairId,
 			RewardsPerDay: utils.ParseCoins("100_000_000stake"),
@@ -635,7 +636,7 @@ func (s *KeeperTestSuite) TestMintRate() {
 
 	// Ensure that the farming amount is increased due to auto compounding rewards
 	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
-	position, found := s.app.FarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	position, found := s.app.LPFarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().Equal(amount1.Add(biddingAmt), position.FarmingAmount)
 
@@ -660,7 +661,7 @@ func (s *KeeperTestSuite) TestMintRate() {
 func (s *KeeperTestSuite) TestBurnRate() {
 	pair := s.createPair(s.addr(0), "denom1", "denom2")
 	pool := s.createPool(s.addr(0), pair.Id, utils.ParseCoins("100_000_000denom1, 100_000_000denom2"))
-	plan := s.createPrivatePlan(s.addr(0), []farmtypes.RewardAllocation{
+	plan := s.createPrivatePlan(s.addr(0), []lpfarmtypes.RewardAllocation{
 		{
 			PairId:        pool.PairId,
 			RewardsPerDay: utils.ParseCoins("100_000_000stake"),
@@ -689,7 +690,7 @@ func (s *KeeperTestSuite) TestBurnRate() {
 
 	// Ensure that the reserve account farmed the amount
 	reserveAddr := types.LiquidFarmReserveAddress(pool.Id)
-	position, found := s.app.FarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
+	position, found := s.app.LPFarmKeeper.GetPosition(s.ctx, reserveAddr, pool.PoolCoinDenom)
 	s.Require().True(found)
 	s.Require().Equal(amount1.Add(amount2), position.FarmingAmount)
 
